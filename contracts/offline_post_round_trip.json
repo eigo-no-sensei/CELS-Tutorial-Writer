@@ -1,0 +1,92 @@
+{
+  "contract_id": "offline_post_round_trip",
+  "contract_version": 2,
+  "status": "active",
+  "effective_date": "2026-08-24",
+  "authority": "canonical_offline_post_round_trip_contract",
+  "pipeline": [
+    "archive fixture -> ArchivedTutorial",
+    "raw edit HTML -> EditFormState",
+    "EditFormState -> ValidatedEditFormState",
+    "archive + ValidatedEditFormState -> Revision TutorialFormState",
+    "TutorialFormState -> TutorialPostPayload"
+  ],
+  "fixture_suite": {
+    "fixture_root_env": "GEL_PRIVATE_FIXTURES_DIR",
+    "expected_subdir": "expected/edit_forms",
+    "raw_subdir": "raw/edit_forms",
+    "required_fixture_count": 14,
+    "required_final_fixture_count": 5,
+    "required_absent_source_discrepancy_count": 6
+  },
+  "exact_payload_rule": "For each private revision fixture, the derived POST payload must exactly equal an independently reconstructed expected successful-control map. No extra or missing key is permitted.",
+  "common_rules": {
+    "teacher_id": "historical edit-form teacher selection",
+    "student_uid": "canonical archive identity after edit-form UID equality is proven",
+    "source_timestamp": "revision source tutorial timestamp; the edit-form timestamp must equal the archive identity timestamp",
+    "tutorial_type": "validated edit-form tutorial type matching archive identity",
+    "language": "constant en",
+    "absent": "summary/archive authority; true emits absent=on and false omits the key",
+    "tutorial_date": "validated historical edit-form custom date",
+    "overall_level": "validated edit-form semantic level serialized to canonical GEL spelling; unset emits the overall placeholder",
+    "teacher_comments": "validated historical edit-form textarea"
+  },
+  "transformations": {
+    "skill_level_unset": "emit canonical skill-level placeholder",
+    "assessment_unset": "omit radio-group key",
+    "exam_unset": "emit canonical exam placeholder",
+    "aims": "plain semantic text -> HTML escape -> newline to <br>",
+    "final_reading": "must always be present in a Final payload; unset emits canonical skill-level placeholder"
+  },
+  "historical_anomaly_rule": "The historical edit checkbox may disagree with archive absent. Round-trip expectation uses archive absent and requires the discrepancy to remain provenance only.",
+  "mutation_isolation": {
+    "rule": "Changing one editable semantic value in an otherwise valid state may change only its declared GEL payload field; changing provenance-only fields must change no payload field.",
+    "semantic_to_payload_field": {
+      "absent": "absent",
+      "overall_level": "overall_level",
+      "tutorial_date": "tutorial_date",
+      "teacher_comments": "teacher_comments",
+      "initial_scores.speaking": "initial_speaking",
+      "initial_scores.use_of_english": "initial_use_of_english",
+      "initial_scores.writing": "initial_writing",
+      "initial_scores.listening": "initial_listening",
+      "current_scores.speaking": "speaking",
+      "current_scores.use_of_english": "use_of_english",
+      "current_scores.writing": "writing",
+      "current_scores.listening": "listening",
+      "reading": "reading",
+      "self_assessment.listening": "assessment_listening",
+      "self_assessment.reading": "assessment_reading",
+      "self_assessment.writing": "assessment_writing",
+      "self_assessment.speaking": "assessment_speaking",
+      "self_assessment.vocabulary": "assessment_vocabulary",
+      "self_assessment.grammar": "assessment_grammar",
+      "self_assessment.pronunciation": "assessment_pronunciation",
+      "aims": "aims",
+      "additional_comments": "additional_comments",
+      "exam.intent": "exam_intent",
+      "exam.exam_type": "exam_type",
+      "exam.when": "exam_when"
+    },
+    "provenance_only_paths": [
+      "provenance.overall_level_source_raw",
+      "provenance.aims_source_html",
+      "provenance.absent.edit_form_value",
+      "provenance.absent.discrepancy"
+    ],
+    "revision_non_editable_paths": [
+      "origin",
+      "student_uid",
+      "tutorial_type",
+      "teacher.teacher_id"
+    ]
+  },
+  "network_rule": "This phase grants no HTTP client, session, or GEL write authority. Round-trip/N2a serialization validation is offline only.",
+  "n2a_origin_rules": {
+    "new_datetime": "must be absent from payload; no datetime key may be emitted",
+    "revision_datetime": "must equal source TutorialIdentity.tutorial_ts",
+    "new_teacher": "must equal immutable New-form teacher authority carried by DraftOrigin::New",
+    "revision_teacher": "must equal immutable historical teacher authority carried by DraftOrigin::Revision",
+    "identity": "New has no authoritative created tutorial identity before future server readback"
+  }
+}

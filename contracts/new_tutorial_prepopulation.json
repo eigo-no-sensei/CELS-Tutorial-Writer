@@ -1,0 +1,134 @@
+{
+  "contract_id": "new_tutorial_prepopulation",
+  "contract_version": 2,
+  "status": "active",
+  "effective_date": "2026-09-03",
+  "authority": "canonical_n2c_prepopulation_contract",
+  "phase": "N2c",
+  "evaluation": {
+    "status": "approved_with_amendment",
+    "summary": "Freeze Writer-owned New prepopulation by canonical semantic field identity and role. The latest tutorial is the source when one exists; a target field is copied only when that source type carries the same canonical semantic field/role. Otherwise retain the already-validated New-form default. Never infer provenance from equal values or invent Initial/current cross-role promotion, and do not add network-write or teacher-reassignment authority."
+  },
+  "source_authority": {
+    "prepopulation_source": "latest_tutorial_when_present",
+    "first_ever": "no_prepopulation_source; use validated New-form defaults",
+    "new_form": "structural/default authority for requested type, authenticated teacher, default date, and fields not carried from the latest source",
+    "stale_rule": "If a fresh read shows a different latest tutorial identity before create, the New draft is stale and must be rebuilt/reconciled; never silently rebind."
+  },
+  "global_rules": {
+    "tutorial_date": "always use validated New-form customdate default; never copy historical tutorial_date",
+    "teacher": "always use immutable validated New-form teacher",
+    "tutorial_type": "always use requested/validated New-form type",
+    "source_timestamp": "absent for New",
+    "absent": "copy latest absent when source exists; otherwise New-form default",
+    "overall_level": "copy latest overall level when source exists; otherwise New-form default",
+    "teacher_comments": "copy latest teacher comments when source exists; otherwise New-form default",
+    "semantic_identity": "GEL field IDs and semantic roles are authoritative; equal values in unrelated dimensions never establish provenance"
+  },
+  "level_projection": {
+    "initial_target_role": "copy latest Initial-role value only when the source type carries the same canonical Initial field (Initial/Final); otherwise New-form default",
+    "current_target_role": "copy latest current-role value only when the source type carries the same canonical current field (Standard/Final); otherwise New-form default",
+    "dimensions": [
+      "speaking",
+      "use_of_english",
+      "writing",
+      "listening"
+    ],
+    "reading": "copy latest Reading when the source type carries Reading (Standard/Final); otherwise New-form default; there is no Initial Reading field",
+    "forbidden": "No cross-dimension fallback or inference and no Initial/current cross-role promotion. Equal values never establish provenance."
+  },
+  "type_rules": {
+    "initial": {
+      "initial_scores": "same canonical Initial-role field or New-form default",
+      "exam": "copy only from latest Initial source; otherwise New-form defaults",
+      "not_applicable": [
+        "current_scores",
+        "reading",
+        "self_assessment",
+        "aims",
+        "additional_comments"
+      ]
+    },
+    "standard": {
+      "current_scores": "same canonical current-role field or New-form default",
+      "reading": "reading_rule",
+      "self_assessment": "copy only from latest Standard source; otherwise New-form defaults",
+      "aims": "copy only from latest Standard source; otherwise New-form default",
+      "not_applicable": [
+        "initial_scores",
+        "exam",
+        "additional_comments"
+      ]
+    },
+    "final": {
+      "initial_scores": "same canonical Initial-role field or New-form default",
+      "current_scores": "same canonical current-role field or New-form default",
+      "reading": "reading_rule",
+      "additional_comments": "copy only from latest Final source; otherwise New-form default",
+      "not_applicable": [
+        "self_assessment",
+        "exam",
+        "aims"
+      ]
+    }
+  },
+  "source_vs_derived": {
+    "source": [
+      "optional latest ArchivedTutorial",
+      "ValidatedNewTutorialForm"
+    ],
+    "derived_projection": "field-by-field New defaults according to this contract",
+    "semantic_state": "TutorialFormState with DraftOrigin::New; produced only after projection succeeds",
+    "payload": "later derived by rust_post_mapper; N2c grants no network write"
+  },
+  "failure_semantics": [
+    "Latest source student_uid different from New-form student_uid -> fail closed.",
+    "Latest source identity must be canonical positive when present -> fail closed.",
+    "Validated New-form type/teacher authority remains binding; N2c cannot override either.",
+    "Type-inapplicable state remains empty under semantic validation.",
+    "No cross-dimension, equal-value, or Initial/current cross-role provenance inference is permitted.",
+    "No tutorial_id/tutorial_ts is invented for New.",
+    "No GEL network write authority is introduced."
+  ],
+  "deferred_non_blocking": [
+    "changed-teacher serialization and server reassignment are permanently unsupported in production Writer"
+  ],
+  "canonical_level_fields": {
+    "initial": {
+      "264": "initial_speaking",
+      "265": "initial_use_of_english",
+      "266": "initial_writing",
+      "267": "initial_listening"
+    },
+    "current": {
+      "233": "speaking",
+      "234": "use_of_english",
+      "235": "writing",
+      "236": "listening",
+      "476": "reading"
+    },
+    "final_pairs": [
+      [
+        "264",
+        "233",
+        "speaking"
+      ],
+      [
+        "265",
+        "234",
+        "use_of_english"
+      ],
+      [
+        "266",
+        "235",
+        "writing"
+      ],
+      [
+        "267",
+        "236",
+        "listening"
+      ]
+    ],
+    "rule": "Use these semantic identities only; do not infer cross-skill provenance from equal values."
+  }
+}

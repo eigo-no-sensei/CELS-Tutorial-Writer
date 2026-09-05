@@ -1,0 +1,66 @@
+{
+  "contract_id": "known_source_anomalies",
+  "contract_version": 1,
+  "authority": "canonical_executable_contract",
+  "anomalies": [
+    {
+      "id": "ANOM-ABSENT-001",
+      "status": "active",
+      "scope": "historical_revision",
+      "field": "absent",
+      "observation": "Historical edit form can return checked=true while summary/archive says present. In the 14-fixture audit six such false-positive edit states were observed and no false-negative edit state was observed.",
+      "authority_rule": "For historical revision, summary/archive absent is authoritative; retain edit checkbox value only as provenance/discrepancy evidence.",
+      "failure_rule": "A new mismatch shape is not automatically accepted; strict fixture gate must fail until reviewed."
+    },
+    {
+      "id": "ANOM-COLLISION-001",
+      "status": "active",
+      "scope": "reconciliation",
+      "field": "tutorial_identity",
+      "observation": "Multiple canonical tutorial IDs can share the same student_uid, tutorial_ts and tutorial_type.",
+      "authority_rule": "tutorial_id from tutorial-list API remains canonical identity; collision candidate source states remain group-owned and are never positionally assigned by list order.",
+      "failure_rule": "Divergent, incomplete, or legacy ambiguous-unknown collision state must not be treated as proven per-ID ownership and must block revision-by-ID."
+    },
+    {
+      "id": "ANOM-COLLISION-002",
+      "status": "active",
+      "scope": "reconciliation",
+      "field": "summary_state",
+      "observation": "One observed same-timestamp collision has two distinct summary states (present vs absent) while edit/print timestamp route resolves to only the absent state.",
+      "authority_rule": "Preserve all API IDs and all source states separately. Timestamp-only route state is group evidence, not a discriminator. Identical candidate states may be used only through shared-identical authority; divergent association remains ambiguous.",
+      "failure_rule": "Revision-by-ID of a divergent ambiguous collision fails closed until a future proven discriminator changes the governed association authority."
+    },
+    {
+      "id": "ANOM-AIMS-001",
+      "status": "active",
+      "scope": "edit_form",
+      "field": "aims",
+      "observation": "Historical Standard edit form can have blank hidden input trecs-79 while visible #tcinput contenteditable contains the historical aims.",
+      "authority_rule": "Historical semantic Aims text comes from #tcinput contenteditable; retain source editor HTML and hidden-input state only as provenance/raw evidence, never as alternate editable values."
+    },
+    {
+      "id": "ANOM-BLANK-001",
+      "status": "active",
+      "scope": "archive_ingestion",
+      "field": "summary_blank",
+      "observation": "Print fallback can render placeholders such as none for a field that is explicitly blank in summary.",
+      "authority_rule": "Summary field presence is authoritative even when blank; print may supplement only a missing summary key."
+    },
+    {
+      "id": "ANOM-LEVEL-001",
+      "status": "active",
+      "scope": "normalization",
+      "field": "overall_level",
+      "observation": "GEL overall-level option uses Ao: beginner while skill-level selects use A0.",
+      "authority_rule": "Normalize Ao to semantic A0; retain the literal overall-level GEL value only as source/provenance evidence, never as an editable or POST fallback value."
+    },
+    {
+      "id": "ANOM-ASSESSMENT-001",
+      "status": "active",
+      "scope": "archive_ingestion",
+      "field": "assessment",
+      "observation": "Summary renders seven assessment values as one composite row and may contain presentation artefacts; edit form exposes seven structured radio groups.",
+      "authority_rule": "For exact form reconstruction prefer structured edit-form radio values; archive may parse summary composite when edit evidence is unavailable."
+    }
+  ]
+}

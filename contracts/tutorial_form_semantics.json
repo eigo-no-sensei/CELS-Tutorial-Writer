@@ -1,0 +1,224 @@
+{
+  "contract_id": "tutorial_form_semantics",
+  "contract_version": 7,
+  "status": "active",
+  "effective_date": "2026-09-03",
+  "authority": "canonical_semantic_form_contract",
+  "draft_origins": {
+    "revision": {
+      "required_source_identity": true,
+      "meaning": "Reconstructs one historical GEL tutorial as an editable draft. Submission would create a new GEL tutorial; the source identity remains provenance only.",
+      "teacher_authority": "historical_revision_teacher",
+      "post_timestamp_rule": "require_exact_source_timestamp",
+      "authoritative_identity_before_submit": true
+    },
+    "new": {
+      "required_source_identity": false,
+      "prepopulation_source_optional": true,
+      "meaning": "Represents a new tutorial draft. A prepopulation source, if present, is provenance and is never the identity of the future created tutorial.",
+      "post_source_timestamp_rule": "omit_datetime_entirely",
+      "prepopulation_source_rule": "When a prior tutorial exists it must be the latest tutorial; for a first-ever tutorial the source is absent.",
+      "teacher_authority": "opaque ValidatedNewFormTeacher derived only from the validated N2b hidden tid source control",
+      "authoritative_identity_before_submit": false,
+      "identity_resolution_rule": "Never predict tutorial_id/tutorial_ts; a future successful create resolves identity only by fresh GEL readback."
+    }
+  },
+  "editable_source_of_truth": {
+    "overall_level": "semantic_cefr_level_only",
+    "aims": "plain_text_only",
+    "absent_revision": "summary_archive_authoritative",
+    "reading": "semantic_cefr_level_only"
+  },
+  "provenance_only": {
+    "overall_level_source_raw": "Retain the literal GEL select value for diagnostics; never use it as POST fallback.",
+    "aims_source_html": "Retain historical #tcinput inner HTML for fidelity; never use it as the editable Aims value or POST fallback.",
+    "edit_form_absent": "Retain the historical edit checkbox value and discrepancy marker; never override summary/archive absent on revision construction."
+  },
+  "type_invariants": {
+    "initial": {
+      "must_be_empty": [
+        "current_scores",
+        "reading",
+        "self_assessment",
+        "aims",
+        "additional_comments"
+      ]
+    },
+    "standard": {
+      "must_be_empty": [
+        "initial_scores",
+        "exam",
+        "additional_comments"
+      ]
+    },
+    "final": {
+      "must_be_empty": [
+        "self_assessment",
+        "exam",
+        "aims"
+      ]
+    }
+  },
+  "post_serialization": {
+    "aims_text_encoding": "html_escape_then_newlines_to_br",
+    "escaped_characters": {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      "\"": "&quot;",
+      "'": "&#39;"
+    },
+    "provenance_must_not_drive_payload": true,
+    "semantic_validation_required_before_mapping": true,
+    "new_datetime": "key_absent",
+    "revision_datetime": "exact_source_timestamp",
+    "teacher_reassignment": "forbidden_by_writer_semantics"
+  },
+  "failure_semantics": [
+    "Revision construction requires historical state authority permitted by the reconciliation_authority contract.",
+    "Revision origin source student_uid and tutorial_type must match the semantic draft.",
+    "A New draft prepopulation source, when present, must belong to the same student and is provenance only; it is not the future tutorial identity.",
+    "Type-inapplicable semantic values fail validation rather than being silently omitted.",
+    "New submission containing datetime is a contract violation; blank/zero/source timestamps are not substitutes for omission.",
+    "Revision submission missing datetime or using a timestamp different from its source identity is a contract violation.",
+    "New teacher must equal the immutable validated New-form teacher authority; Revision teacher must equal the immutable historical teacher authority.",
+    "No Writer/public API may mutate teacher attribution during N2.",
+    "No authoritative GEL identity may be fabricated for New before fresh server readback.",
+    "No semantic field provenance may be inferred from equality with an unrelated field.",
+    "Network write authority is granted exclusively through live_submission_transport under Phase W2.",
+    "UI1c typed edits to read-only, hidden-preserved or inapplicable fields fail with structured FIELD_NOT_APPLICABLE and do not mutate the draft.",
+    "New UI1c CEFR edits lower than a populated same-role latest-source baseline fail with structured LEVEL_REGRESSION; Revision has no later-tutorial regression comparison."
+  ],
+  "revision_state_authority": {
+    "contract_ref": "reconciliation_authority",
+    "requires_permitted_historical_state_authority": true,
+    "rule": "Revision construction must fail closed before semantic state creation when the historical state authority does not permit revision-by-ID."
+  },
+  "teacher_authority": {
+    "new": "Teacher ID is immutable submission authority derived from the validated fetched New form; Writer/UI must not expose reassignment.",
+    "revision": "Teacher ID is immutable submission authority from the historical Revision form/tutorial; ordinary revision must preserve it.",
+    "reassignment_product_status": "unsupported_permanently_retired",
+    "gel_source_capability": "Existing GEL Revision forms may expose an editable teacher selector, but this does not grant Writer mutation authority."
+  },
+  "identity_lifecycle": {
+    "new_before_post": {
+      "tutorial_id": "absent",
+      "tutorial_ts": "absent"
+    },
+    "new_after_future_post_before_readback": {
+      "tutorial_id": "not_authoritative",
+      "tutorial_ts": "not_authoritative"
+    },
+    "new_after_fresh_readback": {
+      "tutorial_id": "server_assigned",
+      "tutorial_ts": "server_assigned"
+    },
+    "revision": {
+      "tutorial_id": "existing_canonical_identity",
+      "tutorial_ts": "existing_source_timestamp"
+    },
+    "prediction_forbidden": [
+      "current_time",
+      "customdate",
+      "prepopulation_source_timestamp",
+      "timestamp_arithmetic"
+    ]
+  },
+  "state_authority": {
+    "source_state": {
+      "new": [
+        "optional latest prepopulation TutorialIdentity",
+        "ValidatedNewTutorialForm fetched and validated under current authenticated session",
+        "opaque ValidatedNewFormTeacher derived from hidden tid",
+        "requested tutorial type"
+      ],
+      "revision": [
+        "existing TutorialIdentity",
+        "historical teacher",
+        "historical semantic state"
+      ]
+    },
+    "editable_derived_state": [
+      "tutorial_date",
+      "semantic level/assessment/text fields permitted by tutorial type"
+    ],
+    "derived_submission_state": "GEL successful-control payload produced only by rust_post_mapper",
+    "permitted_writers": {
+      "new_form_source_state": "rust_new_tutorial_form_parser only",
+      "editable_semantic_fields": "rust_semantic_form for initial construction; future Writer draft editor/UI for subsequent user edits",
+      "gel_payload": "rust_post_mapper only"
+    }
+  },
+  "invalidation": {
+    "new_prepopulation_source_changed": "If a fresh read shows a different latest tutorial than the source snapshot, mark the New draft stale; never silently reinterpret it against the newer source.",
+    "authentication_lost": "A fetched New-form teacher authority is invalid after session loss; refetch/revalidate the New form before any future create.",
+    "revision_source_changed": "Revision conflict/staleness handling must not silently alter source identity or historical teacher."
+  },
+  "canonical_level_field_identity": {
+    "initial": {
+      "264": "initial_speaking",
+      "265": "initial_use_of_english",
+      "266": "initial_writing",
+      "267": "initial_listening"
+    },
+    "current": {
+      "233": "speaking",
+      "234": "use_of_english",
+      "235": "writing",
+      "236": "listening",
+      "476": "reading"
+    },
+    "final_pairs": [
+      [
+        "264",
+        "233",
+        "speaking"
+      ],
+      [
+        "265",
+        "234",
+        "use_of_english"
+      ],
+      [
+        "266",
+        "235",
+        "writing"
+      ],
+      [
+        "267",
+        "236",
+        "listening"
+      ]
+    ],
+    "rule": "Field identity/semantic role is authoritative. Equal CEFR values in unrelated fields never establish cross-field provenance."
+  },
+  "new_prepopulation": {
+    "contract_ref": "new_tutorial_prepopulation",
+    "source": "latest tutorial when present; first-ever has no source",
+    "common_copy": [
+      "absent",
+      "overall_level",
+      "teacher_comments"
+    ],
+    "date_rule": "validated New-form default, never historical date",
+    "teacher_rule": "validated New-form teacher, immutable",
+    "skill_rule": "same canonical semantic role only; Initial-role fields copy only from Initial/Final sources, current-role fields copy only from Standard/Final sources, otherwise validated New-form defaults",
+    "reading_rule": "copy source Reading when present, else validated New-form default",
+    "type_specific": {
+      "initial": "copy exam only from Initial source, else New-form defaults",
+      "standard": "copy self-assessment and Aims only from Standard source, else New-form defaults",
+      "final": "copy additional comments only from Final source, else New-form default"
+    },
+    "cross_dimension_inference": false
+  },
+  "ui1c0_semantic_editor": {
+    "contract_ref": "ui1c_semantic_forms",
+    "field_visibility_authority": "Rust TutorialSemanticField + tutorial_field_disposition",
+    "structured_edit_failure": "DraftValidationIssue",
+    "initial_course_type": "Rust InitialCourseType adapter over Initial teacher_comments storage; unknown nonblank text preserved until explicit SetInitialCourseType replacement",
+    "hidden_initial_exam_policy": "preserved unchanged; no UI1c typed edit variant",
+    "new_level_regression": "same canonical field-role only using the N2c latest-source snapshot baseline stored on DraftOrigin::New",
+    "aims_assistance": "separate ui1c_aims_assistance contract; currently absent_not_curated",
+    "network_write_authority": false
+  }
+}

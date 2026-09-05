@@ -1,0 +1,13 @@
+{
+  "contract_id": "ui1c_aims_assistance",
+  "contract_version": 1,
+  "status": "absent_not_curated",
+  "effective_date": "2026-08-28",
+  "available": false,
+  "version": null,
+  "items": [],
+  "authority": "Writer assistance content only; never tutorial semantic authority.",
+  "activation_rule": "A future preset UI may be enabled only in the same change that replaces this contract with an explicitly curated/versioned non-empty item set and updates tests/docs.",
+  "current_ui_rule": "Direct Aims editing may ship in UI1c; preset/hotlist controls must remain absent while available=false.",
+  "write_rule": "When eventually enabled, choosing an item may append plain text only through SetAims."
+}

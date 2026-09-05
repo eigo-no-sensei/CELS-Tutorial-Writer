@@ -1,0 +1,502 @@
+{
+  "feature": {
+    "name": "Delete tutorial from student view",
+    "status": "planned",
+    "objective": "Allow a user to delete an individual tutorial from the student view after reviewing the populated data applicable to that tutorial's type."
+  },
+  "scope": {
+    "included": [
+      "A Delete button for each tutorial in the student view.",
+      "A read-only confirmation dialog before deletion.",
+      "Type-aware display of the tutorial's existing data.",
+      "Mandatory display of tutorial type and Date of tutorial.",
+      "Omission of all empty fields and empty sections.",
+      "Compact, space-saving presentation.",
+      "Hover and keyboard-accessible full-text overlays for truncated long comments.",
+      "Dedicated frontend and backend deletion flow.",
+      "Post-deletion refresh and archive reconciliation."
+    ],
+    "excluded": [
+      "Inventing new tutorial fields.",
+      "Displaying fields that are not applicable to the tutorial type.",
+      "Displaying empty placeholders.",
+      "Editing tutorial data from the delete confirmation dialog.",
+      "Deleting a tutorial merely by removing its row from the frontend."
+    ]
+  },
+  "user_interface": {
+    "student_view": {
+      "entry_point": {
+        "location": "Each tutorial row",
+        "control": "Delete button"
+      },
+      "button_behaviour": {
+        "click": "Start the tutorial deletion confirmation flow.",
+        "must_not": [
+          "Trigger the tutorial revision flow.",
+          "Trigger row double-click behaviour.",
+          "Modify tutorial data before deletion is confirmed."
+        ]
+      },
+      "busy_state": {
+        "during_deletion": "The Delete control for the tutorial being deleted is disabled while the deletion request is in progress."
+      }
+    }
+  },
+  "interaction_flow": {
+    "steps": [
+      {
+        "step": 1,
+        "action": "User clicks Delete for a tutorial."
+      },
+      {
+        "step": 2,
+        "action": "Application identifies the selected tutorial and resolves the complete existing tutorial data required for confirmation."
+      },
+      {
+        "step": 3,
+        "action": "Application determines the authoritative tutorial type."
+      },
+      {
+        "step": 4,
+        "action": "Application projects the existing data according to the semantic contract for that tutorial type."
+      },
+      {
+        "step": 5,
+        "action": "Application removes empty fields and empty sections from the confirmation view."
+      },
+      {
+        "step": 6,
+        "action": "Read-only delete confirmation dialog is displayed."
+      },
+      {
+        "step": 7,
+        "action": "User reviews the tutorial data."
+      },
+      {
+        "step": 8,
+        "action": "User either cancels or explicitly confirms deletion."
+      },
+      {
+        "step": 9,
+        "action": "On confirmation, the dedicated tutorial deletion operation is performed."
+      },
+      {
+        "step": 10,
+        "action": "On successful deletion, tutorial data is refreshed and archive/source presence is reconciled."
+      }
+    ]
+  },
+  "confirmation_dialog": {
+    "purpose": "Allow the user to review the actual populated data for the selected tutorial before permanently deleting it.",
+    "mode": "read-only",
+    "title": "Delete tutorial",
+    "layout": {
+      "strategy": "Compact and space-saving.",
+      "scrolling": "Enabled only when the populated content exceeds the available dialog height.",
+      "short_scalar_fields": "Dense grids or compact metadata rows.",
+      "comparison_data": "Compact comparison grid where the tutorial type contains related initial and final values.",
+      "long_text": "Compact allocated display area with overflow handling.",
+      "must_not": [
+        "Use a long single-column form for all fields.",
+        "Reserve space for empty fields.",
+        "Reserve space for empty sections."
+      ]
+    },
+    "mandatory_identity_fields": {
+      "tutorial_type": {
+        "display": "always",
+        "reason": "Identifies the tutorial category being deleted."
+      },
+      "date_of_tutorial": {
+        "display": "always",
+        "priority": "essential",
+        "reason": "Essential tutorial identity and deletion confirmation context."
+      }
+    },
+    "footer": {
+      "warning": "This tutorial will be permanently deleted.",
+      "actions": [
+        {
+          "label": "Cancel",
+          "effect": "Close the dialog and perform no deletion."
+        },
+        {
+          "label": "Delete tutorial",
+          "effect": "Perform the dedicated deletion operation."
+        }
+      ]
+    }
+  },
+  "field_visibility_policy": {
+    "principle": "Display only populated fields that are applicable to the selected tutorial type.",
+    "populated_applicable_field": "Display.",
+    "empty_field": "Omit completely.",
+    "empty_section": "Omit completely.",
+    "not_applicable_field": "Do not display.",
+    "prohibited_empty_presentations": [
+      "N/A placeholders.",
+      "Blank value boxes.",
+      "Empty form controls.",
+      "Empty rows.",
+      "Empty section headings.",
+      "Reserved whitespace for absent fields."
+    ],
+    "date_of_tutorial_exception": {
+      "rule": "Date of tutorial is essential confirmation context and must always be displayed as part of tutorial identity."
+    }
+  },
+  "tutorial_types": {
+    "standard": {
+      "identity_fields": [
+        "tutorial_type",
+        "date_of_tutorial"
+      ],
+      "common_fields": [
+        "overall_level",
+        "teacher",
+        "absent"
+      ],
+      "current_levels": [
+        "speaking",
+        "use_of_english",
+        "writing",
+        "listening",
+        "reading"
+      ],
+      "assessment": [
+        "listening",
+        "reading",
+        "writing",
+        "speaking",
+        "vocabulary",
+        "grammar",
+        "pronunciation"
+      ],
+      "long_text_fields": [
+        "aims",
+        "teacher_comments"
+      ],
+      "layout": {
+        "identity": "Compact header containing tutorial type and Date of tutorial.",
+        "common_fields": "Compact metadata row or dense grid.",
+        "current_levels": "Dense multi-column grid containing only populated values.",
+        "assessment": "Dense multi-column grid containing only populated values.",
+        "long_text_fields": "Full-width compact sections only when populated."
+      }
+    },
+    "initial": {
+      "identity_fields": [
+        "tutorial_type",
+        "date_of_tutorial"
+      ],
+      "common_fields": [
+        "overall_level",
+        "teacher"
+      ],
+      "initial_levels": [
+        "speaking",
+        "use_of_english",
+        "writing",
+        "listening"
+      ],
+      "course_fields": [
+        "course_type"
+      ],
+      "layout": {
+        "identity": "Compact header containing tutorial type and Date of tutorial.",
+        "common_fields": "Compact metadata row or dense grid containing only populated values.",
+        "initial_levels": "Dense multi-column grid containing only populated values.",
+        "course_fields": "Compact value display only when populated."
+      },
+      "historical_data_policy": {
+        "rule": "Do not automatically display preserved historical fields that are outside the normal Initial tutorial semantic contract.",
+        "reason": "The delete confirmation dialog displays the applicable semantic fields for the tutorial type rather than every possible stored historical field."
+      }
+    },
+    "final": {
+      "identity_fields": [
+        "tutorial_type",
+        "date_of_tutorial"
+      ],
+      "common_fields": [
+        "overall_level",
+        "teacher"
+      ],
+      "level_comparison": {
+        "layout": "Compact Initial versus Final comparison grid.",
+        "columns": [
+          "initial",
+          "final"
+        ],
+        "initial_levels": [
+          "speaking",
+          "use_of_english",
+          "writing",
+          "listening"
+        ],
+        "final_levels": [
+          "speaking",
+          "use_of_english",
+          "writing",
+          "listening",
+          "reading"
+        ],
+        "row_visibility_rule": "Display a comparison row only when at least one applicable value in that row is populated."
+      },
+      "long_text_fields": [
+        "teacher_comments",
+        "additional_comments"
+      ],
+      "layout": {
+        "identity": "Compact header containing tutorial type and Date of tutorial.",
+        "common_fields": "Compact metadata row or dense grid containing only populated values.",
+        "levels": "Compact Initial versus Final comparison grid.",
+        "long_text_fields": "Full-width compact sections only when populated."
+      }
+    }
+  },
+  "long_text_overflow": {
+    "applies_to": [
+      "aims",
+      "teacher_comments",
+      "additional_comments"
+    ],
+    "empty_content": {
+      "rule": "Omit the field completely.",
+      "hover_target": "Do not create one."
+    },
+    "content_that_fits": {
+      "display": "Show normally within the allocated compact area.",
+      "overlay": "Not required."
+    },
+    "content_that_does_not_fit": {
+      "display": "Show truncated content within the allocated compact area.",
+      "trigger": [
+        "Mouseover",
+        "Keyboard focus"
+      ],
+      "overlay": {
+        "type": "Floating overlay or popover.",
+        "content": "The complete untruncated text.",
+        "layering": "Appear above the surrounding dialog content and other fields.",
+        "layout_effect": "Must not reflow, resize, or permanently expand the dialog.",
+        "dismissal": [
+          "Mouse leaves the relevant interaction area.",
+          "Keyboard focus leaves the relevant interaction area.",
+          "Dialog is closed."
+        ]
+      }
+    },
+    "space_saving_rule": "Long comments must not permanently occupy additional dialog space solely because their full content is longer than the compact display area."
+  },
+  "data_rules": {
+    "source_of_dialog_content": "The complete existing tutorial record.",
+    "projection_rule": "Interpret and display the record according to the existing semantic contract for the authoritative tutorial type.",
+    "do_not_invent_fields": true,
+    "display_scope": "Only fields applicable to the tutorial type.",
+    "displayed_field_rule": "Only populated applicable fields are displayed.",
+    "authoritative_identity": "Deletion must be based on authoritative tutorial identity rather than abbreviated row data alone."
+  },
+  "application_state": {
+    "states": [
+      "idle",
+      "tutorial_selected_for_deletion",
+      "loading_tutorial_details",
+      "delete_confirmation_open",
+      "deleting",
+      "delete_succeeded",
+      "delete_failed"
+    ],
+    "state_data": {
+      "tutorial_pending_deletion": "Selected tutorial awaiting confirmation.",
+      "complete_tutorial_details": "Existing tutorial data used by the confirmation dialog.",
+      "deleting_tutorial_id": "Tutorial currently undergoing deletion.",
+      "delete_error": "Failure information when deletion does not succeed."
+    }
+  },
+  "success_behaviour": {
+    "steps": [
+      "Complete the authoritative tutorial deletion operation.",
+      "Close the confirmation dialog.",
+      "Clear pending deletion state.",
+      "Refresh or reconcile the student's tutorial list.",
+      "Ensure the deleted tutorial is no longer displayed as an active source tutorial."
+    ]
+  },
+  "failure_behaviour": {
+    "steps": [
+      "Do not incorrectly remove the tutorial from the student view.",
+      "Clear or restore transient deletion state as appropriate.",
+      "Return the interface to a stable state.",
+      "Display the deletion error."
+    ]
+  },
+  "frontend": {
+    "student_overview": {
+      "change": "Add an Actions column or equivalent per-row control containing the Delete button.",
+      "event_isolation": "Delete interaction must stop propagation to revision-opening row interactions."
+    },
+    "api_layer": {
+      "change": "Add a narrowly scoped typed delete tutorial operation.",
+      "principle": "Do not expose a generic arbitrary mutation mechanism."
+    },
+    "dialog_component": {
+      "responsibilities": [
+        "Render tutorial type and Date of tutorial.",
+        "Project fields according to tutorial type.",
+        "Omit empty fields.",
+        "Omit empty sections.",
+        "Use dense grids for compact scalar data.",
+        "Provide long-text overflow overlays.",
+        "Require explicit confirmation."
+      ]
+    }
+  },
+  "backend": {
+    "operation": "Dedicated tutorial deletion command.",
+    "requirements": [
+      "Authenticate and validate the active session.",
+      "Validate tutorial identity.",
+      "Resolve the authoritative tutorial record where required.",
+      "Reject invalid or ambiguous tutorial identities.",
+      "Perform only the specific tutorial deletion operation.",
+      "Return a typed success or failure result.",
+      "Refresh or reconcile local archive state after successful deletion."
+    ],
+    "must_not": [
+      "Accept deletion authority solely from abbreviated student-view row content.",
+      "Implement deletion solely as a frontend row removal.",
+      "Expose an unrestricted generic mutation endpoint."
+    ]
+  },
+  "archive_consistency": {
+    "principle": "Deleting a live tutorial must preserve the application's existing archive and source-presence semantics.",
+    "post_delete_sequence": [
+      "Perform the live deletion.",
+      "Refresh or reconcile tutorial data.",
+      "Apply the existing archive and source-presence model.",
+      "Update the student view from reconciled data."
+    ]
+  },
+  "safety_requirements": {
+    "reject": [
+      "Unauthenticated deletion.",
+      "Invalid tutorial identities.",
+      "Ambiguous tutorial identities.",
+      "Deletion requests that cannot establish the required authoritative target."
+    ],
+    "confirmation": "Deletion requires explicit user confirmation after the type-aware data review dialog has been displayed."
+  },
+  "testing": {
+    "frontend": [
+      "Each tutorial row provides a Delete button.",
+      "Clicking Delete does not trigger tutorial revision.",
+      "Cancelling deletion leaves the tutorial unchanged and visible.",
+      "Delete confirmation displays tutorial type.",
+      "Delete confirmation displays Date of tutorial.",
+      "Only fields applicable to the tutorial type are displayed.",
+      "Every empty applicable field is omitted.",
+      "Every empty section is omitted.",
+      "No N/A or empty placeholders are displayed.",
+      "Standard tutorial levels and assessments render compactly.",
+      "Initial tutorial fields render according to the Initial semantic contract.",
+      "Final tutorial levels render as a compact Initial versus Final comparison.",
+      "Empty Final comparison rows are omitted.",
+      "Populated long-text fields are displayed.",
+      "Empty long-text fields are omitted.",
+      "Long text that fits does not create an unnecessary overlay.",
+      "Long text that does not fit is truncated in its compact area.",
+      "Mouseover reveals the complete long text in an overlay.",
+      "Keyboard focus can reveal the complete long text.",
+      "The long-text overlay appears above surrounding fields.",
+      "The long-text overlay does not reflow or resize the dialog.",
+      "Successful deletion refreshes the student tutorial view.",
+      "Failed deletion does not incorrectly remove the tutorial from the view."
+    ],
+    "backend": [
+      "Unauthenticated deletion is rejected.",
+      "Invalid tutorial identities are rejected.",
+      "Ambiguous tutorial identities are rejected.",
+      "Only the dedicated deletion pathway performs tutorial deletion.",
+      "Successful deletion returns a typed success result.",
+      "Failed deletion returns a typed failure result.",
+      "Successful deletion triggers the required archive/source reconciliation."
+    ]
+  },
+  "implementation_order": [
+    {
+      "order": 1,
+      "task": "Define the type-aware confirmation data projection using the existing tutorial semantic contracts."
+    },
+    {
+      "order": 2,
+      "task": "Implement complete tutorial detail resolution for the selected tutorial when the student list does not already contain all required populated data."
+    },
+    {
+      "order": 3,
+      "task": "Implement reusable field filtering so empty fields and empty sections are omitted."
+    },
+    {
+      "order": 4,
+      "task": "Implement the compact read-only confirmation dialog with mandatory tutorial type and Date of tutorial."
+    },
+    {
+      "order": 5,
+      "task": "Implement dense scalar grids and the Final Initial-versus-Final comparison layout."
+    },
+    {
+      "order": 6,
+      "task": "Implement compact long-text display and full-content overlay behaviour."
+    },
+    {
+      "order": 7,
+      "task": "Add the Delete button to each tutorial row without interfering with revision behaviour."
+    },
+    {
+      "order": 8,
+      "task": "Add the narrowly scoped frontend deletion API operation."
+    },
+    {
+      "order": 9,
+      "task": "Implement the dedicated backend deletion command and validation."
+    },
+    {
+      "order": 10,
+      "task": "Implement post-delete refresh and archive reconciliation."
+    },
+    {
+      "order": 11,
+      "task": "Update capability contracts and safety rules that currently prohibit tutorial deletion."
+    },
+    {
+      "order": 12,
+      "task": "Add frontend, backend, and end-to-end tests."
+    }
+  ],
+  "acceptance_criteria": [
+    "Every tutorial in the student view has a Delete button.",
+    "The Delete button does not trigger tutorial revision behaviour.",
+    "Deletion opens a read-only confirmation dialog.",
+    "The dialog always displays tutorial type.",
+    "The dialog always displays Date of tutorial.",
+    "The dialog displays only fields applicable to the selected tutorial type.",
+    "No new or invented fields are introduced.",
+    "Every empty field is omitted completely.",
+    "Every empty section is omitted completely.",
+    "No N/A placeholders, blank value boxes, or empty rows are displayed.",
+    "Standard tutorials use compact grids for populated level and assessment data.",
+    "Initial tutorials display only their applicable semantic fields.",
+    "Final tutorials use a compact Initial versus Final comparison where populated values exist.",
+    "Long-text fields are omitted when empty.",
+    "Long-text fields that fit are displayed normally.",
+    "Long-text fields that do not fit are displayed compactly and can reveal their complete content through mouseover.",
+    "The full long-text overlay appears above other fields without expanding or reflowing the dialog.",
+    "The full long-text overlay is accessible by keyboard focus.",
+    "Deletion requires explicit confirmation.",
+    "Successful deletion refreshes the student tutorial view.",
+    "Failed deletion does not incorrectly remove the tutorial from the UI.",
+    "Backend deletion validates authentication and authoritative tutorial identity.",
+    "Successful deletion reconciles live tutorial data with the existing archive/source-presence model."
+  ]
+}

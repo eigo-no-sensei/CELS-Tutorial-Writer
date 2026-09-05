@@ -1,0 +1,399 @@
+{
+  "plan_id": "UI1c-semantic-forms",
+  "plan_version": "1.5.0",
+  "date": "2026-08-31",
+  "status": "ui1c5_implemented_pending_strict_acceptance",
+  "phase": "UI1c",
+  "title": "Complete governed Initial / Standard / Final semantic forms",
+  "implementation_authorization": {
+    "decision": "UI1c5 IMPLEMENTED AFTER STRICT GRI ACCEPTANCE; ACCEPTANCE OF CHANGED SOURCE NOT YET CLAIMED",
+    "gri_prerequisite": {
+      "status": "complete_strictly_accepted",
+      "result": "PASS=39 SKIP=0 FAIL=0; TARGET STATUS: STRICT_ACCEPTED; RELEASE GATE: PASS",
+      "date": "2026-08-31"
+    },
+    "ui1d_may_begin_when": [
+      "strict ui1c5 acceptance is recorded for the current changed source identity"
+    ],
+    "rationale": "UI1c5 adds integrated cross-form validation/release evidence only. It adds no GEL tutorial write, archive writer, teacher reassignment, persistence, or frontend semantic authority."
+  },
+  "authority_order": [
+    "executable schema/contracts/tests",
+    "active component specs",
+    "master/cross-component specs",
+    "operational docs",
+    "ADRs/history"
+  ],
+  "dependencies": [
+    "strictly accepted ui1-initial baseline",
+    "selected A+D hybrid layout contract v3 or later",
+    "C1/C2 semantic edit/revision authority",
+    "D2 read-only ArchiveRepository",
+    "N1 GelSession",
+    "N2b validated New form",
+    "N2c New prepopulation projection",
+    "GRI0-GRI2 reproducible release controls before UI1c1"
+  ],
+  "non_goals": [
+    "No GEL tutorial submit/create/update/delete capability.",
+    "No additional archive mutation capability; UI1c5 adds no new archive command and the pre-existing A2 ui1_sync_archive delegation remains the sole governed local archive synchronization trigger.",
+    "No persistent tutorial drafts.",
+    "No teacher reassignment.",
+    "No Harper runtime or dictionary persistence; those remain UI1d.",
+    "No native close interception, stale-source reconciliation workflow, or full mocked E2E; those remain UI1e.",
+    "No frontend-owned GEL field IDs, CEFR ordering, assessment/exam domains, or validation rules."
+  ],
+  "global_invariants": [
+    "React remains presentation-only; every semantic mutation traverses TutorialDraftEdit or a narrower Rust-owned replacement contract.",
+    "Candidate-before-commit remains mandatory: failed edits do not mutate the active draft.",
+    "New tutorial type is chosen from the selected-student command surface and causes authoritative reconstruction; there is no raw SetTutorialType edit.",
+    "Revision tutorial type, teacher attribution, source identity, and historical timestamp remain immutable.",
+    "All option domains rendered by React are projected from Rust safe view models; TypeScript does not duplicate canonical GEL value sets.",
+    "Field visibility is controlled by an executable tutorial-type applicability matrix, not ad-hoc React conditionals alone.",
+    "Hidden but applicable legacy fields must be deliberately PRESERVED_UNCHANGED; they may not be reset by unrelated UI edits.",
+    "Level regression protection compares only the same canonical semantic role and never infers equivalence across Initial/current roles or across skills.",
+    "UI1c1 may not begin from an unlocked dependency graph; GRI strict acceptance is the implementation authorization boundary.",
+    "Portable CI evidence cannot replace private/target-host strict acceptance and cannot automatically promote a candidate.",
+    "Accepted release packaging revalidates exact source identity and performs no build after strict acceptance."
+  ],
+  "amendments_required_before_or_during_UI1c0": [
+    {
+      "id": "UI1c-A1-initial-course-type",
+      "problem": "Target Initial UI requires HSP/G21/G15 course type stored in teacher comments, but current semantic state exposes teacher_comments only and does not give course type independent authority.",
+      "required_resolution": "Define a Rust semantic InitialCourseType representation and explicit lossless mapping to/from Initial teacher_comments. Recognized exact values HSP/G21/G15 may become editable; unrecognized nonblank legacy text must be preserved until the user explicitly chooses a replacement. React must not parse or compose teacher-comments storage text."
+    },
+    {
+      "id": "UI1c-A2-aims-hotlist",
+      "problem": "Target Standard UI calls for Aims presets/tick actions plus direct edit, but no current canonical preset source exists in UI1 contracts.",
+      "required_resolution": "Treat the preset list as versioned Writer assistance content, separate from tutorial semantic state. Import only from an explicitly curated bundled JSON contract. Selecting a preset appends plain text through SetAims; direct editing remains authoritative. If no curated list is supplied, UI1c may ship the direct Aims editor but the preset control must remain absent rather than inventing text."
+    },
+    {
+      "id": "UI1c-A3-structured-validation",
+      "problem": "Current Tauri edit failures are strings, insufficient for stable field-level validation presentation.",
+      "required_resolution": "Introduce a serializable Rust validation/error DTO with stable code, semantic field, severity, message, and optional prior/candidate values. No UI string parsing to recover field identity."
+    }
+  ],
+  "field_matrix": {
+    "common": {
+      "visible": [
+        "tutorial_date",
+        "overall_level",
+        "teacher_read_only"
+      ],
+      "rules": [
+        "Date remains editable semantic date.",
+        "Overall level options originate from Rust.",
+        "Teacher is read-only/omittable and never an edit target."
+      ]
+    },
+    "standard": {
+      "visible": [
+        "absent",
+        "overall_level",
+        "assessment.listening",
+        "assessment.reading",
+        "assessment.writing",
+        "assessment.speaking",
+        "assessment.vocabulary",
+        "assessment.grammar",
+        "assessment.pronunciation",
+        "aims",
+        "teacher_comments"
+      ],
+      "assessment_options": [
+        "Needs work",
+        "OK for the current level",
+        "Good for this level"
+      ],
+      "aims": "plain-text semantic value; optional curated hotlist may append text but never owns state",
+      "teacher_comments_max_chars": 970,
+      "must_preserve_hidden": [
+        "none of Initial/Final-only state may be introduced"
+      ]
+    },
+    "initial": {
+      "visible": [
+        "overall_level",
+        "initial.speaking",
+        "initial.use_of_english",
+        "initial.writing",
+        "initial.listening",
+        "initial_course_type"
+      ],
+      "course_type_options": [
+        "HSP",
+        "G21",
+        "G15"
+      ],
+      "course_type_storage": "explicit Rust semantic adapter to Initial teacher_comments; no React storage mapping",
+      "hidden_preserved": [
+        "exam.intent",
+        "exam.exam_type",
+        "exam.when"
+      ],
+      "hidden_policy": "Existing/default GEL exam fields remain unchanged in UI1c unless a later product decision explicitly authorizes controls; ordinary Initial edits must not reset them."
+    },
+    "final": {
+      "visible": [
+        "overall_level",
+        "initial.speaking",
+        "initial.use_of_english",
+        "initial.writing",
+        "initial.listening",
+        "current.speaking",
+        "current.use_of_english",
+        "current.writing",
+        "current.listening",
+        "reading",
+        "teacher_comments",
+        "additional_comments"
+      ],
+      "reading": "optional and non-blocking; no Initial-reading concept is introduced",
+      "pairing_rule": "Initial/current roles are displayed as explicit paired columns/rows but remain distinct semantic fields.",
+      "must_preserve_hidden": [
+        "no Standard assessment/Aims or Initial exam fields may be introduced"
+      ]
+    }
+  },
+  "level_regression_policy": {
+    "owner": "rust_semantic_form",
+    "applies_to": "New drafts only",
+    "comparison_source": "N2c prepopulation source / latest authoritative tutorial, same canonical semantic field-role only",
+    "blocking_rule": "If a New draft candidate lowers a populated CEFR field below the latest authoritative value for the same field-role, reject with LEVEL_REGRESSION.",
+    "not_compared": [
+      "Initial role against current role",
+      "current role against Initial role",
+      "one skill against another",
+      "Revision against later tutorials"
+    ],
+    "overall_level": "compare New overall_level to latest authoritative overall_level when both are known",
+    "revision_rule": "Revision editing does not compare against a later tutorial; it remains governed by source identity and type applicability."
+  },
+  "internal_gates": [
+    {
+      "id": "UI1c0",
+      "name": "Contract and option-domain closure",
+      "status": "implemented_prerequisite_satisfied_pending_ui1c5_strict_acceptance",
+      "scope": [
+        "Executable tutorial-type field applicability matrix",
+        "Rust safe option-domain projection",
+        "InitialCourseType semantic/storage adapter",
+        "structured DraftValidationIssue DTO",
+        "curated Aims hotlist contract or explicit absence",
+        "New-only same-role level-regression contract"
+      ],
+      "exit": [
+        "check:contracts/governance green",
+        "no new React canonical domain constants",
+        "unit tests prove unknown Initial teacher-comment preservation",
+        "regression comparisons prove same-role-only behavior"
+      ],
+      "result": "Implemented: canonical matrix, Rust projected domains, lossless InitialCourseType adapter, structured DraftValidationIssue, explicit absent Aims hotlist, and New same-role regression baseline."
+    },
+    {
+      "id": "UI1c1",
+      "name": "Common type-aware editor framework",
+      "status": "implemented_prerequisite_satisfied_pending_ui1c5_strict_acceptance",
+      "scope": [
+        "Reusable level/select/radio/text components",
+        "Rust-projected field visibility/options",
+        "common Date/Overall/Teacher header",
+        "field-level error rendering",
+        "keyboard/focus behavior",
+        "no submit/save action"
+      ],
+      "exit": [
+        "Initial/Standard/Final shells render only contract-applicable controls",
+        "failed typed edit leaves prior draft visible and field error attached"
+      ],
+      "result": "Implementation complete; strict GRI prerequisite satisfied; covered by UI1c5 integrated release closure."
+    },
+    {
+      "id": "UI1c2",
+      "name": "Standard form completion",
+      "status": "implemented_prerequisite_satisfied_pending_ui1c5_strict_acceptance",
+      "scope": [
+        "Absent",
+        "seven assessment groups",
+        "Aims direct editor",
+        "optional governed hotlist",
+        "Teacher Comments 970-char UX + Rust enforcement"
+      ],
+      "exit": [
+        "all seven assessment fields round-trip through typed edits",
+        "Aims edits remain plain semantic text",
+        "hotlist selections, if enabled, append via SetAims only",
+        "970/971 behavior covered"
+      ],
+      "result": "Implementation complete; strict GRI prerequisite satisfied; covered by UI1c5 integrated release closure."
+    },
+    {
+      "id": "UI1c3",
+      "name": "Initial form completion",
+      "status": "implemented_prerequisite_satisfied_pending_ui1c5_strict_acceptance",
+      "scope": [
+        "four Initial skill levels",
+        "HSP/G21/G15 course-type selector through Rust adapter",
+        "preservation of hidden exam fields",
+        "New/Revision initialization"
+      ],
+      "exit": [
+        "course type never parsed/serialized in React",
+        "unrecognized legacy Initial teacher comment preserved until explicit replacement",
+        "hidden exam values survive unrelated edits"
+      ],
+      "result": "Implementation complete; strict GRI prerequisite satisfied; covered by UI1c5 integrated release closure."
+    },
+    {
+      "id": "UI1c4",
+      "name": "Final form completion",
+      "status": "implemented_prerequisite_satisfied_pending_ui1c5_strict_acceptance",
+      "scope": [
+        "paired Initial/current four-skill editor",
+        "optional Reading",
+        "Teacher Comments",
+        "Additional Comments",
+        "clear visual role labels"
+      ],
+      "exit": [
+        "no cross-role promotion/inference",
+        "Reading remains current/final only",
+        "Initial/current values edit independently",
+        "Final comments preserve source values"
+      ],
+      "result": "Implementation complete; strict GRI prerequisite satisfied; covered by UI1c5 integrated release closure."
+    },
+    {
+      "id": "UI1c5",
+      "name": "Integrated validation and release",
+      "status": "implemented_pending_strict_acceptance",
+      "scope": [
+        "New-only level regression protection",
+        "structured validation rendering",
+        "New Standard/Initial/Final reconstruction regression tests",
+        "Revision immutable authority regression",
+        "frontend typecheck/build",
+        "Rust fmt/clippy/tests",
+        "UI1c release scope"
+      ],
+      "exit": [
+        "all prior ui1-hybrid checks pass",
+        "all UI1c dedicated checks pass",
+        "SKIP=0 FAIL=0",
+        "no GEL/archive write command introduced"
+      ],
+      "result": "Dedicated structural + executable cross-form integration checks added; current source must pass strict ui1c5 scope (41 PASS / 0 SKIP / 0 FAIL)."
+    }
+  ],
+  "release_gate_plan": {
+    "scope": "ui1c5",
+    "baseline": "strictly accepted GRI PASS=39 SKIP=0 FAIL=0",
+    "additional_required_checks": [
+      "ui1c5_integrated",
+      "ui1c5_integrated_behavior"
+    ],
+    "strict_target": "PASS=41 SKIP=0 FAIL=0; targetStatus STRICT_ACCEPTED; immutable evidence outside source root",
+    "portable_skip_policy": "No semantic/integration skip is permitted; only policies already explicitly permitted by inherited release contracts may skip in portable mode.",
+    "notes": [
+      "GRI acceptance authorizes UI1c5 implementation but does not accept the changed source identity.",
+      "UI1c5 changes no runtime authority and therefore extends, rather than replaces, the GRI baseline.",
+      "UI1d begins only after the strict ui1c5 result is recorded."
+    ]
+  },
+  "test_scenarios": [
+    "New Standard opens with N2c values and only Standard controls; all 7 assessment edits are independently typed.",
+    "New Initial renders Initial roles only; HSP/G21/G15 selection changes only the governed course-type semantic/storage adapter.",
+    "Revision Initial with unknown teacher-comment text does not destroy that text through unrelated edits.",
+    "New Final shows Initial/current pairs and optional Reading without Initial Reading.",
+    "Changing one skill never copies/promotes a value into another skill or Initial/current role.",
+    "New same-role CEFR regression is rejected with structured LEVEL_REGRESSION issue; Revision is not compared against later tutorials.",
+    "Aims direct editing preserves newline semantics; governed hotlist, when present, only appends selected text.",
+    "Standard teacher comment 970 accepted / 971 rejected in Rust.",
+    "No UI1c action can set teacher, identity, timestamp, raw GEL field, or tutorial type on an active draft.",
+    "Switching desired New type occurs by leaving/reopening from explicit selected-student action and reconstructs authoritative form state rather than mutating the current draft."
+  ],
+  "implementation_order": [
+    "UI1c0",
+    "UI1c1",
+    "UI1c2",
+    "UI1c3",
+    "UI1c4",
+    "UI1c5"
+  ],
+  "ui1c0_implementation": {
+    "contracts": [
+      "contracts/ui1c_semantic_forms.json",
+      "contracts/ui1c_aims_assistance.json"
+    ],
+    "semantic_runtime": [
+      "TutorialSemanticField + FieldDisposition matrix",
+      "Rust-projected CEFR/assessment/InitialCourseType option domains",
+      "InitialCourseType exact HSP/G21/G15 adapter with unrecognized-value preservation",
+      "DraftValidationIssue stable structured DTO",
+      "LevelRegressionBaseline carried only by New origin and derived from N2c latest authoritative source",
+      "TutorialDraftEdit::SetInitialCourseType; Initial exam edit removed"
+    ],
+    "frontend_boundary": [
+      "DraftView.formContract projected by Rust",
+      "React renders only Rust-declared editable fields in the current foundation surface",
+      "React has no canonical CEFR/assessment/course-type/Aims option arrays",
+      "React consumes structured issue message without parsing field identity"
+    ],
+    "aims_assistance": "Explicitly unavailable in UI1c0 because no curated/versioned source has been authorized; no presets are rendered.",
+    "network_write_authority": false,
+    "archive_write_authority": false,
+    "persistent_tutorial_state": false
+  },
+  "gri_dependency": {
+    "program": "GRI0-GRI5 Governance and Reproducible Identity",
+    "status": "implemented_pending_target_lock_materialization_and_strict_acceptance",
+    "required_before": "UI1c1",
+    "current_scope": "gri",
+    "lock_status_at_packaging_time": "INCOMPLETE in sandbox because Cargo/network are unavailable; target host must generate and commit exact locks",
+    "authority": "contracts/release_identity.json + release_gate.json + state_ownership.json"
+  },
+  "ui1c1": {
+    "status": "implemented_pending_strict_acceptance",
+    "controls": [
+      "date",
+      "select",
+      "checkbox",
+      "textarea",
+      "read_only"
+    ],
+    "foundation_surface": [
+      "tutorial_date",
+      "overall_level",
+      "teacher_read_only",
+      "absent",
+      "teacher_comments"
+    ],
+    "structured_validation": true,
+    "later_sections_deferred": true
+  },
+  "ui1c2_4": {
+    "status": "implemented_pending_strict_acceptance",
+    "standard": true,
+    "initial": true,
+    "final": true,
+    "react_domain_authority": false,
+    "runtime_authority_change": false,
+    "next_stage": "UI1c5"
+  },
+  "ui1c5_implementation": {
+    "behavioral_test": "gel-core/tests/ui1c5_integrated.rs",
+    "structural_checker": "tools/check_ui1c5_integrated.py",
+    "release_scope": "ui1c5",
+    "coverage": [
+      "New Standard reconstruction + all seven typed assessment edits",
+      "New Initial hidden exam/storage preservation + explicit course-type replacement",
+      "New Final independent Initial/current role editing + Reading/additional comments",
+      "structured LEVEL_REGRESSION with candidate-before-commit prior-state preservation",
+      "Revision identity/teacher immutability and no New-only regression floor"
+    ],
+    "network_write_authority": false,
+    "archive_authority_change": false,
+    "react_domain_authority": false
+  },
+  "next_stage": "UI1d after strict ui1c5 acceptance"
+}

@@ -1,0 +1,176 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gel.local/governance/current-state.schema.json",
+  "title": "GEL Rust bootstrap current-state projection",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "project",
+    "artifactType",
+    "candidateVersion",
+    "activeApplicationContract",
+    "activeDevelopment",
+    "agentGovernance",
+    "requiredGate",
+    "dependencyLockStatus",
+    "dependencyLockExceptionPolicy",
+    "lastStrictAcceptance",
+    "releaseStatus",
+    "unresolvedBlockers",
+    "generatedFrom"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 3
+    },
+    "project": {
+      "const": "gel-rust-bootstrap"
+    },
+    "artifactType": {
+      "enum": [
+        "working-tree",
+        "source-candidate",
+        "accepted-release"
+      ]
+    },
+    "candidateVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "activeApplicationContract": {
+      "type": "object",
+      "required": [
+        "id",
+        "version",
+        "status"
+      ],
+      "properties": {
+        "id": {
+          "const": "ui1_writer"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "status": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "activeDevelopment": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "requiredGate": {
+      "type": "string",
+      "minLength": 1
+    },
+    "dependencyLockStatus": {
+      "enum": [
+        "COMPLETE",
+        "INCOMPLETE"
+      ]
+    },
+    "lastStrictAcceptance": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "releaseStatus": {
+      "enum": [
+        "STRUCTURAL_PASS",
+        "STRUCTURAL_PASS_WITH_SKIPS",
+        "TARGET_ACCEPTANCE_REQUIRED",
+        "STRICT_ACCEPTED",
+        "RELEASE_ARTIFACT_VERIFIED"
+      ]
+    },
+    "unresolvedBlockers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "generatedFrom": {
+      "type": "object",
+      "required": [
+        "developmentPlan",
+        "releaseGate",
+        "componentBoundaries",
+        "stateOwnership",
+        "dependencyLockPolicy",
+        "dependencyLockManifest",
+        "agentGovernanceProtocol",
+        "agentGovernanceProfile",
+        "agentGovernanceProtocolSchema",
+        "agentGovernanceProjectProfileSchema",
+        "agentGovernanceRunResultSchema"
+      ],
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "agentGovernance": {
+      "type": "object",
+      "required": [
+        "protocolId",
+        "protocolVersion",
+        "profileId",
+        "profileVersion",
+        "runtimeAuthority"
+      ],
+      "properties": {
+        "protocolId": {
+          "const": "ai-governance-protocol"
+        },
+        "protocolVersion": {
+          "const": "1.1.0"
+        },
+        "profileId": {
+          "const": "gel-tutorial-writer"
+        },
+        "profileVersion": {
+          "const": "1.1.0"
+        },
+        "runtimeAuthority": {
+          "const": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "dependencyLockExceptionPolicy": {
+      "type": "object",
+      "required": [
+        "id",
+        "portableResult",
+        "strictResult",
+        "automaticDetectionOnly",
+        "promotionCeiling"
+      ],
+      "properties": {
+        "id": {
+          "const": "LOCK_GENERATOR_UNAVAILABLE"
+        },
+        "portableResult": {
+          "const": "SKIP"
+        },
+        "strictResult": {
+          "const": "FAIL"
+        },
+        "automaticDetectionOnly": {
+          "const": true
+        },
+        "promotionCeiling": {
+          "const": "FAST_VERIFIED"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

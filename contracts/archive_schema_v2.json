@@ -1,0 +1,130 @@
+{
+  "contract_id": "archive_schema_v2",
+  "contract_version": 2,
+  "status": "active",
+  "effective_date": "2026-08-25",
+  "schema_version": 2,
+  "executable_schema": "schema/archive_v2.sql",
+  "migration_adapter": "python-oracle/archive_schema_v2.py",
+  "authority_rule": "The executable SQLite schema and its migration tests are higher authority than descriptive archive documentation. D1 introduced schema v2 without transferring runtime ownership; A2 now makes RustArchiver the production orchestrator and the crate-private ArchiveSyncRepository the sole canonical local SQLite write capability.",
+  "current_runtime_cutover": "a2_rust_archiver_active_pending_strict_acceptance",
+  "tables": {
+    "archive_schema_migrations": "Versioned migration provenance.",
+    "archive_sync_runs": "Sync-run lifecycle needed for later source-presence invalidation.",
+    "classes": "Preserved class entities with source_present/first_seen/last_seen lifecycle.",
+    "students": "Preserved student entities; class_id is deliberately absent.",
+    "class_memberships": "Many-to-many class/student membership and roster-specific state.",
+    "tutorial_identities": "Canonical tutorial-list API identities. tutorial_id is primary identity.",
+    "tutorial_source_states": "Normalized candidate historical tutorial states, independent of API identity ownership.",
+    "tutorial_source_field_evidence": "Minimal field-level source presence provenance; explicit blanks are representable without raw source blobs.",
+    "tutorial_collision_groups": "Same-timestamp collision groups with C3 collision classification.",
+    "tutorial_collision_identities": "Group-owned API identities for a collision.",
+    "tutorial_collision_states": "Group-owned candidate source states for a collision.",
+    "tutorial_state_associations": "Governed identity-to-state authority. Blocked statuses contain no source_state_id.",
+    "scrape_log": "Operational acquisition log retained for transitional compatibility."
+  },
+  "identity_state_association": {
+    "identity_table": "tutorial_identities",
+    "state_table": "tutorial_source_states",
+    "association_table": "tutorial_state_associations",
+    "canonical_identity": "tutorial_id",
+    "locator_only": [
+      "student_uid",
+      "tutorial_ts"
+    ],
+    "allowed_authority_statuses": [
+      "proven_per_tutorial",
+      "shared_identical_collision",
+      "ambiguous_divergent_collision",
+      "incomplete_collision_evidence",
+      "ambiguous_collision_unknown",
+      "unmatched_source_state"
+    ],
+    "revision_allowed_statuses": [
+      "proven_per_tutorial",
+      "shared_identical_collision"
+    ],
+    "blocked_association_rule": "Blocked authority statuses must persist source_state_id as NULL so no ambiguous candidate state is falsely attributed to a canonical tutorial_id.",
+    "key_consistency_rule": "Executable triggers require collision identities, collision states, and authoritative source_state_id associations to share the same student_uid/tutorial_ts reconciliation key as their owning identity/group."
+  },
+  "membership_model": {
+    "student_class_foreign_key_removed": true,
+    "membership_table": "class_memberships",
+    "primary_key": [
+      "class_id",
+      "student_uid"
+    ],
+    "roster_specific_fields": [
+      "attendance",
+      "tutorial_late",
+      "last_tutorial_ts",
+      "test_type",
+      "last_test_ts",
+      "unmarked_exit_test"
+    ]
+  },
+  "source_presence": {
+    "tracked_tables": [
+      "classes",
+      "students",
+      "class_memberships",
+      "tutorial_identities",
+      "tutorial_source_states",
+      "tutorial_collision_groups"
+    ],
+    "required_columns": [
+      "source_present",
+      "first_seen",
+      "last_seen"
+    ],
+    "deletion_rule": "A later source omission marks source_present false only after the relevant acquisition scope completes successfully; omission never deletes preserved historical rows.",
+    "failed_sync_rule": "Failed or rolled-back syncs must not invalidate prior source_present state. A completed full A2 run with authoritative class/roster/tutorial-list acquisition may invalidate truly disappeared identities even when auxiliary summary/print/edit evidence is partial; prior semantic source evidence is preserved for API tutorial keys still observed in that run.",
+    "run_tracking_table": "archive_sync_runs",
+    "run_guard_column": "presence_checked_run_id",
+    "invalidation_guard": "source_present may be set false only when presence_checked_run_id references archive_sync_runs.status=complete; failed/running runs cannot invalidate preserved presence."
+  },
+  "foreign_keys": {
+    "required_runtime_pragma": "PRAGMA foreign_keys=ON",
+    "foreign_key_check_required_after_migration": true,
+    "delete_policy": "Preserved parent identities use RESTRICT; collision junction rows and per-identity authority rows may CASCADE only from their owning group/identity."
+  },
+  "upsert_policy": {
+    "insert_or_replace_forbidden": true,
+    "required_pattern": "INSERT ... ON CONFLICT ... DO UPDATE/DO NOTHING",
+    "reason": "INSERT OR REPLACE can delete and recreate rows, breaking foreign keys, first_seen provenance, and identity stability."
+  },
+  "raw_json_policy": {
+    "stored_in_v2": false,
+    "migration_rule": "Legacy raw_json is read only to extract minimal field-presence provenance and is never copied into the v2 destination database.",
+    "raw_html_policy": "Raw summary/edit/print HTML remains private fixture evidence or ephemeral runtime data, not canonical archive state.",
+    "privacy_rule": "The v2 migration must not retain legacy raw_json blobs or legacy email values."
+  },
+  "legacy_v1_migration": {
+    "mode": "source_to_separate_destination",
+    "source_version": 1,
+    "destination_version": 2,
+    "destructive_in_place_migration": false,
+    "class_membership_rule": "Legacy students.class_id becomes one class_memberships row; no class_id column exists on v2 students.",
+    "unique_matched_tutorial_rule": "A unique legacy tutorial with reconciliation_status=matched may migrate as proven_per_tutorial.",
+    "collision_rule": "Any legacy duplicate same-timestamp group or reconciliation collision migrates as ambiguous_unknown with candidate states group-owned and no per-ID source_state_id.",
+    "unproven_rule": "Legacy unmatched/unknown reconciliation migrates as unmatched_source_state with no source_state_id.",
+    "raw_json_rule": "Discard after extracting minimal field-presence evidence.",
+    "failure_rule": "Missing parent entities, collision IDs absent from tutorial identities, unrecognized schema shapes, or foreign-key violations fail migration and delete the incomplete destination."
+  },
+  "views": {
+    "tutorial_revision_state": "Read model that always exposes identity and authority_status; source-state columns are NULL for blocked authority because the association table forbids false state attribution."
+  },
+  "acceptance": {
+    "check": "python -S tools/check_archive_schema.py",
+    "fresh_schema_required": true,
+    "legacy_migration_required": true,
+    "foreign_key_enforcement_required": true,
+    "safe_upsert_scan_required": true,
+    "collision_fail_closed_required": true,
+    "raw_json_minimization_required": true,
+    "source_presence_non_destructive_required": true,
+    "failed_sync_invalidation_guard_required": true,
+    "offline_dependency_rule": "tools/check_archive_schema.py must not import or execute the live-network Python v4.9 oracle. It verifies transitional class/student UPSERT behaviour by AST-extracting the exact SQL literals from TutorialDatabase and executing them against isolated SQLite using only Python stdlib dependencies.",
+    "live_oracle_runtime_import_required": false
+  }
+}

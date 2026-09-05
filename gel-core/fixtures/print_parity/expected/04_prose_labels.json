@@ -1,0 +1,17 @@
+{
+  "Listening": "B1+",
+  "Speaking": "A2-",
+  "Teacher's Comments": "Listening is probably his strongest skill. Speaking is the area to work on. Reading is improving.",
+  "Tutorial Type": "Final",
+  "Type": "Final",
+  "custom_date": "19-02-2026",
+  "fields": {
+    "Listening": "B1+",
+    "Speaking": "A2-",
+    "Teacher's Comments": "Listening is probably his strongest skill. Speaking is the area to work on. Reading is improving.",
+    "Tutorial Type": "Final"
+  },
+  "print_text": "Tutorial Type Final Teacher's Comments Listening is probably his strongest skill. Speaking is the area to work on. Reading is improving. Listening B1+ Speaking A2-",
+  "student_name": "Student X",
+  "teacher_name": "Teacher X"
+}

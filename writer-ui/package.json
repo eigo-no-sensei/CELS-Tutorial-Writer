@@ -1,0 +1,28 @@
+{
+  "name": "gel-tutorial-writer-ui",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 1420",
+    "build": "tsc -b && vite build",
+    "typecheck": "tsc -b",
+    "tauri": "tauri"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.9.1",
+    "ag-grid-community": "^36.1.0",
+    "ag-grid-react": "^36.1.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.9.4",
+    "@types/node": "^24.10.1",
+    "@types/react": "^19.1.16",
+    "@types/react-dom": "^19.1.9",
+    "@vitejs/plugin-react": "^5.1.4",
+    "typescript": "~5.9.3",
+    "vite": "^7.2.2"
+  }
+}

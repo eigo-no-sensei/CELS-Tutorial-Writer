@@ -1,0 +1,12 @@
+{
+  "Listening": "B1",
+  "Speaking": "C2",
+  "Tutorial Type": "Standard",
+  "Type": "Standard",
+  "fields": {
+    "Listening": "B1",
+    "Speaking": "C2",
+    "Tutorial Type": "Standard"
+  },
+  "print_text": "Tutorial Type Standard Speaking C2 outer Listening B1"
+}

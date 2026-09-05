@@ -1,0 +1,10 @@
+{
+  "Initial Speaking": "A1",
+  "Tutorial Type": "Initial",
+  "Type": "Initial",
+  "fields": {
+    "Initial Speaking": "A1",
+    "Tutorial Type": "Initial"
+  },
+  "print_text": "Tutorial Type Initial Initial Speaking A1"
+}

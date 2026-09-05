@@ -1,0 +1,104 @@
+{
+  "contract_id": "tutorial_form_applicability",
+  "contract_version": 2,
+  "authority": "canonical_executable_contract",
+  "semantic_fields": {
+    "common": [
+      "teacher_id",
+      "student_uid",
+      "source_timestamp",
+      "tutorial_type",
+      "absent",
+      "tutorial_date",
+      "overall_level",
+      "teacher_comments"
+    ],
+    "initial": [
+      "initial_speaking",
+      "initial_use_of_english",
+      "initial_writing",
+      "initial_listening",
+      "exam_intent",
+      "exam_type",
+      "exam_when"
+    ],
+    "standard": [
+      "speaking",
+      "use_of_english",
+      "writing",
+      "listening",
+      "reading",
+      "assessment_listening",
+      "assessment_reading",
+      "assessment_writing",
+      "assessment_speaking",
+      "assessment_vocabulary",
+      "assessment_grammar",
+      "assessment_pronunciation",
+      "aims"
+    ],
+    "final": [
+      "initial_speaking",
+      "initial_use_of_english",
+      "initial_writing",
+      "initial_listening",
+      "speaking",
+      "use_of_english",
+      "writing",
+      "listening",
+      "reading",
+      "additional_comments"
+    ]
+  },
+  "invariants": [
+    {
+      "id": "APP-001",
+      "rule": "reading applies to standard and final only"
+    },
+    {
+      "id": "APP-002",
+      "rule": "there is no initial reading field"
+    },
+    {
+      "id": "APP-003",
+      "rule": "additional_comments applies to final only"
+    },
+    {
+      "id": "APP-004",
+      "rule": "aims and seven self-assessments apply to standard only"
+    },
+    {
+      "id": "APP-005",
+      "rule": "exam fields apply to initial only"
+    },
+    {
+      "id": "APP-006",
+      "rule": "initial four skills apply to initial and final"
+    },
+    {
+      "id": "APP-007",
+      "rule": "current speaking/use_of_english/writing/listening apply to standard and final"
+    },
+    {
+      "id": "APP-008",
+      "rule": "source_timestamp/datetime is absent from New forms/submissions and required for Revision submissions"
+    },
+    {
+      "id": "APP-009",
+      "rule": "teacher_id is immutable Writer authority: New from validated New form; Revision from historical tutorial"
+    }
+  ],
+  "excluded_infrastructure_fields": [
+    "language"
+  ],
+  "origin_applicability": {
+    "new": {
+      "source_timestamp": "absent",
+      "teacher_id": "required_immutable_hidden_form_authority"
+    },
+    "revision": {
+      "source_timestamp": "required_exact_source_timestamp",
+      "teacher_id": "required_immutable_historical_authority"
+    }
+  }
+}

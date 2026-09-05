@@ -1,0 +1,98 @@
+{
+  "contract_id": "ui1d_harper",
+  "contract_version": 2,
+  "status": "active_ui1d_pending_strict_acceptance",
+  "effective_date": "2026-09-01",
+  "phase": "UI1d",
+  "engine": {
+    "crate": "harper-core",
+    "version": "2.8.0",
+    "dialect": "British",
+    "document_parser": "Markdown default parser with the same merged dictionary supplied to the linter",
+    "lint_group": "curated"
+  },
+  "state": {
+    "canonical_state_class": "harper_user_dictionary",
+    "class": "canonical_local_preference",
+    "writer": "harper_dictionary_repository",
+    "materialization": "JSON file separate from the archive, defaulting beside the resolved archive; GEL_HARPER_DICTIONARY overrides",
+    "tutorial_authority": false,
+    "ephemeral_check_results": "harper_check_result",
+    "ephemeral_session_suppression": ["harper_disabled_rules", "harper_ignored_findings"],
+    "react_persistence_authority": false
+  },
+  "fields": [
+    "aims",
+    "teacher_comments",
+    "additional_comments"
+  ],
+  "dto": {
+    "check": "HarperCheckDto",
+    "finding": "HarperFindingDto",
+    "suggestion": "HarperSuggestionDto",
+    "finding_fields": ["lint_kind", "rule", "message", "original_text", "span_start", "span_end", "suggestions"],
+    "suggestion_fields": ["label", "replacement_text"],
+    "span_rule": "Rust exposes character (Unicode code-point) offsets span_start (inclusive) and span_end (exclusive) per finding. React uses them only for inline highlight rendering; it never interprets them to construct replacements.",
+    "suggestion_rule": "Rust computes the complete replacement field text and a human-readable suggestion label; React applies suggestions by emitting the replacement text as the next typed-edit value and never constructs replacements itself.",
+    "rule_field_rule": "Rust exposes the stable Harper rule name per finding. React uses it only for the session-only Disable-rule action; it never maps rule names to fixes.",
+    "source_snapshot": "Every result carries the exact source text used for checking"
+  },
+  "dictionary": {
+    "schema_version": 1,
+    "legacy_inputs": [
+      "JSON string array",
+      "object with words array and absent schema_version",
+      "schema_version 0 object"
+    ],
+    "future_schema": "fail closed; never downgrade or rewrite a future schema",
+    "normalization": "trim, reject whitespace/control characters, case-insensitive deduplicate, deterministic ordering",
+    "mutation": "add/remove/list through Tauri only; add/remove serialized by writer_operation lock",
+    "atomic_write": "temporary file + fsync + backup promotion; backup cleanup is best effort after successful canonical installation",
+    "recovery": "valid backup may serve as the recovery source for an interrupted/corrupt current file; canonical replacement is performed only by a subsequent successful mutation, while future schema never falls back to an older backup",
+    "privacy": "must not contain credentials, cookies/session state, student identifiers or tutorial text wholesale"
+  },
+  "tauri_commands": [
+    "ui1_harper_check",
+    "ui1_harper_dictionary_list",
+    "ui1_harper_dictionary_add",
+    "ui1_harper_dictionary_remove"
+  ],
+  "command_parameters": {
+    "ui1_harper_check": ["field", "text", "disabled_rules", "suppressed_kinds"]
+  },
+  "ui": {
+    "role": "presentation_only",
+    "checking": "debounced 350ms and stale-result-safe by request id plus exact source snapshot",
+    "highlighting": "teacher_comments and additional_comments render inline wavy-underline highlights via a transparent mirror div overlaid on a native textarea; aims remains a side-panel-only assistant",
+    "highlight_color_variants": ["spelling (red wavy)", "grammar (amber wavy)", "active (blue tint, thicker underline)"],
+    "active_highlight_coupling": "hovering or focusing a side-panel lint card strengthens the matching inline mark",
+    "acceptance": "accepted suggestions emit the existing typed TutorialDraftEdit variants only",
+    "actions": ["apply_suggestion", "add_to_dictionary", "disable_rule", "skip_issue"],
+    "add_to_dictionary_gate": "single-token excerpts only; multi-word or punctuation-bearing excerpts silently exclude the action",
+    "dictionary": "explicit local dictionary panel uses only Tauri add/remove/list commands and reports mutations through an onMutation callback so the App can bump a revision counter and trigger re-lint",
+    "session_suppression": "disabled rules and ignored findings are session-only state hoisted to App; never persisted",
+    "no_browser_persistence": true
+  },
+  "forbidden_authority": [
+    "GEL tutorial POST/create/revise/delete",
+    "archive mutation outside ui1_sync_archive/RustArchiver",
+    "semantic CEFR/assessment authority",
+    "teacher attribution or tutorial identity mutation",
+    "React-local Harper dictionary persistence",
+    "React-side construction of replacement text from span offsets"
+  ],
+  "failure_semantics": [
+    "Harper check failure is a non-authoritative UI error and never mutates the draft.",
+    "A rejected typed edit remains subject to rust_semantic_form validation.",
+    "Dictionary mutation failure leaves the prior canonical dictionary bytes authoritative.",
+    "Interrupted replacement is recoverable from a valid backup; failed promotion restores the previous canonical file.",
+    "Disabled-rule or skip-issue state is ephemeral and never mutates the persisted dictionary or the draft."
+  ],
+  "acceptance": {
+    "structural_check": "tools/check_ui1d_harper.py",
+    "behavioral_check": "cargo test --locked -p gel-core --test ui1d_harper",
+    "strict_scope": "ui1d",
+    "target_result": "PASS=43 SKIP=0 FAIL=0",
+    "immutable_evidence": "external to source root; generated only by release_gate after exact source/lock/toolchain validation"
+  }
+}

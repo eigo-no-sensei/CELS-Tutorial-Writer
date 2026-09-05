@@ -1,0 +1,440 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "project-profile.schema.json",
+  "title": "AI Governance Project Profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "profileId",
+    "profileVersion",
+    "protocolId",
+    "protocolVersion",
+    "project",
+    "authorityBinding",
+    "contractBindings",
+    "stateTaxonomyMapping",
+    "artifactTypes",
+    "gateProfiles",
+    "gateSideEffectPolicy",
+    "subjectIdentityBinding",
+    "evidenceBinding",
+    "promotionPolicy",
+    "mutationProfileBindings",
+    "validationBindings"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "profileId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "profileVersion": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "protocolId": {
+      "const": "ai-governance-protocol"
+    },
+    "protocolVersion": {
+      "const": "1.1.0"
+    },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "projectId",
+        "artifactFamily",
+        "metaGovernanceOnly",
+        "runtimeAuthority"
+      ],
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "artifactFamily": {
+          "type": "string"
+        },
+        "metaGovernanceOnly": {
+          "const": true
+        },
+        "runtimeAuthority": {
+          "const": false
+        }
+      }
+    },
+    "authorityBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocolRole",
+        "runtimeAuthority",
+        "authorityOrderContract",
+        "runtimeAuthoritySources",
+        "mustNotOverride",
+        "currentStateSemantics",
+        "kindMapping"
+      ],
+      "properties": {
+        "protocolRole": {
+          "const": "meta_governance_orchestration"
+        },
+        "runtimeAuthority": {
+          "const": false
+        },
+        "authorityOrderContract": {
+          "type": "string"
+        },
+        "runtimeAuthoritySources": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "mustNotOverride": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "currentStateSemantics": {
+          "const": "projection_only"
+        },
+        "kindMapping": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "executable",
+            "active_component_contract",
+            "cross_component_ownership_and_lifecycle",
+            "operational_guidance",
+            "adr_and_history"
+          ],
+          "properties": {
+            "executable": {
+              "type": "string"
+            },
+            "active_component_contract": {
+              "type": "string"
+            },
+            "cross_component_ownership_and_lifecycle": {
+              "type": "string"
+            },
+            "operational_guidance": {
+              "type": "string"
+            },
+            "adr_and_history": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "contractBindings": {
+      "type": "object",
+      "minProperties": 5,
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "stateTaxonomyMapping": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "decision",
+        "derived",
+        "projection",
+        "evidence"
+      ],
+      "properties": {
+        "source": {
+          "const": "source"
+        },
+        "decision": {
+          "const": "decision"
+        },
+        "derived": {
+          "const": "derived"
+        },
+        "projection": {
+          "const": "projection"
+        },
+        "evidence": {
+          "const": "evidence"
+        }
+      }
+    },
+    "artifactTypes": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "gateProfiles": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "portable",
+        "strict"
+      ],
+      "properties": {
+        "portable": {
+          "$ref": "#/$defs/gateProfile"
+        },
+        "strict": {
+          "$ref": "#/$defs/gateProfile"
+        }
+      }
+    },
+    "gateSideEffectPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "automatedTutorialWrites",
+        "automatedArchiveCanonicalWrites",
+        "allowedExternalSideEffects"
+      ],
+      "properties": {
+        "automatedTutorialWrites": {
+          "const": false
+        },
+        "automatedArchiveCanonicalWrites": {
+          "const": false
+        },
+        "allowedExternalSideEffects": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "subjectIdentityBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sourceIdentity",
+        "dependencyIdentity",
+        "contractSetIdentity",
+        "schemaIdentities",
+        "toolchainIdentity",
+        "runtimeIdentity"
+      ],
+      "properties": {
+        "sourceIdentity": {
+          "type": "string"
+        },
+        "dependencyIdentity": {
+          "type": "string"
+        },
+        "contractSetIdentity": {
+          "type": "string"
+        },
+        "schemaIdentities": {
+          "type": "string"
+        },
+        "toolchainIdentity": {
+          "type": "string"
+        },
+        "runtimeIdentity": {
+          "type": "string"
+        }
+      }
+    },
+    "evidenceBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "proofClassContract",
+        "releaseGateContract",
+        "privateEvidencePortablePolicy",
+        "privateEvidenceStrictPolicy"
+      ],
+      "properties": {
+        "proofClassContract": {
+          "type": "string"
+        },
+        "releaseGateContract": {
+          "type": "string"
+        },
+        "privateEvidencePortablePolicy": {
+          "const": "SKIP_EXPLICITLY"
+        },
+        "privateEvidenceStrictPolicy": {
+          "const": "FAIL_MISSING_REQUIRED"
+        }
+      }
+    },
+    "promotionPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "missingDependencyIdentity",
+        "ciPromotionCeiling",
+        "strictAcceptanceStatus",
+        "releaseArtifactStatus"
+      ],
+      "properties": {
+        "missingDependencyIdentity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "blocksStatuses",
+            "repairScopeAllowed",
+            "toolUnavailableException"
+          ],
+          "properties": {
+            "blocksStatuses": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string"
+              }
+            },
+            "repairScopeAllowed": {
+              "const": true
+            },
+            "toolUnavailableException": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "automaticDetectionOnly",
+                "manualOverrideAllowed",
+                "portableResult",
+                "strictResult",
+                "promotionCeiling",
+                "invalidatedWhenToolAvailable"
+              ],
+              "properties": {
+                "automaticDetectionOnly": {
+                  "const": true
+                },
+                "manualOverrideAllowed": {
+                  "const": false
+                },
+                "portableResult": {
+                  "const": "SKIP"
+                },
+                "strictResult": {
+                  "const": "FAIL"
+                },
+                "promotionCeiling": {
+                  "const": "FAST_VERIFIED"
+                },
+                "invalidatedWhenToolAvailable": {
+                  "const": true
+                }
+              }
+            }
+          }
+        },
+        "ciPromotionCeiling": {
+          "type": "string"
+        },
+        "strictAcceptanceStatus": {
+          "const": "STRICT_ACCEPTED"
+        },
+        "releaseArtifactStatus": {
+          "const": "RELEASE_ARTIFACT_VERIFIED"
+        }
+      }
+    },
+    "mutationProfileBindings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "writerDraftEdit",
+        "gelExternalMutation",
+        "releasePublication"
+      ],
+      "properties": {
+        "writerDraftEdit": {
+          "const": "authoritative_ephemeral_change"
+        },
+        "gelExternalMutation": {
+          "const": "destructive_or_external_mutation"
+        },
+        "releasePublication": {
+          "const": "release_publication"
+        }
+      }
+    },
+    "validationBindings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "knownGateIds",
+        "knownComponentIds",
+        "knownStateIds",
+        "requiredProjectChecks"
+      ],
+      "properties": {
+        "knownGateIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "knownComponentIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "knownStateIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "requiredProjectChecks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        }
+      }
+    }
+  },
+  "$defs": {
+    "gateProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "releaseGateProfile",
+        "missingRequiredPrivateEvidence",
+        "skipMayCountAsPass",
+        "promotionCeiling"
+      ],
+      "properties": {
+        "releaseGateProfile": {
+          "type": "string"
+        },
+        "missingRequiredPrivateEvidence": {
+          "enum": [
+            "SKIP_EXPLICITLY",
+            "FAIL"
+          ]
+        },
+        "skipMayCountAsPass": {
+          "const": false
+        },
+        "promotionCeiling": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

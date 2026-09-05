@@ -1,0 +1,145 @@
+{
+  "$schema": "./agent-run-result.schema.json",
+  "protocolVersion": "1.1.0",
+  "profileRef": {
+    "profileId": "gel-tutorial-writer",
+    "profileVersion": "1.1.0"
+  },
+  "runId": "example-gel-governed-change",
+  "subjectBefore": {
+    "identityRef": "subject-before",
+    "projectId": "gel-rust-bootstrap",
+    "artifactType": "source-candidate",
+    "sourceIdentity": "sha256:SOURCE_BEFORE",
+    "dependencyIdentity": null,
+    "contractSetIdentity": "sha256:CONTRACT_SET",
+    "schemaIdentities": {
+      "archive": "archive-v2"
+    },
+    "baseVersion": null,
+    "baseIdentity": null,
+    "toolchainIdentity": null,
+    "runtimeIdentity": null,
+    "resourceIdentities": {},
+    "modelIdentities": {},
+    "artifactIdentity": null
+  },
+  "subjectAfter": {
+    "identityRef": "subject-after",
+    "projectId": "gel-rust-bootstrap",
+    "artifactType": "source-candidate",
+    "sourceIdentity": "sha256:SOURCE_AFTER",
+    "dependencyIdentity": null,
+    "contractSetIdentity": "sha256:CONTRACT_SET_AFTER",
+    "schemaIdentities": {
+      "archive": "archive-v2"
+    },
+    "baseVersion": null,
+    "baseIdentity": null,
+    "toolchainIdentity": null,
+    "runtimeIdentity": null,
+    "resourceIdentities": {},
+    "modelIdentities": {},
+    "artifactIdentity": null
+  },
+  "requestedChange": {
+    "objective": "Add meta-governance protocol integration without changing GEL runtime semantics.",
+    "inScope": [
+      "governance/agent-protocol",
+      "GEL governance validation"
+    ],
+    "outOfScope": [
+      "GEL field semantics",
+      "network submission",
+      "archive writer cutover"
+    ],
+    "authorityChanges": [],
+    "stateClassesAffected": [
+      "decision",
+      "derived",
+      "projection"
+    ],
+    "invalidations": [
+      "generated governance documentation",
+      "current-state projection"
+    ],
+    "requestedPromotion": "FAST_VERIFIED"
+  },
+  "implementation": {
+    "changedFiles": [
+      "governance/agent-protocol/profiles/gel-tutorial-writer.profile.json"
+    ],
+    "generatedFiles": [
+      "docs/generated/AI_GOVERNANCE_PROFILE.md"
+    ],
+    "migrations": [],
+    "scopeDrift": {
+      "occurred": false,
+      "reasons": [],
+      "evaluated": true
+    }
+  },
+  "verification": {
+    "fastGate": {
+      "gateId": "governance",
+      "profile": "portable",
+      "result": "PASS",
+      "subjectIdentityRef": "subject-after",
+      "required": true,
+      "blockingReasons": [],
+      "sideEffectsObserved": []
+    },
+    "candidateGate": {
+      "gateId": "candidate",
+      "profile": "portable",
+      "result": "NOT_RUN",
+      "subjectIdentityRef": "subject-after",
+      "required": false,
+      "blockingReasons": [],
+      "sideEffectsObserved": []
+    },
+    "strictGate": {
+      "gateId": "gri",
+      "profile": "strict",
+      "result": "NOT_RUN",
+      "subjectIdentityRef": "subject-after",
+      "required": false,
+      "blockingReasons": [
+        "dependency identity not yet complete in example"
+      ],
+      "sideEffectsObserved": []
+    },
+    "artifactVerification": {
+      "gateId": "release-artifact",
+      "profile": "strict",
+      "result": "NOT_RUN",
+      "subjectIdentityRef": "subject-after",
+      "required": false,
+      "blockingReasons": [],
+      "sideEffectsObserved": []
+    }
+  },
+  "status": "FAST_VERIFIED",
+  "claims": {
+    "implemented": true,
+    "fastVerified": true,
+    "candidateQualified": false,
+    "strictlyAccepted": false,
+    "releaseArtifactVerified": false
+  },
+  "unresolved": [
+    "Strict/release promotion requires complete dependency identity."
+  ],
+  "evidence": [
+    {
+      "evidenceId": "governance-profile-check",
+      "stage": "fast_gate",
+      "proofClass": "structural",
+      "producer": "tools/check_ai_governance_protocol.py",
+      "subjectIdentityRef": "subject-after",
+      "observedAt": "2026-08-30T10:30:00Z",
+      "result": "PASS",
+      "promotionAuthority": false
+    }
+  ]
+}

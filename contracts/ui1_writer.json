@@ -1,0 +1,370 @@
+{
+  "contract_id": "ui1_writer",
+  "contract_version": 14,
+  "status": "complete_strictly_accepted",
+  "effective_date": "2026-09-03",
+  "phase": "UI1",
+  "evaluation": {
+    "status": "approved_with_amendments",
+    "summary": "Integrate the current N1/N2 Rust authority with selected CELS presentation/Harper patterns and GEL Planner state/safety patterns. React is presentation-only; Rust owns semantic drafts; UI1 exposes no GEL tutorial write capability. UI1e implements native window close interception, navigation discard guards, and stale_source / session invalidation handling."
+  },
+  "architecture": {
+    "react_role": "presentation_only",
+    "rust_application_service": "sole owner of active tutorial semantic draft and typed draft mutation boundary",
+    "archive_navigation": "D2 ArchiveRepository read-only models",
+    "live_source_acquisition": "N1/N2 fixed authenticated GET surfaces only",
+    "submission": "production submission command ui1_submit_draft delegating to live_submission_transport",
+    "draft_persistence": "none; active tutorial drafts are in-memory only",
+    "harper_dictionary": "active UI1d durable local Writer preference state, separate from archive and tutorial drafts",
+    "semantic_option_authority": "Rust gel-core semantic enums/view models; React must not define canonical CEFR or GEL value domains",
+    "semantic_field_visibility_authority": "Rust ui1c_semantic_forms field-disposition matrix",
+    "validation_error_authority": "Rust DraftValidationIssue structured DTO; React must not infer fields by parsing messages",
+    "aims_assistance": "ui1c_aims_assistance is absent_not_curated; no preset UI is authorized",
+    "harper_service": "Rust-owned harper-core 2.8.0 British-English assistance; React receives DTOs with span coordinates and suggestion labels only",
+    "draft_staleness": "session expiry (HTTP 401/403 or login redirect) or latest tutorial remote drift transitions active draft to stale_source; silent rebinding is strictly forbidden",
+    "window_close_interception": "native close request (tauri::WindowEvent::CloseRequested) intercepted when draft status is dirty; DiscardDraftDialog triggered with action 'closing the application'"
+  },
+  "reuse": {
+    "cels": {
+      "reuse": [
+        "AG Grid read-only navigation patterns",
+        "detail/editor workspace layout",
+        "Harper Rust service and structured finding DTO concepts",
+        "debounced stale-result-safe Harper UI",
+        "inline Harper highlighting (mirror-div wavy underlines, spelling/grammar color variants)",
+        "per-finding actions (apply suggestion, add to dictionary, disable rule, skip issue)",
+        "session-only disabled-rules and ignored-findings state hoisted to App root",
+        "970-character UX",
+        "native dirty-close dialog pattern",
+        "persistent Harper user dictionary concept"
+      ],
+      "do_not_reuse": [
+        "report generation/rendering state",
+        "TypeScript CEFR authority",
+        "report-specific validation as Writer authority"
+      ]
+    },
+    "gel_planner": {
+      "reuse": [
+        "Rust AppState ownership pattern",
+        "serialized state-changing operation lock",
+        "candidate-before-commit edits",
+        "typed edit-target boundary",
+        "session lifecycle and expiry handling",
+        "stale/conflict state concepts",
+        "redacted diagnostics",
+        "static command/write-boundary checks"
+      ],
+      "do_not_reuse": [
+        "legacy GelClient transport",
+        "planner POST/save commands",
+        "SQLite tutorial draft persistence in UI1",
+        "browser rich-text HTML editing"
+      ]
+    }
+  },
+  "internal_gates": [
+    {
+      "id": "UI1a",
+      "name": "Shell, auth and read-only navigation",
+      "status": "complete_strictly_accepted",
+      "scope": [
+        "Tauri/React shell",
+        "transient GEL login using current GelSession",
+        "D2 archive class/student/tutorial navigation",
+        "CELS-derived AG Grid interaction pattern",
+        "no GEL tutorial writes; A2 adds only explicit governed local archive synchronization"
+      ]
+    },
+    {
+      "id": "UI1b",
+      "name": "Rust-owned draft authority foundation",
+      "status": "complete_strictly_accepted",
+      "scope": [
+        "Rust AppState owns one ephemeral active draft",
+        "New/Revision governed constructors",
+        "typed TutorialDraftEdit command surface",
+        "candidate-before-commit semantic validation",
+        "no teacher/identity/type mutation command",
+        "dirty state derived from base vs current"
+      ]
+    },
+    {
+      "id": "UI1c",
+      "name": "Complete semantic forms",
+      "status": "complete_strictly_accepted",
+      "scope": [
+        "Initial/Standard/Final governed controls",
+        "Rust-owned CEFR/applicability/regression validation",
+        "New type changes reconstruct authoritative draft",
+        "structured validation presentation"
+      ],
+      "plan": "plans/ui1c_semantic_forms_plan_v1_5_0.json",
+      "implementation_authorization": "UI1c5 strict acceptance recorded 2026-08-31 with PASS=41 SKIP=0 FAIL=0; UI1d proceeds from that accepted source identity."
+    },
+    {
+      "id": "UI1d",
+      "name": "Harper and persistent dictionary",
+      "status": "complete_strictly_accepted",
+      "scope": [
+        "British English Harper service in Rust",
+        "Aims, Teacher Comments and Final Additional Comments findings/suggestions",
+        "persistent local user dictionary with schema/version/migration/failure semantics",
+        "Tauri check/suggestion and dictionary DTO/commands",
+        "no tutorial/archive/GEL write coupling"
+      ],
+      "plan": "ui1d_harper contract + tools/check_ui1d_harper.py + gel-core/tests/ui1d_harper.rs",
+      "implementation_authorization": "UI1c5 strict acceptance is the prerequisite; UI1d changes runtime assistance/persistent preference state but add no tutorial/GEL write authority."
+    },
+    {
+      "id": "UI1e",
+      "name": "Safety, dirty-close and E2E",
+      "status": "complete_strictly_accepted",
+      "scope": [
+        "native dirty-close protection",
+        "navigation/logout discard guards",
+        "stale-source/session-expiry states",
+        "mocked E2E",
+        "full UI1 strict release scope"
+      ],
+      "plan": "ui1e_safety check + ui1e_workflow_behavior test",
+      "implementation_authorization": "UI1e strict acceptance PASS=45 SKIP=0 FAIL=0 recorded 2026-09-02; W1 verified."
+    }
+  ],
+  "initial_command_allowlist": [
+    "ui1_session_status",
+    "ui1_login",
+    "ui1_logout",
+    "ui1_archive_status",
+    "ui1_sync_archive",
+    "ui1_list_classes",
+    "ui1_list_students",
+    "ui1_list_tutorials",
+    "ui1_open_new_draft",
+    "ui1_open_revision_draft",
+    "ui1_get_draft",
+    "ui1_apply_draft_edit",
+    "ui1_discard_draft",
+    "ui1_harper_check",
+    "ui1_harper_dictionary_list",
+    "ui1_harper_dictionary_add",
+    "ui1_harper_dictionary_remove",
+    "ui1_submit_draft"
+  ],
+  "forbidden_command_capabilities": [
+    "arbitrary or unvalidated tutorial POST outside ui1_submit_draft",
+    "generic HTTP/request URL",
+    "teacher reassignment",
+    "raw GEL field/value mutation",
+    "POST payload construction/exposure",
+    "arbitrary/raw archive mutation outside RustArchiver sync"
+  ],
+  "draft_authority": {
+    "owner": "writer_tauri_app_service",
+    "source_new": "ValidatedNewTutorialForm + latest authoritative tutorial + N2c build_new_form_state",
+    "source_revision": "D2 revision authority + validated historical GEL edit form + build_revision_form_state",
+    "frontend_writable_fields": "typed semantic edit enum only",
+    "immutable_from_frontend": [
+      "teacher attribution",
+      "DraftOrigin",
+      "TutorialIdentity",
+      "tutorial timestamp/datetime",
+      "student identity",
+      "Revision tutorial type",
+      "raw GEL field IDs"
+    ],
+    "mutation_algorithm": "clone current candidate -> apply typed edit -> validate semantic invariants -> replace current only on success",
+    "staleness_semantics": "draft transitions to stale_source on session expiry or latest-tutorial drift; direct edit is locked and silent rebinding is forbidden",
+    "window_close_interception": "window CloseRequested event is intercepted if draft is dirty; DiscardDraftDialog prompted before window destruction"
+  },
+  "authentication": {
+    "credentials": "transient; passed to Rust login command and not persisted",
+    "password_ui_rule": "clear local password state in finally on every login attempt",
+    "session_owner": "GelSession inside Rust application state",
+    "frontend_session_storage": false
+  },
+  "archive": {
+    "configuration": "Archive selection is Rust-owned. A non-empty GEL_ARCHIVE_DB overrides selection. When unset/blank on Windows, Writer resolves gel-new-v2.db beside the running executable; non-Windows uses project-root gel-new-v2.db. A2 RustArchiver may atomically create a missing schema-v2 DB and explicitly synchronize it after GEL authentication; existing invalid/non-v2 files fail closed without in-place migration.",
+    "access": "ArchiveRepository::open_read_only for navigation; explicit ui1_sync_archive delegates canonical mutation to RustArchiver",
+    "frontend_archive_write": false,
+    "precedence": "GEL_ARCHIVE_DB_nonblank_then_platform_default",
+    "missing_or_invalid_behavior": "missing_may_be_atomically_created_by_RustArchiver; existing_invalid_fails_closed_without_migration_or_replacement",
+    "windows_default_path": "executable_dir/gel-new-v2.db",
+    "non_windows_default_path": "project_root/gel-new-v2.db",
+    "windows_resolution_source": "std::env::current_exe parent directory",
+    "windows_current_exe_failure": "fall_back_to_project_root_default_and_fail_closed_if_database_absent_or_invalid",
+    "sync_command": "ui1_sync_archive",
+    "canonical_writer": "rust_archive_sync_repository via RustArchiver"
+  },
+  "harper_future_state": {
+    "persistent_dictionary": true,
+    "status": "complete_strictly_accepted",
+    "owner": "harper_dictionary_repository",
+    "storage": "separate Writer-local durable JSON state beside resolved archive by default; GEL_HARPER_DICTIONARY override",
+    "persistent_tutorial_drafts": false,
+    "dictionary_must_not_store": [
+      "credentials",
+      "cookies/session state",
+      "student identifiers",
+      "tutorial text wholesale"
+    ]
+  },
+  "initial_exit_conditions": [
+    "React invokes only the explicit UI1a/b command allowlist.",
+    "No UI1 Tauri command can submit/mutate a GEL tutorial; the sole local archive mutation command is ui1_sync_archive, which delegates to RustArchiver.",
+    "Archive navigation is read-only and works independently of GEL authentication.",
+    "Opening New uses N2b/N2c authoritative source construction; React does not synthesize today/current-teacher/prepopulation.",
+    "Opening Revision uses governed D2 + C1/C2 authority and fails closed when revision authority is blocked.",
+    "The Rust active draft is ephemeral and candidate-before-commit edits cannot mutate teacher/origin/identity.",
+    "Teacher comments are authoritatively bounded at 970 Unicode scalar values in Rust.",
+    "Canonical CEFR option values are projected from Rust semantic authority; React carries no independent CEFR level list.",
+    "Frontend password state is cleared after every login attempt and no browser persistence API is used.",
+    "The selected A+D hybrid layout is strictly accepted under ui1-hybrid PASS=23 SKIP=0 FAIL=0."
+  ],
+  "non_goals_initial": [
+    "Complete Initial/Standard/Final form rendering",
+    "persistent tutorial drafts",
+    "native close interception",
+    "stale-source refresh/reconciliation UI",
+    "GEL tutorial submission",
+    "teacher reassignment"
+  ],
+  "layout": {
+    "selected": "UI1-LAYOUT-AD-HYBRID",
+    "contract": "contracts/ui1_layout_hybrid.json",
+    "status": "complete_strictly_accepted",
+    "browse_mode": "34/66 focused two-pane student list + selected-student command/history surface",
+    "write_mode": "editor-dominant with collapsible compact student context",
+    "student_visible_projection": [
+      "Student",
+      "Course",
+      "Attendance",
+      "Last tutorial"
+    ],
+    "school_visible": false,
+    "internal_ids_visible": false,
+    "tutorial_history_visible_projection": [
+      "Date",
+      "Type",
+      "Level",
+      "Teacher"
+    ],
+    "revision_eligibility_visible_column": false,
+    "revision_exception_behavior": "Backend revision authority remains enforced; blocked revisions surface contextual error only when encountered."
+  },
+  "strict_history": {
+    "ui1_initial": "PASS=22 SKIP=0 FAIL=0; RELEASE GATE: PASS",
+    "ui1_hybrid": "PASS=23 SKIP=0 FAIL=0; RELEASE GATE: PASS"
+  },
+  "ui1c0": {
+    "status": "implemented_pending_strict_acceptance",
+    "contract": "contracts/ui1c_semantic_forms.json",
+    "aims_assistance_contract": "contracts/ui1c_aims_assistance.json",
+    "scope": [
+      "executable field-disposition matrix",
+      "Rust option projection",
+      "InitialCourseType adapter",
+      "DraftValidationIssue DTO",
+      "explicit absent Aims hotlist",
+      "New-only same-role CEFR regression baseline"
+    ],
+    "typed_edit_changes": {
+      "added": [
+        "SetInitialCourseType"
+      ],
+      "removed": [
+        "SetExamField"
+      ]
+    },
+    "release_scope": "ui1c5",
+    "strict_target": "all checks PASS, SKIP=0, FAIL=0; targetStatus STRICT_ACCEPTED",
+    "plan": "plans/ui1c_semantic_forms_plan_v1_5_0.json"
+  },
+  "reproducible_release": {
+    "contract": "contracts/release_identity.json",
+    "workspace": "root Cargo.toml + single Cargo.lock",
+    "frontend_dependencies": "writer-ui/package-lock.json + npm ci",
+    "current_state": "governance/current-state.json is generated projection only",
+    "current_release_scope": "ui1e",
+    "ui1c1_authorization": "requires strict GRI acceptance",
+    "ui1c5_authorization": "UI1c5 strict acceptance PASS=41 SKIP=0 FAIL=0 recorded 2026-08-31; UI1d strict acceptance PASS=43 SKIP=0 FAIL=0 recorded 2026-09-01; UI1e strict acceptance is now required."
+  },
+  "ui1c1": {
+    "status": "implemented_prerequisite_satisfied_pending_ui1c5_strict_acceptance",
+    "authority_change": "none",
+    "scope": [
+      "reusable disposition-aware semantic field controls",
+      "Rust-projected option-domain consumption",
+      "structured DraftValidationIssue presentation",
+      "refactor existing foundation fields onto common controls without exposing later-stage form sections"
+    ],
+    "foundation_surface": [
+      "tutorial_date",
+      "overall_level",
+      "teacher_read_only",
+      "absent",
+      "teacher_comments"
+    ],
+    "next_stage": "UI1c2 Standard form completion",
+    "acceptance": "GRI prerequisite satisfied; integrated UI1c5 strict acceptance remains required for this changed candidate."
+  },
+  "ui1c2_4": {
+    "status": "complete_strictly_accepted",
+    "implementation_authorization": "explicit user direction on 2026-08-30",
+    "authority_change": "none",
+    "standard": "complete current levels + Reading + seven assessments + direct Aims + applicable teacher comments",
+    "initial": "complete Initial four levels + Rust-projected Initial course type adapter; unknown historical storage preserved",
+    "final": "paired Initial/current four-skill levels + Reading + teacher comments + additional comments",
+    "validation": "structured DraftValidationIssue field routing over existing candidate-before-commit Rust validation",
+    "non_goals": [
+      "submission",
+      "Harper",
+      "persistent tutorial drafts",
+      "teacher reassignment",
+      "GEL/archive writes"
+    ],
+    "next_stage": "UI1d complete; UI1e safety implementation active; strict ui1e release gate pending",
+    "acceptance": "Covered by UI1c5 strict acceptance PASS=41 SKIP=0 FAIL=0."
+  },
+  "ui1c5": {
+    "status": "complete_strictly_accepted",
+    "authority_change": "none",
+    "baseline_acceptance": "PASS=41 SKIP=0 FAIL=0 / TARGET STATUS: STRICT_ACCEPTED / RELEASE GATE: PASS",
+    "release_scope": "ui1c5",
+    "checks": [
+      "ui1c5_integrated",
+      "ui1c5_integrated_behavior"
+    ],
+    "coverage": [
+      "New Standard/Initial/Final reconstruction",
+      "structured validation + candidate-before-commit",
+      "Revision immutable identity/teacher authority",
+      "frontend typecheck/build and existing UI1c structural checks"
+    ],
+    "next_stage": "UI1d complete; UI1e strict acceptance pending"
+  },
+  "ui1d": {
+    "status": "complete_strictly_accepted",
+    "release_scope": "ui1d",
+    "baseline_acceptance": "PASS=43 SKIP=0 FAIL=0 / TARGET STATUS: STRICT_ACCEPTED / RELEASE GATE: PASS",
+    "next_stage": "UI1e strict acceptance"
+  },
+  "ui1e": {
+    "status": "complete_strictly_accepted",
+    "authority_change": "none",
+    "release_scope": "ui1e",
+    "checks": [
+      "ui1e_safety",
+      "ui1e_workflow_behavior"
+    ],
+    "coverage": [
+      "native dirty-close interception via CloseRequested",
+      "navigation and discard guards for class, student, new tutorial, and revision actions",
+      "stale_source and session invalidation state transitions",
+      "full mocked E2E workflow covering New, Revision, Harper, and session expiry"
+    ],
+    "next_stage": "Phase W2 (Production Submission) pre-flight",
+    "strict_result": "PASS=45 SKIP=0 FAIL=0; TARGET STATUS: STRICT_ACCEPTED; RELEASE GATE: PASS",
+    "evidence": "external immutable evidence: ui1e-strict-evidence.json"
+  }
+}

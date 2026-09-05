@@ -1,0 +1,694 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ai-governance-protocol.schema.json",
+  "title": "AI Governance Protocol",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "protocolId",
+    "protocolVersion",
+    "status",
+    "purpose",
+    "normativeTerms",
+    "authorityHierarchy",
+    "conflictResolution",
+    "stateClasses",
+    "coreInvariants",
+    "ownershipContractRequiredFields",
+    "activeComponentContractRequiredFields",
+    "approvalPolicies",
+    "subjectIdentity",
+    "evidence",
+    "claimSemantics",
+    "executionAlgorithm",
+    "lifecycle",
+    "stopConditions",
+    "scopeDriftPolicy",
+    "retryPolicy",
+    "verificationSemantics",
+    "mutationProfiles",
+    "overlaySemantics",
+    "releaseSemantics",
+    "historicalStatePolicy",
+    "projectProfileSemantics",
+    "requiredRunResultSchema",
+    "requiredProjectProfileSchema"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "protocolId": {
+      "const": "ai-governance-protocol"
+    },
+    "protocolVersion": {
+      "const": "1.1.0"
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "active",
+        "superseded",
+        "retired"
+      ]
+    },
+    "purpose": {
+      "type": "string",
+      "minLength": 20
+    },
+    "normativeTerms": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "minProperties": 4
+    },
+    "authorityHierarchy": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/authorityRank"
+      }
+    },
+    "conflictResolution": {
+      "$ref": "#/$defs/conflictResolution"
+    },
+    "stateClasses": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "decision",
+        "derived",
+        "projection",
+        "evidence"
+      ],
+      "properties": {
+        "source": {
+          "$ref": "#/$defs/stateClass"
+        },
+        "decision": {
+          "$ref": "#/$defs/stateClass"
+        },
+        "derived": {
+          "$ref": "#/$defs/stateClass"
+        },
+        "projection": {
+          "$ref": "#/$defs/stateClass"
+        },
+        "evidence": {
+          "$ref": "#/$defs/stateClass"
+        }
+      }
+    },
+    "coreInvariants": {
+      "type": "array",
+      "minItems": 16,
+      "items": {
+        "$ref": "#/$defs/invariant"
+      }
+    },
+    "ownershipContractRequiredFields": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "activeComponentContractRequiredFields": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "approvalPolicies": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "none",
+          "explicit_agent_capability",
+          "human_required",
+          "external_system_required"
+        ]
+      }
+    },
+    "subjectIdentity": {
+      "$ref": "#/$defs/subjectIdentityPolicy"
+    },
+    "evidence": {
+      "$ref": "#/$defs/evidencePolicy"
+    },
+    "claimSemantics": {
+      "$ref": "#/$defs/claimSemantics"
+    },
+    "executionAlgorithm": {
+      "type": "array",
+      "minItems": 8,
+      "items": {
+        "$ref": "#/$defs/algorithmStep"
+      }
+    },
+    "lifecycle": {
+      "$ref": "#/$defs/lifecycle"
+    },
+    "stopConditions": {
+      "type": "array",
+      "minItems": 8,
+      "items": {
+        "$ref": "#/$defs/stopCondition"
+      }
+    },
+    "scopeDriftPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rule"
+      ],
+      "properties": {
+        "rule": {
+          "type": "string",
+          "minLength": 20
+        }
+      }
+    },
+    "retryPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rules"
+      ],
+      "properties": {
+        "rules": {
+          "type": "array",
+          "minItems": 3,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "verificationSemantics": {
+      "$ref": "#/$defs/verificationSemantics"
+    },
+    "mutationProfiles": {
+      "type": "object",
+      "minProperties": 6,
+      "additionalProperties": {
+        "$ref": "#/$defs/mutationProfile"
+      }
+    },
+    "overlaySemantics": {
+      "$ref": "#/$defs/overlaySemantics"
+    },
+    "releaseSemantics": {
+      "$ref": "#/$defs/releaseSemantics"
+    },
+    "historicalStatePolicy": {
+      "$ref": "#/$defs/historicalStatePolicy"
+    },
+    "projectProfileSemantics": {
+      "$ref": "#/$defs/projectProfileSemantics"
+    },
+    "requiredRunResultSchema": {
+      "const": "agent-run-result.schema.json"
+    },
+    "requiredProjectProfileSchema": {
+      "const": "project-profile.schema.json"
+    }
+  },
+  "$defs": {
+    "authorityRank": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rank",
+        "kind",
+        "currentRuntimeAuthority"
+      ],
+      "properties": {
+        "rank": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "includes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "currentRuntimeAuthority": {
+          "type": "boolean"
+        }
+      }
+    },
+    "conflictResolution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "steps",
+        "blockingStatus"
+      ],
+      "properties": {
+        "steps": {
+          "type": "array",
+          "minItems": 4,
+          "items": {
+            "type": "string"
+          }
+        },
+        "blockingStatus": {
+          "const": "BLOCKED_AUTHORITY_CONFLICT"
+        }
+      }
+    },
+    "stateClass": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "definition",
+        "maySelfPromote"
+      ],
+      "properties": {
+        "definition": {
+          "type": "string",
+          "minLength": 10
+        },
+        "maySelfPromote": {
+          "const": false
+        },
+        "survivesDerivedRebuild": {
+          "type": "boolean"
+        },
+        "promotionAuthority": {
+          "type": "boolean"
+        }
+      }
+    },
+    "invariant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "level",
+        "rule"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^GOV-[0-9]{2}$"
+        },
+        "level": {
+          "enum": [
+            "MUST",
+            "MUST_NOT",
+            "SHOULD",
+            "SHOULD_NOT"
+          ]
+        },
+        "rule": {
+          "type": "string",
+          "minLength": 15
+        }
+      }
+    },
+    "subjectIdentityPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requiredFields",
+        "nullableUntilPromotionFields",
+        "optionalFields",
+        "artifactTypeAuthority",
+        "rule"
+      ],
+      "properties": {
+        "requiredFields": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "nullableUntilPromotionFields": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "optionalFields": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "artifactTypeAuthority": {
+          "const": "project_profile"
+        },
+        "rule": {
+          "type": "string",
+          "minLength": 20
+        }
+      }
+    },
+    "evidencePolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requiredFields",
+        "stages",
+        "proofClasses",
+        "resultValues",
+        "invalidationRule",
+        "promotionRule"
+      ],
+      "properties": {
+        "requiredFields": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "stages": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "proofClasses": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "resultValues": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "invalidationRule": {
+          "type": "string"
+        },
+        "promotionRule": {
+          "type": "string"
+        }
+      }
+    },
+    "claimSemantics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidenceStatus",
+        "verificationStatus",
+        "workflowStatus",
+        "rule"
+      ],
+      "properties": {
+        "evidenceStatus": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "verificationStatus": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "workflowStatus": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "rule": {
+          "type": "string"
+        }
+      }
+    },
+    "algorithmStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "step",
+        "name",
+        "actions"
+      ],
+      "properties": {
+        "step": {
+          "type": "string",
+          "pattern": "^A[0-7]$"
+        },
+        "name": {
+          "type": "string"
+        },
+        "actions": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "lifecycle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "statuses",
+        "blockingStatuses",
+        "promotionOrder",
+        "rule",
+        "semanticValidationRequired"
+      ],
+      "properties": {
+        "statuses": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "blockingStatuses": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "promotionOrder": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "rule": {
+          "type": "string"
+        },
+        "semanticValidationRequired": {
+          "const": true
+        }
+      }
+    },
+    "stopCondition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "condition",
+        "status",
+        "blocks"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^STOP-[0-9]{2}$"
+        },
+        "condition": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "blocks": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "repairScopeExemption": {
+          "type": "boolean"
+        }
+      }
+    },
+    "verificationSemantics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "preferredProofByProperty",
+        "proofClassRule",
+        "rule"
+      ],
+      "properties": {
+        "preferredProofByProperty": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "proofClassRule": {
+          "type": "string"
+        },
+        "rule": {
+          "type": "string"
+        }
+      }
+    },
+    "mutationProfile": {
+      "type": "object",
+      "additionalProperties": {
+        "type": [
+          "boolean",
+          "string",
+          "array"
+        ]
+      },
+      "minProperties": 2
+    },
+    "overlaySemantics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "definition",
+        "requiredFields",
+        "rule"
+      ],
+      "properties": {
+        "definition": {
+          "type": "string"
+        },
+        "requiredFields": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "rule": {
+          "type": "string"
+        }
+      }
+    },
+    "releaseSemantics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "subjectAcceptanceRule",
+        "artifactBindingInputs",
+        "verificationRule",
+        "noRebuildRule",
+        "rebuildAfterAcceptanceRule"
+      ],
+      "properties": {
+        "subjectAcceptanceRule": {
+          "type": "string"
+        },
+        "artifactBindingInputs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "verificationRule": {
+          "type": "string"
+        },
+        "noRebuildRule": {
+          "type": "string"
+        },
+        "rebuildAfterAcceptanceRule": {
+          "type": "string"
+        }
+      }
+    },
+    "historicalStatePolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mayAnswer",
+        "mustNotAnswer"
+      ],
+      "properties": {
+        "mayAnswer": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "mustNotAnswer": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "projectProfileSemantics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "role",
+        "runtimeAuthorityDefault",
+        "mustBindExistingAuthority",
+        "mustDeclareGateProfiles",
+        "mustDeclareSideEffectPolicy"
+      ],
+      "properties": {
+        "role": {
+          "const": "meta_governance_orchestration"
+        },
+        "runtimeAuthorityDefault": {
+          "const": false
+        },
+        "mustBindExistingAuthority": {
+          "const": true
+        },
+        "mustDeclareGateProfiles": {
+          "const": true
+        },
+        "mustDeclareSideEffectPolicy": {
+          "const": true
+        }
+      }
+    }
+  }
+}

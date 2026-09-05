@@ -1,0 +1,1623 @@
+{
+  "contract_id": "component_boundaries",
+  "contract_version": 30,
+  "status": "active",
+  "effective_date": "2026-09-03",
+  "components": [
+    {
+      "id": "gel_server",
+      "name": "GEL server",
+      "status": "active_external",
+      "role": "Authoritative live tutorial service and source of canonical tutorial identities and source pages.",
+      "scope": [
+        "Own live GEL tutorial records and canonical tutorial IDs.",
+        "Expose tutorial-list, summary, print and edit-form source representations."
+      ],
+      "authority": [
+        "Authoritative for live tutorial existence and canonical tutorial_id.",
+        "Source representations may contain known anomalies governed by known_source_anomalies.json."
+      ],
+      "reads": [],
+      "writes": [
+        "live_gel_tutorials"
+      ],
+      "must_not_write": [
+        "repository_contracts",
+        "generated_contract_projections",
+        "normalized_local_archive",
+        "private_fixtures",
+        "semantic_form_state",
+        "tutorial_post_payload"
+      ],
+      "state_transitions": [
+        "External GEL operations may append live tutorial records.",
+        "A live source change invalidates corresponding locally derived source snapshots until reacquired."
+      ],
+      "failure_semantics": [
+        "Unavailable or malformed GEL source causes acquisition failure; local code must not invent source values."
+      ],
+      "dependencies": [
+        "External GEL service"
+      ],
+      "tests": [
+        "Live behaviour is represented by captured private fixtures and explicit evidence contracts; automated release gates perform no GEL tutorial write."
+      ]
+    },
+    {
+      "id": "canonical_contracts",
+      "name": "Canonical contracts",
+      "status": "active",
+      "role": "Highest-authority repository representation of known GEL field, applicability, anomaly, governance, ownership and release invariants.",
+      "scope": [
+        "Store reviewed JSON contracts under contracts/.",
+        "Define inputs to generated Rust compatibility code and generated documentation.",
+        "Define semantic draft-origin, editable-source, provenance-only, collision-authority and offline POST round-trip invariants.",
+        "Own the executable archive v2 schema contract under schema/."
+      ],
+      "authority": [
+        "Highest repository documentation authority below executable tests/schema.",
+        "Executable archive schema SQL is repository authority for D1 storage shape."
+      ],
+      "reads": [],
+      "writes": [
+        "repository_contracts"
+      ],
+      "must_not_write": [
+        "live_gel_tutorials",
+        "normalized_local_archive",
+        "private_fixtures",
+        "semantic_form_state",
+        "tutorial_post_payload"
+      ],
+      "state_transitions": [
+        "Reviewed contract edit changes canonical repository authority.",
+        "Any contract edit invalidates dependent generated artifacts until regenerated."
+      ],
+      "failure_semantics": [
+        "Invalid or inconsistent contracts fail check:contracts/check:governance and release gates."
+      ],
+      "dependencies": [
+        "Reviewed repository change"
+      ],
+      "tests": [
+        "tools/check_contracts.py",
+        "tools/check_governance.py"
+      ]
+    },
+    {
+      "id": "contract_tooling",
+      "name": "Contract tooling",
+      "status": "active",
+      "role": "Generate and validate projections of canonical GEL contracts.",
+      "scope": [
+        "Generate gel-core/src/gel_fields.rs.",
+        "Generate contract documentation and hashes.",
+        "Validate Python/Rust contract projections."
+      ],
+      "authority": [
+        "Derived only; never authoritative over contracts/*.json."
+      ],
+      "reads": [
+        "repository_contracts"
+      ],
+      "writes": [
+        "generated_contract_projections"
+      ],
+      "must_not_write": [
+        "repository_contracts",
+        "live_gel_tutorials",
+        "normalized_local_archive",
+        "private_fixtures"
+      ],
+      "state_transitions": [
+        "Canonical contract change marks generated projections stale; generator restores current state."
+      ],
+      "failure_semantics": [
+        "Stale or inconsistent generated projections are hard failures."
+      ],
+      "dependencies": [
+        "canonical_contracts",
+        "Python 3"
+      ],
+      "tests": [
+        "tools/check_contracts.py",
+        "tools/generate_contract_artifacts.py --check"
+      ]
+    },
+    {
+      "id": "governance_tooling",
+      "name": "Governance tooling",
+      "status": "active",
+      "role": "Generate and validate component specs, architecture/ownership documents, documentation index, release-gate projections, and meta-governance protocol/profile conformance.",
+      "scope": [
+        "Generate active component specs from component boundary contract.",
+        "Generate architecture, state ownership, release gate and documentation index.",
+        "Validate one-writer and documentation-authority invariants.",
+        "Validate AI Governance Protocol v1.1 structural/semantic invariants and the GEL project profile binding.",
+        "Fail if the generic protocol/profile claims GEL runtime authority, overrides domain contracts, weakens portable/strict semantics, or references unknown gates/components/state classes."
+      ],
+      "authority": [
+        "Derived only; canonical governance contracts remain authoritative.",
+        "The generic protocol and GEL profile are meta-governance decisions only; existing canonical GEL contracts/tests remain runtime/domain authority."
+      ],
+      "reads": [
+        "repository_contracts",
+        "development_plan_source",
+        "agent_governance_protocol_decision",
+        "agent_governance_project_profile"
+      ],
+      "writes": [
+        "generated_governance_docs"
+      ],
+      "must_not_write": [
+        "repository_contracts",
+        "development_plan_source",
+        "live_gel_tutorials",
+        "normalized_local_archive",
+        "private_fixtures",
+        "agent_governance_protocol_decision",
+        "agent_governance_project_profile"
+      ],
+      "state_transitions": [
+        "Governance contract or plan change invalidates generated governance docs; generator restores current state."
+      ],
+      "failure_semantics": [
+        "Missing active spec, stale generated doc, invalid writer ownership or undocumented state class fails check:governance."
+      ],
+      "dependencies": [
+        "canonical_contracts",
+        "Python 3"
+      ],
+      "tests": [
+        "tools/check_governance.py",
+        "tools/generate_governance_artifacts.py --check",
+        "tools/check_ai_governance_protocol.py"
+      ]
+    },
+    {
+      "id": "python_archiver_oracle",
+      "name": "Python v4.9 archiver oracle",
+      "status": "historical_reference",
+      "role": "Historical Python v4.9 behavioural/parity oracle retained for A1/A2 regression evidence; no runtime canonical archive write ownership after A2.",
+      "scope": [
+        "Define retained Python v4.9 summary-primary + print-fallback reference semantics.",
+        "Generate/verify parity fixtures and support historical regression investigation.",
+        "Remain executable as an explicit oracle utility only; it is not the production archive runtime after A2."
+      ],
+      "authority": [
+        "Historical/reference oracle only after A2.",
+        "No production normalized_local_archive write authority.",
+        "Summary/print/edit semantics remain comparison authority where A1/A2 parity explicitly references v4.9."
+      ],
+      "reads": [
+        "private_fixtures",
+        "repository_contracts"
+      ],
+      "writes": [],
+      "must_not_write": [
+        "archive_reconciliation_metadata",
+        "archive_v2_candidate_database",
+        "generated_contract_projections",
+        "live_gel_tutorials",
+        "normalized_local_archive",
+        "repository_contracts",
+        "semantic_form_state",
+        "tutorial_post_payload"
+      ],
+      "state_transitions": [
+        "None in production; oracle execution may produce disposable comparison output only."
+      ],
+      "failure_semantics": [
+        "Oracle unavailability blocks parity evidence that explicitly requires it but never transfers runtime write ownership back to Python."
+      ],
+      "dependencies": [
+        "Python 3",
+        "historical optional requests/BeautifulSoup runtime for live oracle execution",
+        "canonical_contracts"
+      ],
+      "tests": [
+        "tools/check_a1_print_parity.py",
+        "private A1 print parity evidence",
+        "historical Python oracle regression checks"
+      ]
+    },
+    {
+      "id": "fixture_capture",
+      "name": "Private fixture capture tooling",
+      "status": "active_development",
+      "role": "Capture private source evidence and normalized expectations for regression testing without becoming runtime authority.",
+      "scope": [
+        "Capture 14 edit-form fixtures and two reconciliation cases.",
+        "Write Git-ignored private fixture tree and manifest."
+      ],
+      "authority": [
+        "Evidence source only; capture does not automatically promote evidence_baseline.json."
+      ],
+      "reads": [
+        "live_gel_tutorials",
+        "normalized_local_archive"
+      ],
+      "writes": [
+        "private_fixtures"
+      ],
+      "must_not_write": [
+        "repository_contracts",
+        "normalized_local_archive",
+        "live_gel_tutorials",
+        "semantic_form_state",
+        "tutorial_post_payload"
+      ],
+      "state_transitions": [
+        "Recapture invalidates previous private fixture contents.",
+        "Evidence baseline changes only through separate reviewed contract update after executed comparison."
+      ],
+      "failure_semantics": [
+        "Partial capture is not accepted as strict release evidence."
+      ],
+      "dependencies": [
+        "python_archiver_oracle",
+        "GEL session",
+        "private credentials at runtime"
+      ],
+      "tests": [
+        "tools/capture_gel_fixtures.py compilation",
+        "strict private-fixture release check when fixtures exist"
+      ]
+    },
+    {
+      "id": "rust_summary_parser",
+      "name": "Rust summary parser",
+      "status": "active",
+      "role": "Pure parser from GEL summary HTML to derived summary entries.",
+      "scope": [
+        "Parse FixedTables summary structure and normalized labels.",
+        "Preserve duplicate same-timestamp entries."
+      ],
+      "authority": [
+        "Derived parser output only; summary HTML and canonical contracts remain source authority."
+      ],
+      "reads": [
+        "gel_summary_html",
+        "repository_contracts"
+      ],
+      "writes": [
+        "parsed_summary_state"
+      ],
+      "must_not_write": [
+        "live_gel_tutorials",
+        "normalized_local_archive",
+        "repository_contracts",
+        "tutorial_post_payload"
+      ],
+      "state_transitions": [
+        "Each parse creates fresh derived state; source HTML change invalidates previous parse output."
+      ],
+      "failure_semantics": [
+        "Malformed required structure returns parser error or missing evidence; never invent fields."
+      ],
+      "dependencies": [
+        "contract_tooling generated gel_fields",
+        "scraper"
+      ],
+      "tests": [
+        "gel-core/tests/summary.rs"
+      ]
+    },
+    {
+      "id": "rust_edit_form_parser",
+      "name": "Rust edit-form parser",
+      "status": "active",
+      "role": "Pure parser from historical GEL edit HTML to raw/effective edit-form state.",
+      "scope": [
+        "Parse historical GEL edit HTML into a raw structural representation without inventing missing controls.",
+        "Recover browser-effective select values, including inline-JS selection and browser default-first-option semantics.",
+        "Recover Aims contenteditable separately from its hidden backing input and recover historical teacher selection evidence."
+      ],
+      "authority": [
+        "Derived parser output; not authoritative for historical absent because of ANOM-ABSENT-001."
+      ],
+      "reads": [
+        "gel_edit_html",
+        "repository_contracts"
+      ],
+      "writes": [
+        "parsed_edit_form_state"
+      ],
+      "must_not_write": [
+        "live_gel_tutorials",
+        "normalized_local_archive",
+        "repository_contracts",
+        "tutorial_post_payload"
+      ],
+      "state_transitions": [
+        "Each parse creates fresh derived edit state; source HTML change invalidates prior output."
+      ],
+      "failure_semantics": [
+        "HTML/syntax parsing errors fail parsing.",
+        "Missing or structurally unexpected tutorial controls remain observable in raw parsed state; the validator, not the parser, decides contract validity."
+      ],
+      "dependencies": [
+        "contract_tooling generated gel_fields",
+        "scraper",
+        "regex"
+      ],
+      "tests": [
+        "gel-core/tests/edit_form.rs"
+      ]
+    },
+    {
+      "id": "rust_edit_form_validator",
+      "name": "Rust edit-form validator",
+      "status": "active",
+      "role": "Contract-driven fail-closed boundary between raw parsed GEL edit forms and semantic tutorial state.",
+      "scope": [
+        "Classify each applicable historical GEL control as present value, present unset, missing or malformed.",
+        "Validate expected control kind, duplicate shape, selected-option and canonical select-option domains, complete radio option sets, positive numeric metadata and GEL date format.",
+        "Treat browser first-option select behaviour and contract placeholders as intentional present-unset state.",
+        "Reject known type-inapplicable tutorial controls rather than silently accepting contract drift."
+      ],
+      "authority": [
+        "Derived validation only; canonical expected fields/kinds/applicability/unset policy come from repository contracts."
+      ],
+      "reads": [
+        "parsed_edit_form_state",
+        "repository_contracts"
+      ],
+      "writes": [
+        "validated_edit_form_state"
+      ],
+      "must_not_write": [
+        "live_gel_tutorials",
+        "normalized_local_archive",
+        "repository_contracts",
+        "semantic_form_state",
+        "tutorial_post_payload"
+      ],
+      "state_transitions": [
+        "Raw parsed edit form → validated edit form only when every applicable required control is structurally valid and every forbidden known control is absent.",
+        "Any source HTML or field-contract change invalidates previous validation output."
+      ],
+      "failure_semantics": [
+        "Missing, malformed or disallowed-unset required controls produce a validation error report; no validated state is returned.",
+        "Intentional placeholder/blank state is preserved as PresentUnset and is not conflated with Missing."
+      ],
+      "dependencies": [
+        "rust_edit_form_parser",
+        "contract_tooling generated gel_fields",
+        "chrono"
+      ],
+      "tests": [
+        "gel-core/tests/edit_form_validation.rs",
+        "private fixture parity gate (validator runs before comparison)"
+      ]
+    },
+    {
+      "id": "rust_new_tutorial_form_parser",
+      "name": "Rust New-tutorial form parser",
+      "status": "active_n2b",
+      "role": "Validate one acquired GEL New-tutorial form into immutable source authority without weakening the historical Revision edit-form validator.",
+      "scope": [
+        "Parse the transient New-form HTML using the shared lexical form-control parser while keeping New semantic validation separate from Revision validation.",
+        "Require canonical POST form action/method, matching route uid/ttype, valid customdate, hidden positive tid and complete tutorial-type-applicable governed controls.",
+        "Require datetime to be absent on New; its presence is contract drift and never relaxes historical Revision datetime requirements.",
+        "Construct the sole production ValidatedNewFormTeacher authority from the hidden tid and expose no public integer constructor or mutation path.",
+        "Use canonical field identity/applicability only; never infer semantic provenance from equal values in unrelated controls.",
+        "Produce a deterministic normalized source fingerprint without retaining raw HTML or teacher display labels."
+      ],
+      "authority": [
+        "Sole production writer of validated_new_tutorial_form_state and opaque New-form teacher authority.",
+        "Validation/source interpretation authority only; GEL remains live source authority and N2b grants no tutorial submission/network-write authority.",
+        "New and Revision form contracts remain structurally distinct; this component cannot construct validated historical edit state."
+      ],
+      "reads": [
+        "gel_new_form_html",
+        "repository_contracts"
+      ],
+      "writes": [
+        "validated_new_tutorial_form_state"
+      ],
+      "must_not_write": [
+        "live_gel_tutorials",
+        "normalized_local_archive",
+        "archive_v2_candidate_database",
+        "semantic_form_state",
+        "tutorial_post_payload",
+        "authenticated_gel_session",
+        "private_fixtures"
+      ],
+      "state_transitions": [
+        "Acquired New-form HTML -> ValidatedNewTutorialForm only after all canonical source controls and route/type relationships pass.",
+        "A validation failure produces no partial validated source state.",
+        "Authentication/session invalidation or a refetched source-form change invalidates prior New-form source authority; it must not be silently rebound."
+      ],
+      "failure_semantics": [
+        "datetime present, hidden tid missing/wrong-kind/non-positive, route uid/type mismatch or known inapplicable governed controls fail closed.",
+        "Missing required controls, wrong control kinds, invalid date or unknown canonical option values fail closed.",
+        "Login/session failure is handled at acquisition and yields no parser authority; parser errors never include raw HTML in Display diagnostics.",
+        "No failed parse returns a partially trusted teacher, date or form authority."
+      ],
+      "dependencies": [
+        "rust_gel_session",
+        "rust_edit_form_validator shared control classifier",
+        "canonical_contracts",
+        "contract_tooling generated gel_fields"
+      ],
+      "tests": [
+        "gel-core/tests/new_form.rs",
+        "tools/check_n2b_new_form.py",
+        "strict/portable n2b release scope"
+      ]
+    },
+    {
+      "id": "rust_print_parser",
+      "name": "Rust print parser",
+      "status": "active_a1_pending_strict_acceptance",
+      "role": "Pure safe parser for GEL print HTML implementing the A1 Python-v4.9 print-fallback semantic shape for Rust archiver acquisition and parity evidence.",
+      "scope": [
+        "Parse structured print rows without interpreting teacher prose as labels.",
+        "Return Python-v4.9-compatible teacher/student/date headers, print_text, fields, direct-label projection and Tutorial Type -> Type alias.",
+        "Remain a derived parser only: A1 strict acceptance additionally requires the private historical print fixture set."
+      ],
+      "authority": [
+        "A1 parser authority for derived parsed_print_state and public Python-v4.9 print-parity fixtures.",
+        "No authority to mutate the canonical archive or live GEL tutorials; private-fixture parity is required before strict A1 acceptance."
+      ],
+      "reads": [
+        "gel_print_html",
+        "repository_contracts"
+      ],
+      "writes": [
+        "parsed_print_state"
+      ],
+      "must_not_write": [
+        "live_gel_tutorials",
+        "normalized_local_archive",
+        "repository_contracts",
+        "semantic_form_state",
+        "tutorial_post_payload"
+      ],
+      "state_transitions": [
+        "Each parse creates fresh derived print state."
+      ],
+      "failure_semantics": [
+        "Unknown/missing print rows remain absent rather than inferred from prose.",
+        "Parse/validation failure blocks print-derived evidence for the affected tutorial and is surfaced to A2 acquisition; it never invents source values."
+      ],
+      "dependencies": [
+        "scraper"
+      ],
+      "tests": [
+        "gel-core/tests/print.rs",
+        "gel-core/tests/print_parity.rs",
+        "tools/check_a1_print_parity.py",
+        "private A1 print parity evidence"
+      ]
+    },
+    {
+      "id": "rust_reconciliation",
+      "name": "Rust reconciliation",
+      "status": "active_c3",
+      "role": "Pure association logic between canonical API identities and summary states, preserving collision evidence.",
+      "scope": [
+        "Pair non-collision exact timestamp/date candidates without reusing consumed entries.",
+        "Keep same-timestamp collision summary candidates group-owned rather than positionally assigning them to canonical tutorial IDs.",
+        "Classify collision groups as identical_state, divergent_state or incomplete_evidence using governed summary state.",
+        "Resolve revision state only when per-ID authority is proven or all collision candidate states are identical."
+      ],
+      "authority": [
+        "Derived association only; tutorial_id remains canonical identity and a collision candidate state cannot be upgraded to per-ID ownership without evidence.",
+        "Shared-identical state is revision-safe because candidate states are equivalent, but the source-entry association remains ambiguous."
+      ],
+      "reads": [
+        "canonical_tutorial_identity_state",
+        "parsed_summary_state",
+        "repository_contracts"
+      ],
+      "writes": [
+        "derived_reconciliation_result"
+      ],
+      "must_not_write": [
+        "live_gel_tutorials",
+        "normalized_local_archive",
+        "repository_contracts",
+        "semantic_form_state"
+      ],
+      "state_transitions": [
+        "Input identity/source-state changes invalidate reconciliation result.",
+        "Non-collision source state may become proven per-tutorial association.",
+        "Identical collision becomes shared-identical authority without deduplicating IDs.",
+        "Divergent or incomplete collision remains blocked for revision-by-ID."
+      ],
+      "failure_semantics": [
+        "Divergent ambiguous collision returns no per-ID summary assignment and revision-state resolution fails closed.",
+        "Incomplete collision evidence returns no per-ID summary assignment and revision-state resolution fails closed.",
+        "Timestamp-only route state is never used as an implicit discriminator for canonical tutorial IDs."
+      ],
+      "dependencies": [
+        "rust_summary_parser"
+      ],
+      "tests": [
+        "gel-core/tests/reconciliation.rs",
+        "gel-core/src/bin/check_reconciliation_fixtures.rs",
+        "tools/check_private_collision_authority.py"
+      ]
+    },
+    {
+      "id": "rust_semantic_form",
+      "name": "Rust semantic form model",
+      "status": "active_ui1c5",
+      "role": "Construct and validate editable semantic tutorial state from governed source authority, including UI1c5-integrated field applicability, structured edit validation, Initial course-type storage adaptation, and New-only same-role CEFR regression protection.",
+      "scope": [
+        "Normalize CEFR, assessments, exam state, Aims and comments.",
+        "Represent DraftOrigin explicitly as Revision { source, source_teacher_id } or New { optional prepopulation_source, opaque ValidatedNewFormTeacher }; New has no authoritative created GEL identity.",
+        "Bind teacher attribution immutably to origin authority: historical teacher for Revision, validated fetched New-form teacher for New; expose no semantic teacher reassignment path.",
+        "Keep one editable representation for each semantic value; raw overall-level text and Aims HTML are provenance-only.",
+        "Use archive/summary authoritative absent while retaining edit discrepancy provenance.",
+        "Represent Final Reading and enforce tutorial-type applicability invariants.",
+        "Require explicit historical state authority before constructing a revision-by-ID draft.",
+        "Treat an optional New prepopulation source as provenance only: when present it must be canonical and belong to the same student; first-ever New may have no source.",
+        "Keep source authority distinct from editable derived state; source/session changes invalidate rather than silently reinterpret a draft.",
+        "Construct New semantic state through the N2c field-by-field prepopulation contract: latest tutorial is carried source when present; validated New form supplies date/teacher/type and defaults for fields unavailable on the source type.",
+        "Project New level fields only from the same canonical semantic role: Initial-role fields copy only from Initial/Final sources; current-role fields copy only from Standard/Final sources; unavailable roles retain validated New-form defaults; equal values never create provenance.",
+        "Copy/reset type-specific state according to N2c: Standard-only self-assessment/Aims, Initial-only exam fields, Final-only additional comments; unavailable source-type fields fall back to validated New-form defaults.",
+        "Own the executable UI1c tutorial semantic field-disposition matrix: editable, read-only, hidden-preserved or inapplicable by tutorial type.",
+        "Project canonical CEFR, assessment and InitialCourseType option domains for safe Writer view models; React must not own those domains.",
+        "Interpret Initial teacher_comments through the lossless InitialCourseType adapter: exact HSP/G21/G15 are recognized, blank is unset, every other nonblank value is preserved verbatim until explicit replacement.",
+        "Reject direct Initial teacher-comment and hidden exam edits; hidden Initial storage survives unrelated edits unchanged.",
+        "Return structured DraftValidationIssue values for typed edit failures with stable code/field/severity/message/prior/candidate fields.",
+        "For New only, retain a same-role CEFR regression baseline derived from the N2c latest authoritative source snapshot and reject lower populated candidate levels with LEVEL_REGRESSION.",
+        "UI1c5 integrated cross-form acceptance is executable through dedicated structural and behavioral checks without changing runtime authority."
+      ],
+      "authority": [
+        "Derived editable state only; archive/source evidence remains authoritative history.",
+        "N2a origin authority is executable: Revision identity/teacher are immutable source authority; New has no created identity and its form teacher is immutable source authority.",
+        "N2c is current authority for New draft prepopulation/default/reset semantics; GEL New-form values remain source/default evidence, not permission for cross-field inference.",
+        "UI1c0 is current authority for Writer field applicability, option domains, InitialCourseType storage adaptation, structured draft validation and New-only same-role CEFR regression."
+      ],
+      "reads": [
+        "normalized_local_archive",
+        "validated_edit_form_state",
+        "repository_contracts",
+        "archive_reconciliation_metadata",
+        "validated_new_tutorial_form_state"
+      ],
+      "writes": [
+        "semantic_form_state"
+      ],
+      "must_not_write": [
+        "live_gel_tutorials",
+        "normalized_local_archive",
+        "repository_contracts"
+      ],
+      "state_transitions": [
+        "Validated revision evidence creates a clean Revision semantic state bound to source identity and historical teacher.",
+        "Validated New-form authority may create a New semantic state with the latest prepopulation source when one exists, or no prepopulation source for a first-ever tutorial; N2b owns the sole production New-form authority constructor.",
+        "Semantic edits change only editable semantic fields and invalidate any derived POST payload.",
+        "A changed latest prepopulation source, authentication loss, or changed Revision source marks the relevant draft stale; it is never silently rebound.",
+        "Latest source + ValidatedNewTutorialForm -> New TutorialFormState only through N2c canonical field projection; first-ever New uses validated form defaults and has no source identity.",
+        "Typed UI1c edit -> field-disposition authorization -> candidate mutation -> semantic invariant validation -> same-role New regression validation -> replace state only on success."
+      ],
+      "failure_semantics": [
+        "Semantic revision construction only accepts a validated GEL edit form and historical state authority that permits revision-by-ID.",
+        "Revision origin source identity must match student and tutorial type, and semantic teacher must equal source_teacher_id.",
+        "New form teacher authority must be positive and semantic teacher must equal the opaque validated New-form teacher; an optional prepopulation source must be canonical and belong to the same student.",
+        "New origin must never claim an authoritative created GEL identity before future fresh server readback.",
+        "Type-inapplicable populated fields fail semantic validation rather than being silently discarded.",
+        "Historical absent remains archive/summary-authoritative under ANOM-ABSENT-001.",
+        "Ambiguous divergent, incomplete, unmatched or legacy ambiguous-unknown archive state blocks revision-by-ID before semantic state construction.",
+        "N2c rejects a mismatched/non-canonical latest source and never copies across semantic dimensions or Initial/current roles; fields unavailable on the source tutorial type use validated New-form defaults rather than invented values.",
+        "Read-only, hidden-preserved and inapplicable UI1c fields reject direct edits with FIELD_NOT_APPLICABLE.",
+        "Invalid dates/options/text lengths and New same-role level regressions return structured DraftValidationIssue and leave the input state unchanged."
+      ],
+      "dependencies": [
+        "rust_edit_form_validator",
+        "rust_reconciliation historical state authority contract",
+        "n2a_semantic_post_authority contract",
+        "contract_tooling generated gel_fields",
+        "rust_new_tutorial_form_parser",
+        "new_tutorial_prepopulation contract",
+        "ui1c_semantic_forms contract",
+        "ui1c_aims_assistance contract"
+      ],
+      "tests": [
+        "gel-core/tests/semantic.rs",
+        "gel-core/tests/new_prepopulation.rs",
+        "tools/check_n2c_prepopulation.py",
+        "strict/portable n2c release scope",
+        "gel-core/tests/ui1c_semantic_contract.rs",
+        "tools/check_ui1c_forms_contract.py",
+        "gel-core/tests/ui1c5_integrated.rs"
+      ]
+    },
+    {
+      "id": "rust_post_mapper",
+      "name": "Rust offline POST mapper",
+      "status": "active_c2_c4_n2a",
+      "role": "Purely serialize governed semantic tutorial state through origin-specific New/Revision submission types to GEL form field/value pairs without network access.",
+      "scope": [
+        "Validate semantic origin/type invariants before mapping.",
+        "Use distinct NewTutorialSubmission and RevisionTutorialSubmission views so New has no datetime serialization path and Revision derives datetime only from its source TutorialIdentity.",
+        "Serialize immutable teacher authority already bound by semantic validation; never offer a teacher reassignment writer.",
+        "Apply successful-control checkbox semantics.",
+        "Serialize type-applicable fields including Final Reading.",
+        "HTML-escape editable Aims plain text before converting newlines to <br>.",
+        "Enforce observed comment length limits.",
+        "Remain a pure mapper whose output can be independently checked against C4 source-derived expected payloads."
+      ],
+      "authority": [
+        "Derived payload only; it has no permission to perform HTTP writes.",
+        "N2a submission authority: New omits datetime entirely; Revision emits the exact source tutorial_ts; teacher attribution is immutable origin authority."
+      ],
+      "reads": [
+        "semantic_form_state",
+        "repository_contracts"
+      ],
+      "writes": [
+        "tutorial_post_payload"
+      ],
+      "must_not_write": [
+        "live_gel_tutorials",
+        "normalized_local_archive",
+        "repository_contracts"
+      ],
+      "state_transitions": [
+        "Each mapping produces an ephemeral payload from one validated semantic snapshot.",
+        "New semantic state may transition only to a New-derived payload with no datetime key; Revision semantic state may transition only to a Revision-derived payload carrying exact source datetime.",
+        "Any semantic edit or source-authority invalidation makes an existing payload stale."
+      ],
+      "failure_semantics": [
+        "Invalid semantic origin/type state fails before payload construction.",
+        "New/Revision submission constructors reject the wrong DraftOrigin.",
+        "New datetime serialization is structurally unavailable; Revision datetime is never caller supplied or defaulted.",
+        "Teacher mismatch against New-form or historical Revision authority fails before payload construction.",
+        "Invalid comment lengths fail mapping.",
+        "Source provenance is never a fallback input to submitted semantic values.",
+        "Any C4 exact payload or mutation-isolation failure blocks phase acceptance and later networking."
+      ],
+      "dependencies": [
+        "rust_semantic_form",
+        "n2a_semantic_post_authority contract",
+        "contract_tooling generated gel_fields"
+      ],
+      "tests": [
+        "gel-core/tests/post_mapper.rs",
+        "gel-core/tests/post_mutation_isolation.rs",
+        "private C4 round-trip checker via rust_fixture_tooling"
+      ]
+    },
+    {
+      "id": "rust_fixture_tooling",
+      "name": "Rust fixture/comparator tooling",
+      "status": "active_c4",
+      "role": "Compare private source/archive evidence with derived parser, semantic, reconciliation and offline POST states through C4.",
+      "scope": [
+        "Run semantic field parity across private fixtures.",
+        "Require every private edit form to pass C1 validation.",
+        "Require every private fixture pair to construct a valid C2 Revision state with matching explicit source identity.",
+        "Run the two private reconciliation fixtures through Rust summary parsing and C3 reconciliation.",
+        "Prove collision candidates remain group-owned, identical-state resolution is shared-state only, and divergent-state revision-by-ID is blocked.",
+        "Run all 14 private edit fixtures through archive + validated edit -> Revision semantic state -> POST payload.",
+        "Build an independent expected successful-control payload from validated source evidence plus governed archive absent authority and require exact map equality.",
+        "Count Final Reading coverage and historical absent discrepancies as governed C4 evidence.",
+        "Inspect summary/edit/print/revision fixtures.",
+        "Adapt captured expected-fixture JSON into semantic archive records for offline revision diagnostics."
+      ],
+      "authority": [
+        "Diagnostic evidence only; it does not mutate canonical contracts automatically."
+      ],
+      "reads": [
+        "private_fixtures",
+        "repository_contracts",
+        "derived_reconciliation_result",
+        "semantic_form_state",
+        "tutorial_post_payload"
+      ],
+      "writes": [
+        "fixture_comparison_reports",
+        "offline_post_round_trip_report"
+      ],
+      "must_not_write": [
+        "live_gel_tutorials",
+        "normalized_local_archive",
+        "repository_contracts",
+        "semantic_form_state"
+      ],
+      "state_transitions": [
+        "Fixture/source change invalidates prior comparison report."
+      ],
+      "failure_semantics": [
+        "Strict gate requires exact approved parity baseline and allowlisted mismatch identities; unexpected mismatch/unavailable is failure.",
+        "Any private fixture that cannot pass C1 validation or C2 Revision construction is a strict failure.",
+        "Missing or unexpected C3 collision fixtures, positional collision assignment, or successful divergent revision resolution is a strict failure.",
+        "Any C4 fixture payload key/value difference, source timestamp identity mismatch, missing Final Reading field, wrong archive-authoritative absent encoding, or unexpected discrepancy count is a strict failure."
+      ],
+      "dependencies": [
+        "rust_edit_form_parser",
+        "rust_edit_form_validator",
+        "rust_semantic_form",
+        "rust_post_mapper",
+        "rust_reconciliation",
+        "Rust toolchain"
+      ],
+      "tests": [
+        "gel-core/tests/fixture_compare.rs",
+        "tools/check_private_fixture_parity.py",
+        "gel-core/tests/fixture_support.rs",
+        "gel-core/src/bin/check_semantic_fixtures.rs",
+        "gel-core/src/bin/check_reconciliation_fixtures.rs",
+        "tools/check_private_collision_authority.py",
+        "gel-core/src/bin/check_post_round_trip_fixtures.rs",
+        "tools/check_private_post_round_trip.py",
+        "gel-core/tests/post_mutation_isolation.rs"
+      ]
+    },
+    {
+      "id": "archive_schema_migrator",
+      "name": "Archive schema v2 migration tooling",
+      "status": "active_d1",
+      "role": "Create fresh archive-schema-v2 databases and migrate an explicitly supplied legacy archive into a separate candidate destination without changing canonical writer ownership.",
+      "scope": [
+        "Apply schema/archive_v2.sql to empty candidate databases.",
+        "Migrate legacy classes/students/tutorials into normalized v2 identities, source states, memberships, collision groups and governed associations.",
+        "Extract minimal field-presence provenance from legacy raw_json and then discard the raw blob.",
+        "Fail closed on invalid parents, unrecognized schema shapes, missing collision identities or foreign-key violations.",
+        "Write migration output only to a separate destination database; never migrate the canonical legacy source in place."
+      ],
+      "authority": [
+        "Executable schema/migration implementation for D1 candidate databases.",
+        "No authority to modify the configured canonical local archive or transfer canonical write ownership."
+      ],
+      "reads": [
+        "repository_contracts",
+        "normalized_local_archive"
+      ],
+      "writes": [
+        "archive_v2_candidate_database"
+      ],
+      "must_not_write": [
+        "live_gel_tutorials",
+        "normalized_local_archive",
+        "archive_reconciliation_metadata",
+        "repository_contracts",
+        "semantic_form_state",
+        "tutorial_post_payload"
+      ],
+      "state_transitions": [
+        "Empty destination -> fresh schema v2 candidate.",
+        "Legacy v1 source + absent destination -> separate migrated v2 candidate.",
+        "Any migration failure -> incomplete destination is deleted; source remains unchanged."
+      ],
+      "failure_semantics": [
+        "Migration never guesses missing canonical parents or collision IDs.",
+        "Legacy collision ambiguity remains blocked: candidate states are group-owned and per-ID source_state_id stays NULL.",
+        "Foreign-key violations are hard failures.",
+        "The D1 schema acceptance checker is offline and must not acquire requests/bs4 or other live-oracle runtime dependencies merely to validate SQLite storage behaviour."
+      ],
+      "dependencies": [
+        "canonical_contracts",
+        "SQLite",
+        "Python 3"
+      ],
+      "tests": [
+        "tools/check_archive_schema.py (stdlib-only; exact transitional UPSERT SQL extracted from oracle source, never runtime-imported)"
+      ]
+    },
+    {
+      "id": "rust_archive_repository",
+      "name": "Rust archive v2 read repository",
+      "status": "active_d2",
+      "role": "Public read-only typed repository over an existing archive-schema-v2 database for Writer/Viewer navigation and fail-closed historical revision loading.",
+      "scope": [
+        "Open only existing schema-v2 SQLite databases in read-only/query-only mode.",
+        "Expose typed class, membership, student and tutorial list models.",
+        "Construct ArchivedTutorial only from source-present governed revision state.",
+        "Reject missing/blocked collision authority, stale identity/state presence, wrong schema version and FK-invalid databases."
+      ],
+      "authority": [
+        "Read projection authority for archive schema v2.",
+        "No authority to create, migrate, synchronize, invalidate or mutate archive history."
+      ],
+      "reads": [
+        "archive_v2_candidate_database",
+        "repository_contracts"
+      ],
+      "writes": [
+        "archive_repository_read_models"
+      ],
+      "must_not_write": [
+        "normalized_local_archive",
+        "archive_v2_candidate_database",
+        "archive_reconciliation_metadata",
+        "live_gel_tutorials",
+        "semantic_form_state",
+        "tutorial_post_payload"
+      ],
+      "state_transitions": [
+        "SQLite rows -> typed read models only.",
+        "Eligible governed identity/state -> ArchivedTutorial; blocked/stale authority -> explicit blocked result."
+      ],
+      "failure_semantics": [
+        "Open fails unless PRAGMA user_version=2, migration metadata is present, required view exists and foreign_key_check is clean.",
+        "Revision loading fails closed rather than synthesizing values from missing/ambiguous state."
+      ],
+      "dependencies": [
+        "canonical_contracts",
+        "archive_schema_v2",
+        "rusqlite"
+      ],
+      "tests": [
+        "gel-core/tests/archive_repository.rs",
+        "archive_sync_repository unit read-back/blocking tests",
+        "tools/check_archive_repository.py"
+      ]
+    },
+    {
+      "id": "rust_archive_sync_repository",
+      "name": "Rust A2 canonical archiver + private schema-v2 repository",
+      "status": "active_a2_canonical",
+      "role": "A2 production canonical local-archive implementation: RustArchiver acquires source data and delegates all SQLite mutation to the crate-private transactional ArchiveSyncRepository.",
+      "scope": [
+        "Resolve/create the production schema-v2 archive through RustArchiver; fresh creation is staged and atomically published.",
+        "Acquire open classes, rosters, optional student-profile enrichment, tutorial identities, summary/print/edit source evidence before opening the materialization transaction.",
+        "Preserve Python-v4.9 summary-primary/explicit-blank/print-fallback semantics and recover historical teacher identity from validated edit forms.",
+        "Upsert classes, students, memberships, immutable tutorial identities, source states and field evidence.",
+        "Persist collision groups/group-owned identities/states and governed associations.",
+        "Compute D1-compatible semantic source-state fingerprints.",
+        "Run whole materialization in one transaction and invalidate unseen rows only after a full run is marked complete inside that transaction.",
+        "Audit repository semantic invariants and foreign keys before commit.",
+        "On partial auxiliary summary/print/edit acquisition, preserve prior semantic source evidence for still-observed API tutorial keys while retaining authoritative absence handling for disappeared identities."
+      ],
+      "authority": [
+        "Sole production canonical writer of normalized_local_archive and archive_reconciliation_metadata after A2.",
+        "RustArchiver is the public production orchestration entry point; ArchiveSyncRepository remains crate-private and cannot be constructed by external Writer/Viewer consumers.",
+        "Python v4.9 is historical/reference only after A2.",
+        "No authority to mutate live GEL tutorials."
+      ],
+      "reads": [
+        "live_gel_tutorials",
+        "repository_contracts",
+        "normalized_local_archive",
+        "authenticated_gel_session",
+        "parsed_summary_state",
+        "parsed_print_state",
+        "validated_edit_form_state"
+      ],
+      "writes": [
+        "normalized_local_archive",
+        "archive_reconciliation_metadata",
+        "archive_v2_candidate_database"
+      ],
+      "must_not_write": [
+        "live_gel_tutorials",
+        "private_fixtures",
+        "semantic_form_state",
+        "tutorial_post_payload"
+      ],
+      "state_transitions": [
+        "missing canonical DB -> staged fresh schema-v2 DB -> validated -> atomic rename.",
+        "authenticated source acquisition -> complete in-memory snapshot -> running sync row -> transactional materialization -> complete -> scope-aware invalidation/preservation -> invariant audit -> commit.",
+        "Any operation/finalization failure -> rollback materialization and mark outer sync row failed.",
+        "Unique print-only timestamp may become proven_per_tutorial; same-timestamp collision candidates remain group-owned/fail-closed."
+      ],
+      "failure_semantics": [
+        "Existing non-v2/invalid archive is rejected; no destructive in-place migration or replacement.",
+        "Canonical tutorial_id re-key attempts fail hard.",
+        "Invalid collision association shape/group ownership fails before write or pre-commit audit.",
+        "Failed/rolled-back sync never invalidates prior source presence; completed FullPreserveSourceEvidence runs may invalidate truly disappeared identities while preserving semantic evidence for still-observed tutorial keys.",
+        "Commit/invariant/FK failure is a hard error; no blind best-effort canonical mutation.",
+        "Partial auxiliary evidence is surfaced in ArchiveSyncReport and cannot erase prior semantic evidence for API tutorial keys still observed in the completed run."
+      ],
+      "dependencies": [
+        "canonical_contracts",
+        "archive_schema_v2",
+        "rusqlite",
+        "sha2"
+      ],
+      "tests": [
+        "gel-core archiver unit tests",
+        "archive_sync_repository behavioral tests",
+        "gel-core/tests/print_parity.rs",
+        "tools/check_archive_repository.py",
+        "tools/check_a2_archiver.py",
+        "strict release gate"
+      ]
+    },
+    {
+      "id": "rust_gel_session",
+      "name": "Rust GEL session",
+      "status": "active_n1_n2b_read_only",
+      "role": "Own authenticated GEL HTTP session state and expose a fixed read-only acquisition surface without leaking credentials/cookies or granting tutorial mutation authority.",
+      "scope": [
+        "Perform the established two-POST Learn2 login handshake and verify both api2 and learn2 authenticated sessions.",
+        "Expose fixed GET methods for open classes, class students, student profile, tutorial list, tutorial summary, tutorial print, current New-tutorial source form and historical tutorial edit pages.",
+        "Acquire a New form only through /study/tutorials/add/{student_uid}/0/{ttype_raw}; the fixed zero locator is read-source semantics and grants no create authority.",
+        "Project tutorial-list JSON to canonical tutorial id/timestamp observations without parsing semantic tutorial content.",
+        "Strip student email-like fields recursively before roster/profile JSON leaves the component.",
+        "Keep credentials transient and cookies private to the session client; expose no generic request function or cookie jar.",
+        "Permit no GEL tutorial create, revise or delete transport."
+      ],
+      "authority": [
+        "Transport/acquisition authority only; GEL server remains authoritative for live source content and canonical tutorial IDs.",
+        "The only N1 HTTP POST authority is the two-step Learn2 login handshake; all exposed acquisition operations after authentication are GET.",
+        "N1 does not transfer canonical archive write ownership from the Python v4.9 oracle and does not grant submission authority."
+      ],
+      "reads": [
+        "live_gel_tutorials",
+        "repository_contracts"
+      ],
+      "writes": [
+        "authenticated_gel_session",
+        "gel_api_json",
+        "gel_summary_html",
+        "gel_print_html",
+        "gel_new_form_html",
+        "gel_edit_html"
+      ],
+      "must_not_write": [
+        "normalized_local_archive",
+        "archive_v2_candidate_database",
+        "archive_reconciliation_metadata",
+        "semantic_form_state",
+        "tutorial_post_payload",
+        "private_fixtures"
+      ],
+      "state_transitions": [
+        "Unauthenticated -> authenticated only after both api2 and learn2 verification succeed.",
+        "Authenticated -> unauthenticated on HTTP 401/403 or a detected Learn2 login redirect/form.",
+        "Each successful GET replaces the corresponding ephemeral runtime source snapshot; it never promotes the snapshot to canonical local archive state."
+      ],
+      "failure_semantics": [
+        "Reads fail before transport when the session is unauthenticated.",
+        "Authentication/network/source-shape failures fail closed and never synthesize source values.",
+        "Malformed tutorial-list identity rows fail rather than inventing tutorial_id or timestamp.",
+        "Authentication errors must not include passwords, cookie values, serialized login bodies or full response bodies."
+      ],
+      "dependencies": [
+        "canonical_contracts",
+        "GEL server",
+        "reqwest blocking client with private cookie store"
+      ],
+      "tests": [
+        "gel_session unit tests for login/read method routing including fixed New-form GET, expiry detection, tutorial identity projection and privacy filtering",
+        "tools/check_gel_session.py",
+        "tools/check_n2b_new_form.py",
+        "manual check_gel_read_only_live probe for live read-only parity",
+        "portable/strict release gate offline N1/N2b boundary checks"
+      ]
+    },
+    {
+      "id": "n2_playwright_evidence_harness",
+      "name": "N2 Playwright zero-write evidence harness",
+      "status": "active_n2_pw1_core_complete_residual_deferred",
+      "role": "Zero-write evidence harness for current GEL New/Edit browser behaviour; core N2 evidence is complete and changed-teacher submit serialization remains a deferred non-blocking diagnostic capability.",
+      "scope": [
+        "Install a context-wide mutation firewall before the first browser navigation and block service workers so browser traffic cannot bypass routing.",
+        "Keep AUTHENTICATION active through the complete two-stage GEL login: manual /corelogin/ submission, GET-only Learn2 session verification, and—when required by the observed historical handshake—manual /user/login submission followed by the same GET-only verification. Credentials remain browser-only in both stages.",
+        "Classify network mutations by authority origin: unexpected GEL-origin mutations are aborted and fail closed; third-party mutating telemetry is aborted without body/header inspection and is non-fatal because it cannot write GEL tutorial state.",
+        "For blocked mutations, stderr-only terminal diagnostics may contain only phase, HTTP method, origin and a redacted path; query parameters, request body, headers, cookies and credential values are forbidden.",
+        "Emit only allowlisted static stage markers during live evidence so a fail-closed exception can be localized without printing student/teacher identity, URLs, form values or network payloads.",
+        "During EVIDENCE, permit no mutation to reach the network. For an explicitly armed /study/tutorials/process POST, reduce only tid/type/customdate/datetime structural relationships in memory and always abort the request.",
+        "Inspect current New forms for Standard/Initial/Final, the latest historical edit form, teacher-control topology and field-by-field New prepopulation behaviour.",
+        "Treat latest tutorial as the already-established New prepopulation source; PW1 records copy/reset/derive relationships rather than attempting provenance inference.",
+        "Where a genuine enabled teacher selector exists, an optional later residual probe may select an alternate only in the browser and observe authentic serialization; this is not required for N2 or normal Writer functionality and never authorizes server reassignment.",
+        "Verify zero writes by fresh GETs: New probes leave the tutorial locator digest unchanged and the revision probe leaves the historical semantic-state digest unchanged.",
+        "Persist only privacy-safe aliases, booleans, counts, non-identity semantic field names, relationship/classification labels, student-free digests and sanitized failure categories under a gitignored evidence directory. student_uid and teacher_id semantic keys are excluded from the persisted prepopulation field map.",
+        "Construct the persisted evidence preamble through a single privacy-validated helper; privacy policy metadata uses non-raw-data key names so the strict global guard can reject identity/body/header fields without false positives."
+      ],
+      "authority": [
+        "Evidence-acquisition authority only; no production Tutorial Writer runtime authority.",
+        "May forward the canonical GEL login POST only before EVIDENCE. It has zero GEL tutorial mutation authority.",
+        "Third-party network traffic has no GEL state-writing authority. Blocking third-party telemetry is privacy protection, not GEL contract drift.",
+        "PW1 can record client-side teacher selection but changed-tid serialization/server acceptance is deferred non-blocking and cannot enable Writer reassignment.",
+        "Historical evidence remains authority for NEW-1/TEACHER-1/TEACHER-2/TEACHER-3/UPDATE-1; contradictory live evidence is contract drift requiring review."
+      ],
+      "reads": [
+        "live_gel_tutorials",
+        "repository_contracts"
+      ],
+      "writes": [
+        "n2_playwright_private_evidence"
+      ],
+      "must_not_write": [
+        "live_gel_tutorials",
+        "normalized_local_archive",
+        "archive_v2_candidate_database",
+        "archive_reconciliation_metadata",
+        "semantic_form_state",
+        "tutorial_post_payload",
+        "authenticated_gel_session",
+        "private_fixtures"
+      ],
+      "state_transitions": [
+        "BOOT -> AUTHENTICATION only after the mutation firewall is installed.",
+        "AUTHENTICATION stage 1: operator submits /corelogin/ manually; canonical /user/login POST may be forwarded without body/header inspection; GET-only /administration/students verification decides whether Learn2 is authenticated.",
+        "If stage 1 is not authenticated but a canonical login POST was observed: remain AUTHENTICATION -> GET /user/login -> operator submits that GEL form manually -> repeat GET-only session verification.",
+        "AUTHENTICATION -> EVIDENCE only after the GET-only Learn2 verification succeeds; never transition merely because the operator pressed Enter.",
+        "EVIDENCE optional residual teacher probe -> transient allowlist reduction -> ABORT; this path is not an N2 completion dependency.",
+        "EVIDENCE -> VERIFY -> CLOSED only after fresh GETs prove locator/state digests unchanged.",
+        "Any unexpected GEL-origin mutation, failed second-stage authentication, submission encoding drift or state change -> FAILED_CLOSED; third-party mutating telemetry -> ABORT_NONFATAL and remains in the current state."
+      ],
+      "failure_semantics": [
+        "Unexpected GEL-origin mutation requests are aborted and fail the run without inspecting their bodies or headers.",
+        "Third-party mutating requests are aborted without body/header inspection, counted separately, and do not fail the run or become GEL contract-drift evidence.",
+        "Blocked-mutation diagnostics contain only phase, method, origin and a redacted path and are terminal-only; queries, bodies, headers, cookies and credential values are never printed or persisted.",
+        "A fail-closed runtime exception may be preceded by an allowlisted static stage marker only; the exception message itself remains suppressed.",
+        "Unexpected tutorial submission encoding is aborted and classified as contract drift; raw body persistence is forbidden.",
+        "No observed tutorial POST during an optional teacher-change probe is INCONCLUSIVE residual evidence only; it does not fail N2 functional acceptance and must never be bypassed with synthetic submission.",
+        "Runtime exceptions are reported by category only so live URLs/page/request data are not echoed to diagnostics.",
+        "A changed post-probe tutorial locator digest or historical semantic digest is a critical zero-write failure.",
+        "If the operator presses Enter while still unauthenticated, the harness remains in AUTHENTICATION, reports only privacy-safe session-verification facts, and either enters the historical second manual /user/login stage or fails closed; it never proceeds to tutorial evidence on an unverified session.",
+        "A local privacy-projection contradiction (for example, an identity-bearing semantic key reaching persisted evidence) fails before file write; the privacy guard is not weakened to admit it.",
+        "Persisted privacy-policy metadata must itself pass the same global privacy guard. False-positive schema/key collisions are repaired by renaming metadata, never by weakening the forbidden raw-data key guard."
+      ],
+      "dependencies": [
+        "canonical_contracts",
+        "GEL server",
+        "Python Playwright (manual evidence runtime only)",
+        "Chromium ephemeral browser context"
+      ],
+      "tests": [
+        "tools/check_n2_playwright_zero_write.py",
+        "tools/test_n2_playwright_zero_write.py",
+        "manual tools/playwright/n2_zero_write_evidence.py live zero-write run",
+        "Complete prepopulation classification containing transient student_uid/teacher_id inputs reduces to S1/relationship-only identity rules and passes the persisted-evidence privacy guard.",
+        "The complete initial evidence document passes assert_privacy_safe_evidence and contains no forbidden raw-data key fragments."
+      ]
+    },
+    {
+      "id": "writer_tauri_app_service",
+      "name": "Tutorial Writer Tauri application service",
+      "status": "active_w2_a2",
+      "role": "Own the Tutorial Writer runtime orchestration boundary: transient GEL read session use, read-only archive navigation, one explicit governed A2 archive-sync trigger, one ephemeral Rust-owned tutorial draft, typed semantic edits and safe frontend view models.",
+      "scope": [
+        "Use D2 ArchiveRepository read-only models for class/student/tutorial navigation.",
+        "Open New drafts only by composing latest authoritative archive source, N2b validated New form and N2c build_new_form_state.",
+        "Open Revision drafts only from D2 revision authority plus fetched/validated historical edit form and C2 semantic construction.",
+        "Own one ephemeral base/current draft container and serialize state-changing operations.",
+        "Apply frontend edits only through rust_semantic_form::apply_tutorial_draft_edit candidate-before-commit semantics.",
+        "Expose only an explicit Tauri command allowlist; no tutorial submit/create/revise/delete, generic HTTP, teacher reassignment or raw POST command exists. The sole local archive mutation trigger is ui1_sync_archive, which delegates to public RustArchiver and never exposes ArchiveSyncRepository.",
+        "Project Writer student view models from D2 source fields: course start/end and attendance.",
+        "Derive last-tutorial date/type only from the first item of D2 canonical newest-first tutorial history; do not synthesize it in React.",
+        "Project recognized archive overall-level labels to compact canonical CEFR codes in safe UI view models while preserving authoritative source text unchanged.",
+        "Project UI1c field-disposition rules and Rust-owned CEFR/assessment/InitialCourseType option domains in DraftView.formContract.",
+        "Project InitialCourseType state without asking React to parse teacher_comments.",
+        "Return DraftValidationIssue directly from ui1_apply_draft_edit; infrastructure failures are mapped to structured non-field issues.",
+        "Project Aims assistance as unavailable while ui1c_aims_assistance is absent_not_curated.",
+        "Resolve archive path with non-empty GEL_ARCHIVE_DB first; otherwise use gel-new-v2.db beside the running executable on Windows and project-root gel-new-v2.db on non-Windows. Navigation opens ArchiveRepository read-only; authenticated ui1_sync_archive may ask RustArchiver to atomically create a missing schema-v2 DB or synchronize an existing valid one.",
+        "UI1c5 adds no Tauri command; integrated acceptance reuses the existing UI1c typed edit/draft surface.",
+        "Expose Rust-owned Harper check/suggestion DTOs and dictionary add/remove/list commands without granting tutorial write authority.",
+        "Intercept window CloseRequested events when the active draft is dirty, prompting for discard confirmation before window destruction.",
+        "Transition writer_active_draft to stale_source upon session expiry or remote latest-tutorial drift; forbid silent rebinding to new source or teacher authority.",
+        "Ensure all navigation actions (class selection, student change, New tutorial opening, Revision opening, logout) enforce discard guards when draft is dirty.",
+        "Coordinate production tutorial submission via live_submission_transport, triggering post-submit readback and targeted archive reconciliation."
+      ],
+      "authority": [
+        "Application orchestration authority only; semantic field validity remains rust_semantic_form authority, archive history remains D2/Archiver authority, and GEL session transport remains rust_gel_session authority.",
+        "May replace writer_active_draft only with fully validated semantic state returned by higher-authority components.",
+        "May trigger canonical local archive synchronization only by delegated RustArchiver::sync_full; this does not grant direct SQLite/ArchiveSyncRepository capability or GEL tutorial mutation authority.",
+        "Serialize Harper dictionary mutations through the existing writer_operation lock; the dictionary repository remains the sole durable dictionary writer."
+      ],
+      "reads": [
+        "archive_repository_read_models",
+        "authenticated_gel_session",
+        "validated_edit_form_state",
+        "validated_new_tutorial_form_state",
+        "semantic_form_state",
+        "harper_user_dictionary",
+        "live_submission_response"
+      ],
+      "writes": [
+        "writer_active_draft",
+        "writer_ui_view_models"
+      ],
+      "must_not_write": [
+        "live_gel_tutorials",
+        "normalized_local_archive",
+        "archive_v2_candidate_database",
+        "tutorial_post_payload",
+        "repository_contracts",
+        "private_fixtures",
+        "writer_ui_presentation_state",
+        "harper_user_dictionary"
+      ],
+      "state_transitions": [
+        "No draft -> New/Revision open -> clean writer_active_draft.",
+        "Clean -> typed semantic edit -> validated candidate -> dirty; failed candidate leaves prior draft unchanged.",
+        "Draft -> discard/logout -> no draft.",
+        "Later UI1 gates may add explicit stale/invalid transitions but never silent source rebinding.",
+        "Draft -> session expiry / remote latest-tutorial drift -> stale_source; direct editing locked; silent rebinding forbidden.",
+        "Dirty draft -> window close requested -> intercepted -> discard confirmed -> no draft + window destroyed.",
+        "Dirty draft -> window close requested -> stay -> remain dirty in-memory."
+      ],
+      "failure_semantics": [
+        "Blocked/ambiguous D2 revision authority refuses Revision opening.",
+        "Missing authentication refuses New/Revision live source acquisition without affecting archive navigation.",
+        "Failed semantic edit returns an error and leaves current authoritative in-memory draft unchanged.",
+        "Structured edit failures are returned without mutating writer_active_draft; React may render message/field metadata but cannot infer semantic authority from strings.",
+        "A missing archive may be created only by authenticated explicit RustArchiver sync. Existing invalid/non-v2 archives fail closed and are never replaced or migrated in place by Writer.",
+        "Archive synchronization failure leaves RustArchiver/ArchiveSyncRepository transactional failure semantics authoritative; Writer receives an error and does not fall back to raw SQLite or Python mutation.",
+        "Session loss while writing transitions draft to stale_source; New drafts cannot rebind to an unauthenticated session.",
+        "Window close attempt while dirty cannot silently drop in-memory draft without explicit discard confirmation."
+      ],
+      "dependencies": [
+        "gel-core D2 ArchiveRepository",
+        "gel-core A2 RustArchiver",
+        "gel-core N1 GelSession",
+        "gel-core C1/C2/N2b/N2c semantic/source contracts",
+        "Tauri 2"
+      ],
+      "tests": [
+        "tools/check_ui1_boundaries.py",
+        "writer-ui Rust unit tests",
+        "gel-core/tests/ui1_draft_edit.rs",
+        "UI1 initial strict release scope",
+        "tools/check_ui1_hybrid_layout.py",
+        "tools/check_ui1c_forms_contract.py",
+        "tools/check_ui1c_frontend_forms.py",
+        "tools/check_a2_archiver.py",
+        "tools/check_w2_boundaries.py"
+      ]
+    },
+    {
+      "id": "writer_react_ui",
+      "name": "Tutorial Writer React presentation",
+      "status": "active_ui1e",
+      "role": "Render the selected A+D hybrid browse/write layout from safe Rust view models, collect transient credentials/input and invoke only typed UI1 Tauri commands.",
+      "scope": [
+        "Use CELS-derived AG Grid patterns for read-only student/tutorial navigation.",
+        "Keep class/student/filter/busy/error/dialog/password state as presentation-only React state.",
+        "Render only safe semantic DraftView values; never construct GEL form IDs, tid, datetime, TutorialIdentity or raw POST state.",
+        "Send semantic TutorialDraftEdit variants only; no frontend teacher/origin/identity mutation surface.",
+        "Clear password state in a finally block after every login attempt and use no localStorage/sessionStorage.",
+        "Browse mode uses a focused two-pane layout: Student/Course/Attendance/Last tutorial on the left and selected-student facts/actions/history on the right.",
+        "Write mode makes the editor dominant and keeps student context in a collapsible compact rail.",
+        "School and internal database identifiers are not visible in the normal interface.",
+        "React may format course ranges and tutorial labels but must not derive missing authoritative archive values.",
+        "Render the compact CEFR level strings supplied by Rust; do not parse, strip descriptors from, or otherwise reinterpret authoritative level text in React.",
+        "Consume DraftView.formContract rather than duplicating CEFR, assessment or InitialCourseType option domains.",
+        "Use Rust-projected field disposition for currently rendered editable controls; hidden-preserved fields are not directly editable.",
+        "Accept structured DraftValidationIssue objects and display their message without parsing strings for field identity.",
+        "Do not render an Aims preset/hotlist while the assistance contract is absent_not_curated.",
+        "Render reusable disposition-aware UI1c1 semantic controls for the existing foundation surface from Rust-projected form contracts.",
+        "Retain and present structured DraftValidationIssue DTOs without parsing their message text for semantic authority.",
+        "Render UI1c2 Standard, UI1c3 Initial and UI1c4 Final complete semantic form sections using only Rust-projected field dispositions, option domains and text limits.",
+        "UI1c5 introduces no new React semantic authority; integration acceptance covers existing complete form composition.",
+        "Render Rust Harper findings/suggestions for Aims, Teacher Comments and Final Additional Comments; apply suggestions only through typed semantic edits.",
+        "Render the explicit local Harper dictionary panel through Tauri DTOs; never persist dictionary state in browser storage.",
+        "Render inline Harper highlighting (mirror-div wavy underlines, spelling/grammar color variants) for Teacher Comments and Final Additional Comments; aims remains a side-panel-only assistant.",
+        "Render per-finding actions: apply suggestion (label + full replacement text), add to dictionary (single-token gate), disable rule (session-only), skip issue (session-only).",
+        "Hoist session-only disabled-rules and ignored-findings state to App so it survives per-field editor unmount/remount; never persist them.",
+        "Listen for window close requests via Tauri event lifecycle, triggering DiscardDraftDialog when draft is dirty before window close.",
+        "Display stale_source status pill and banner when draft authority is invalidated, disabling direct editing until explicit user resolution.",
+        "Ensure all navigation paths (class selection, student change, New tutorial opening, Revision opening, logout) prompt for discard confirmation if current draft is dirty."
+      ],
+      "authority": [
+        "Presentation-only; backend Rust contracts are authoritative for archive, session and semantic draft state.",
+        "Presentation-only editor-kind/composition choices do not create GEL field, applicability, option-domain, validation, draft or persistence authority.",
+        "Type-specific React layout is presentation composition only; rust_semantic_form remains authoritative for field applicability, domains, regression semantics and candidate validation."
+      ],
+      "reads": [
+        "writer_ui_view_models",
+        "harper_check_result"
+      ],
+      "writes": [
+        "writer_ui_presentation_state",
+        "harper_disabled_rules",
+        "harper_ignored_findings"
+      ],
+      "must_not_write": [
+        "semantic_form_state",
+        "writer_active_draft",
+        "authenticated_gel_session",
+        "live_gel_tutorials",
+        "normalized_local_archive",
+        "archive_v2_candidate_database",
+        "tutorial_post_payload",
+        "repository_contracts",
+        "harper_user_dictionary"
+      ],
+      "state_transitions": [
+        "Browse no student -> browse selected student.",
+        "Browse selected student -> New/Revision write mode.",
+        "Write mode -> browse selected student through discard/back; dirty state requires discard/stay confirmation.",
+        "Login attempt -> transient password -> finally clear password.",
+        "Structured validation issues may be displayed beside the corresponding complete type-specific field; rejected edits do not change the Rust-owned active draft.",
+        "Active draft -> stale_source notified -> render stale banner and lock editing.",
+        "Window close requested while dirty -> open DiscardDraftDialog; confirm -> destroy window; cancel -> stay."
+      ],
+      "failure_semantics": [
+        "Backend errors are rendered as non-authoritative UI errors; frontend does not repair or invent semantic/source values.",
+        "Unauthenticated state disables live New/Revision opening while archive navigation remains available.",
+        "A field rendered by the wrong presentation branch still cannot emit an edit unless the Rust-projected disposition is editable; hidden_preserved/inapplicable fields render nothing.",
+        "Stale source or invalid draft status disables further typed edits until draft is discarded or session is restored.",
+        "Closing the window while draft is dirty is blocked until explicit user confirmation."
+      ],
+      "dependencies": [
+        "React 19",
+        "Tauri JS API",
+        "AG Grid Community",
+        "writer_tauri_app_service",
+        "UI1c2-c4 semantic form contract"
+      ],
+      "tests": [
+        "tools/check_ui1_boundaries.py",
+        "frontend typecheck/build in ui1-initial release scope",
+        "later UI1e mocked E2E",
+        "tools/check_ui1_hybrid_layout.py",
+        "tools/check_ui1c_frontend_forms.py",
+        "tools/check_ui1c1_editor_framework.py",
+        "tools/check_ui1c2_4_semantic_forms.py"
+      ]
+    },
+    {
+      "id": "dependency_lock_tooling",
+      "name": "Dependency lock tooling",
+      "status": "active_gri",
+      "role": "Own reproducible dependency-resolution decision state and its derived lock-identity projection.",
+      "scope": [
+        "Define one Rust workspace release graph rooted at Cargo.toml.",
+        "Generate Cargo.lock and writer-ui/package-lock.json only through their real package managers after an explicit dependency/workspace change.",
+        "Generate and validate governance/dependency-lock-manifest.json.",
+        "Detect LOCK_GENERATOR_UNAVAILABLE automatically per missing lock; never accept a manual override, placeholder lock, network failure or command failure as that exception."
+      ],
+      "authority": [
+        "Sole repository writer of dependency_lock_state; package manifests remain reviewed source inputs.",
+        "Lock generation is explicit and never occurs as an incidental release-gate side effect.",
+        "A portable tool-unavailable exception can produce SKIP evidence only; it cannot create dependency identity or authorize strict/release promotion."
+      ],
+      "reads": [
+        "repository_contracts",
+        "dependency_manifest_source"
+      ],
+      "writes": [
+        "dependency_lock_state",
+        "dependency_lock_manifest"
+      ],
+      "must_not_write": [
+        "live_gel_tutorials",
+        "normalized_local_archive",
+        "archive_v2_candidate_database",
+        "semantic_form_state",
+        "tutorial_post_payload",
+        "release_gate_evidence"
+      ],
+      "state_transitions": [
+        "Dependency manifest edit -> lock state stale -> explicit generate_dependency_lockfiles.py -> validated lock decision -> derived lock manifest current.",
+        "Missing lock + corresponding generator absent -> portable LOCK_GENERATOR_UNAVAILABLE evidence -> dependency identity remains incomplete -> generator appears -> exception invalid -> lock generation required."
+      ],
+      "failure_semantics": [
+        "Missing generator executable never fabricates lock bytes; portable lock validation reports explicit SKIP only for the affected missing lock(s).",
+        "If a missing lock has an available generator executable, dependency-lock validation fails rather than using the exception.",
+        "Network unavailability or package-manager command failure is not the tool-unavailable exception and fails generation.",
+        "Strict validation always fails while any required lock is missing; STRICT_ACCEPTED and RELEASE_ARTIFACT_VERIFIED require complete dependency identity."
+      ],
+      "dependencies": [
+        "Cargo",
+        "npm",
+        "reviewed dependency manifests",
+        "contracts/dependency_lock_policy.json"
+      ],
+      "tests": [
+        "tools/check_dependency_lockfiles.py",
+        "tools/generate_dependency_lock_manifest.py --check",
+        "tools/check_dependency_lock_exception_behavior.py"
+      ]
+    },
+    {
+      "id": "current_state_tooling",
+      "name": "Current-state projection tooling",
+      "status": "active_gri",
+      "role": "Generate one machine-readable current project status projection from higher-authority contracts, plan, lock identity and accepted evidence references.",
+      "scope": [
+        "Generate governance/current-state.json and docs/generated/CURRENT_STATE.md.",
+        "Expose artifact type, active application contract/development, required gate, dependency-lock status, last strict acceptance and blockers.",
+        "Expose active agent-governance protocol/profile identity without granting either runtime authority."
+      ],
+      "authority": [
+        "Projection only; it cannot alter or override runtime/application contracts, state ownership, development plan or acceptance evidence."
+      ],
+      "reads": [
+        "repository_contracts",
+        "development_plan_source",
+        "dependency_lock_state",
+        "dependency_lock_manifest",
+        "release_gate_evidence",
+        "agent_governance_protocol_decision",
+        "agent_governance_project_profile"
+      ],
+      "writes": [
+        "current_state_projection"
+      ],
+      "must_not_write": [
+        "repository_contracts",
+        "development_plan_source",
+        "dependency_lock_state",
+        "live_gel_tutorials",
+        "normalized_local_archive",
+        "semantic_form_state",
+        "tutorial_post_payload",
+        "agent_governance_protocol_decision",
+        "agent_governance_project_profile"
+      ],
+      "state_transitions": [
+        "Higher-authority input change -> projection stale -> generator deterministically rewrites projection."
+      ],
+      "failure_semantics": [
+        "Stale projection fails check:current-state/check:governance; incomplete lock/acceptance state is represented honestly as a blocker rather than hidden."
+      ],
+      "dependencies": [
+        "canonical contracts",
+        "development plan",
+        "dependency lock manifest",
+        "Python 3"
+      ],
+      "tests": [
+        "tools/check_current_state.py",
+        "tools/generate_current_state.py --check"
+      ]
+    },
+    {
+      "id": "release_artifact_tooling",
+      "name": "Release artifact and acceptance tooling",
+      "status": "active_gri",
+      "role": "Run governed release checks, bind strict evidence to exact source/dependency/toolchain identity, package accepted source without rebuilding, and verify final archive bytes.",
+      "scope": [
+        "Execute portable/strict scopes from release_gate.json with explicit evidence classes and SKIP semantics.",
+        "Record strict evidence outside source with source fingerprint, lock-set hash and toolchain identity.",
+        "Fail closed unless accepted strict evidence matches current source fingerprint before packaging.",
+        "Stage governed files, create exact file checksum/release manifests, archive without rebuild, and verify ZIP bytes/receipt."
+      ],
+      "authority": [
+        "Sole writer of repository-governed release acceptance/distribution evidence state.",
+        "Strict evidence is evidence, not self-promoting runtime authority; packaging cannot change source, dependencies or build outputs after acceptance."
+      ],
+      "reads": [
+        "repository_contracts",
+        "development_plan_source",
+        "dependency_lock_state",
+        "dependency_lock_manifest",
+        "current_state_projection",
+        "ci_verification_evidence"
+      ],
+      "writes": [
+        "release_gate_evidence",
+        "distribution_manifest",
+        "release_artifact_receipt"
+      ],
+      "must_not_write": [
+        "live_gel_tutorials",
+        "normalized_local_archive",
+        "archive_v2_candidate_database",
+        "semantic_form_state",
+        "tutorial_post_payload",
+        "dependency_lock_state"
+      ],
+      "state_transitions": [
+        "working source -> checks -> strict accepted evidence -> identity revalidation -> staged immutable package -> checksum/ZIP verification -> release artifact receipt."
+      ],
+      "failure_semantics": [
+        "Any FAIL/SKIP in strict mode prevents strict acceptance.",
+        "Source/lock mismatch after acceptance aborts packaging.",
+        "Archive/checksum mismatch aborts RELEASE_ARTIFACT_VERIFIED and never triggers rebuild."
+      ],
+      "dependencies": [
+        "release_gate contract",
+        "release_identity contract",
+        "dependency locks",
+        "target toolchains",
+        "private strict evidence when required"
+      ],
+      "tests": [
+        "tools/check_release_control.py",
+        "tools/check_release_control_behavior.py",
+        "tools/check_intake.py",
+        "tools/verify_release_archive.py"
+      ]
+    },
+    {
+      "id": "continuous_enforcement",
+      "name": "Portable continuous enforcement",
+      "status": "active_gri",
+      "role": "Continuously execute reproducible portable structural/build/behavioral checks without claiming target-host strict acceptance.",
+      "scope": [
+        "Run contracts/governance/generated/lock/unit/static/frontend/intake checks on repository changes.",
+        "Use npm ci and Cargo --locked commands only.",
+        "Report portable structural status; never automatically promote a candidate or fabricate private/live evidence.",
+        "Validate the GEL agent-governance profile through check:governance; CI may not promote it or runtime state."
+      ],
+      "authority": [
+        "CI evidence may prove portable invariants only. STRICT_ACCEPTED and RELEASE_ARTIFACT_VERIFIED require separate governed target-host/artifact evidence."
+      ],
+      "reads": [
+        "repository_contracts",
+        "development_plan_source",
+        "dependency_manifest_source",
+        "dependency_lock_state",
+        "dependency_lock_manifest",
+        "current_state_projection",
+        "generated_contract_projections",
+        "generated_governance_docs",
+        "agent_governance_protocol_decision",
+        "agent_governance_project_profile"
+      ],
+      "writes": [
+        "ci_verification_evidence"
+      ],
+      "must_not_write": [
+        "live_gel_tutorials",
+        "normalized_local_archive",
+        "archive_v2_candidate_database",
+        "semantic_form_state",
+        "tutorial_post_payload",
+        "release_gate_evidence",
+        "release_artifact_receipt",
+        "agent_governance_protocol_decision",
+        "agent_governance_project_profile"
+      ],
+      "state_transitions": [
+        "Source change -> new portable CI run -> pass/fail/skips evidence; no automatic promotion transition exists."
+      ],
+      "failure_semantics": [
+        "Unavailable public build dependency fails CI rather than being mislabeled pass; unavailable private/live evidence remains outside CI and cannot be synthesized."
+      ],
+      "dependencies": [
+        "CI runner",
+        "Python",
+        "Node/npm",
+        "Rust/Cargo"
+      ],
+      "tests": [
+        "tools/check_ci_contract.py",
+        ".github/workflows/portable-governance.yml"
+      ]
+    },
+    {
+      "id": "writer_harper_service",
+      "name": "Writer Harper service",
+      "status": "active_ui1d",
+      "role": "Rust-owned British-English Harper checking service for bounded Writer text fields.",
+      "scope": [
+        "Check only Aims, Teacher Comments and Final Additional Comments.",
+        "Use harper-core 2.8.0 curated lint group with Dialect::British.",
+        "Build Document and LintGroup from the same merged curated+user dictionary.",
+        "Apply session-only disabled_rules and suppressed_kinds filters without mutating the dictionary.",
+        "Short-circuit Spelling findings when the user dictionary matches or covers the reported span (handles mixed alphanumeric product names like CHI365/Chi365).",
+        "Return DTOs containing messages, original text, span coordinates (char offsets, end-exclusive), stable rule names, suggestion labels and complete replacement suggestions; never mutate tutorial state."
+      ],
+      "authority": [
+        "Derived assistance only; rust_semantic_form remains authoritative for tutorial values and typed edits.",
+        "No GEL/network/archive write authority."
+      ],
+      "reads": [
+        "harper_user_dictionary"
+      ],
+      "writes": [
+        "harper_check_result"
+      ],
+      "must_not_write": [
+        "semantic_form_state",
+        "writer_active_draft",
+        "live_gel_tutorials",
+        "normalized_local_archive",
+        "tutorial_post_payload",
+        "harper_disabled_rules",
+        "harper_ignored_findings"
+      ],
+      "state_transitions": [
+        "text snapshot -> HarperCheckDto -> discard on source change/request-id change",
+        "disabled_rules/suppressed_kinds filter applied per check call without mutating dictionary"
+      ],
+      "failure_semantics": [
+        "Check failure becomes non-authoritative UI error; no draft mutation."
+      ],
+      "dependencies": [
+        "gel-core harper module",
+        "harper-core 2.8.0"
+      ],
+      "tests": [
+        "gel-core/tests/ui1d_harper.rs",
+        "tools/check_ui1d_harper.py"
+      ]
+    },
+    {
+      "id": "harper_dictionary_repository",
+      "name": "Harper dictionary repository",
+      "status": "active_ui1d",
+      "role": "Sole writer of the local versioned Harper user dictionary.",
+      "scope": [
+        "Own schema-v1 JSON dictionary state and deterministic normalization.",
+        "Perform add/remove/list operations and atomic recovery-safe writes.",
+        "Migrate legacy array/object representations and reject future schemas."
+      ],
+      "authority": [
+        "Sole writer of harper_user_dictionary.",
+        "Never establishes tutorial semantic authority."
+      ],
+      "reads": [
+        "harper_user_dictionary"
+      ],
+      "writes": [
+        "harper_user_dictionary"
+      ],
+      "must_not_write": [
+        "semantic_form_state",
+        "writer_active_draft",
+        "live_gel_tutorials",
+        "normalized_local_archive",
+        "tutorial_post_payload"
+      ],
+      "state_transitions": [
+        "load -> canonical state",
+        "add/remove -> candidate normalized state -> atomic replacement",
+        "failure -> prior canonical state remains authoritative"
+      ],
+      "failure_semantics": [
+        "Failed promotion restores prior canonical file.",
+        "Backup cleanup failure after successful promotion does not report mutation failure.",
+        "Future schema fails closed without downgrade."
+      ],
+      "dependencies": [
+        "Rust std filesystem",
+        "serde_json"
+      ],
+      "tests": [
+        "gel-core/src/harper.rs unit tests",
+        "tools/check_ui1d_harper.py"
+      ]
+    },
+    {
+      "id": "live_submission_transport",
+      "name": "Live submission transport",
+      "status": "active_w2",
+      "role": "Submit governed tutorial POST payloads to the authoritative GEL server and discover canonical tutorial identity via post-submit readback.",
+      "scope": [
+        "Construct and dispatch authenticated POST /study/tutorials/process requests using the session client.",
+        "Enforce New vs Revision submission rules: datetime omitted for New, exact source timestamp preserved for Revision; immutable origin teacher authority.",
+        "On submission success, immediately perform fresh GET /staff/students/{uid}/tutorials readback to discover canonical server-assigned tutorial_id and timestamp.",
+        "Trigger targeted RustArchiver sync to reconcile the server tutorial record into SQLite archive_v2.",
+        "On submission failure (network, 401/403, 500, HTML redirect), leave active in-memory draft dirty and retryable; forbid blind local SQLite insertion."
+      ],
+      "authority": [
+        "Production GEL tutorial network write transport authority.",
+        "GEL server remains authoritative for live tutorial existence and canonical identity.",
+        "Client-side prediction of server-assigned tutorial identity or timestamp is strictly forbidden."
+      ],
+      "reads": [
+        "tutorial_post_payload",
+        "authenticated_gel_session",
+        "repository_contracts"
+      ],
+      "writes": [
+        "live_submission_response"
+      ],
+      "must_not_write": [
+        "live_gel_tutorials",
+        "normalized_local_archive",
+        "archive_v2_candidate_database",
+        "archive_reconciliation_metadata",
+        "repository_contracts",
+        "private_fixtures",
+        "semantic_form_state",
+        "writer_active_draft"
+      ],
+      "state_transitions": [
+        "Ephemeral payload -> HTTP POST -> HTTP 200 / redirect -> GET readback -> targeted sync -> clear in-memory draft.",
+        "Ephemeral payload -> HTTP POST -> network failure / server error -> draft retained dirty and retryable."
+      ],
+      "failure_semantics": [
+        "Transport or server failure preserves active draft dirty in process memory without silent discard.",
+        "No canonical SQLite row is synthesized on failure.",
+        "Network timeout triggers conflict check on retry before re-submission."
+      ],
+      "dependencies": [
+        "rust_post_mapper",
+        "rust_gel_session",
+        "rust_archive_sync_repository"
+      ],
+      "tests": [
+        "tools/check_w2_boundaries.py"
+      ]
+    }
+  ],
+  "planned_not_active": []
+}

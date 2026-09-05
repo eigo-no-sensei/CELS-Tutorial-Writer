@@ -1,0 +1,886 @@
+{
+  "contract_id": "gel_tutorial_fields",
+  "contract_version": 4,
+  "authority": "canonical_executable_contract",
+  "source_system": "GEL",
+  "form_action": "/study/tutorials/process",
+  "notes": "Opaque GEL names are ingestion/serialization details. Semantic/domain code must use semantic names. C1 governs historical edit-form validation. N2a fixes skill identity by GEL field ID/semantic role and distinguishes historical Revision controls from current New-form evidence; semantic provenance must never be inferred from equal values.",
+  "placeholders": {
+    "skill": "Please choose level",
+    "overall": "Choose...",
+    "exam": "Please choose:"
+  },
+  "fields": [
+    {
+      "semantic_name": "teacher_id",
+      "rust_const": "TEACHER_ID",
+      "gel_name": "tid",
+      "control_kind": "select",
+      "applies_to": [
+        "initial",
+        "standard",
+        "final"
+      ],
+      "summary_label": "Teacher",
+      "archive_name": "teacher_id",
+      "source_roles": [
+        "edit_form",
+        "new_form",
+        "post"
+      ],
+      "required_control": true,
+      "evidence": "Historical Revision edit form uses select; current live New forms use hidden tid matching the authenticated teacher.",
+      "allow_unset": false,
+      "validation_rule": "positive_i64_option",
+      "new_form_control_kind": "hidden",
+      "revision_form_control_kind": "select",
+      "writer_mutability": "immutable_authority_field"
+    },
+    {
+      "semantic_name": "student_uid",
+      "rust_const": "STUDENT_UID",
+      "gel_name": "uid",
+      "control_kind": "hidden",
+      "applies_to": [
+        "initial",
+        "standard",
+        "final"
+      ],
+      "summary_label": null,
+      "archive_name": "student_uid",
+      "source_roles": [
+        "route",
+        "edit_form",
+        "new_form",
+        "post"
+      ],
+      "required_control": true,
+      "evidence": "edit form + route",
+      "allow_unset": false,
+      "validation_rule": "positive_i64"
+    },
+    {
+      "semantic_name": "source_timestamp",
+      "rust_const": "SOURCE_TIMESTAMP",
+      "gel_name": "datetime",
+      "control_kind": "hidden",
+      "applies_to": [
+        "initial",
+        "standard",
+        "final"
+      ],
+      "summary_label": null,
+      "archive_name": "tutorial_ts",
+      "source_roles": [
+        "route",
+        "edit_form",
+        "post_revision"
+      ],
+      "required_control": true,
+      "evidence": "Historical/live Revision forms carry positive datetime and successful Revision POST preserves it; historical create POST and current live New forms omit datetime.",
+      "allow_unset": false,
+      "validation_rule": "positive_i64",
+      "new_form_presence": "absent",
+      "new_post_rule": "omit_key_entirely",
+      "revision_post_rule": "require_exact_source_timestamp"
+    },
+    {
+      "semantic_name": "tutorial_type",
+      "rust_const": "TUTORIAL_TYPE",
+      "gel_name": "ttype",
+      "control_kind": "hidden",
+      "applies_to": [
+        "initial",
+        "standard",
+        "final"
+      ],
+      "summary_label": "Type",
+      "archive_name": "tutorial_type",
+      "source_roles": [
+        "route",
+        "edit_form",
+        "new_form",
+        "summary",
+        "post"
+      ],
+      "required_control": true,
+      "evidence": "route + edit form + summary",
+      "allow_unset": false,
+      "validation_rule": "tutorial_type_code"
+    },
+    {
+      "semantic_name": "language",
+      "rust_const": "LANGUAGE",
+      "gel_name": "lang",
+      "control_kind": "hidden_or_mapper_constant",
+      "applies_to": [
+        "initial",
+        "standard",
+        "final"
+      ],
+      "summary_label": null,
+      "archive_name": null,
+      "source_roles": [
+        "post"
+      ],
+      "required_control": false,
+      "default": "en",
+      "evidence": "legacy writer/post mapper; not relied upon as historical state"
+    },
+    {
+      "semantic_name": "absent",
+      "rust_const": "ABSENT",
+      "gel_name": "absent",
+      "control_kind": "checkbox",
+      "applies_to": [
+        "initial",
+        "standard",
+        "final"
+      ],
+      "summary_label": "absent",
+      "archive_name": "absent",
+      "source_roles": [
+        "summary",
+        "edit_form",
+        "new_form",
+        "post"
+      ],
+      "required_control": true,
+      "post_semantics": "checked=>absent=on; unchecked=>omit key",
+      "evidence": "summary + edit-form fixtures; anomaly ANOM-ABSENT-001",
+      "allow_unset": false,
+      "validation_rule": "checkbox_boolean"
+    },
+    {
+      "semantic_name": "tutorial_date",
+      "rust_const": "CUSTOM_DATE",
+      "gel_name": "customdate",
+      "control_kind": "text",
+      "applies_to": [
+        "initial",
+        "standard",
+        "final"
+      ],
+      "summary_label": null,
+      "archive_name": "custom_date",
+      "source_roles": [
+        "edit_form",
+        "new_form",
+        "summary_header",
+        "print",
+        "post"
+      ],
+      "required_control": true,
+      "format": "DD-MM-YYYY",
+      "evidence": "edit forms + summary headers",
+      "allow_unset": false,
+      "validation_rule": "gel_date"
+    },
+    {
+      "semantic_name": "overall_level",
+      "rust_const": "OVERALL_LEVEL",
+      "gel_name": "dropdown-475",
+      "control_kind": "select",
+      "applies_to": [
+        "initial",
+        "standard",
+        "final"
+      ],
+      "summary_label": "Tutorial Overall Level",
+      "archive_name": "overall_level",
+      "source_roles": [
+        "summary",
+        "edit_form",
+        "new_form",
+        "post"
+      ],
+      "required_control": true,
+      "placeholder_ref": "overall",
+      "evidence": "all tutorial types",
+      "allow_unset": true,
+      "validation_rule": "none",
+      "value_domain_ref": "overall_level"
+    },
+    {
+      "semantic_name": "initial_speaking",
+      "rust_const": "INITIAL_SPEAKING",
+      "gel_name": "dropdown-264",
+      "control_kind": "select",
+      "applies_to": [
+        "initial",
+        "final"
+      ],
+      "summary_label": "Initial Speaking",
+      "archive_name_by_type": {
+        "initial": "speaking",
+        "final": "speaking_before"
+      },
+      "source_roles": [
+        "summary",
+        "edit_form",
+        "new_form",
+        "post"
+      ],
+      "required_control": true,
+      "placeholder_ref": "skill",
+      "allow_unset": true,
+      "validation_rule": "none",
+      "value_domain_ref": "skill_level",
+      "gel_field_id": 264,
+      "semantic_level_role": {
+        "dimension": "speaking",
+        "phase": "initial"
+      },
+      "provenance_rule": "field_identity_only_no_cross_field_value_inference"
+    },
+    {
+      "semantic_name": "initial_use_of_english",
+      "rust_const": "INITIAL_USE_OF_ENGLISH",
+      "gel_name": "dropdown-265",
+      "control_kind": "select",
+      "applies_to": [
+        "initial",
+        "final"
+      ],
+      "summary_label": "Initial Use of English",
+      "archive_name_by_type": {
+        "initial": "use_of_english",
+        "final": "uoe_before"
+      },
+      "source_roles": [
+        "summary",
+        "edit_form",
+        "new_form",
+        "post"
+      ],
+      "required_control": true,
+      "placeholder_ref": "skill",
+      "allow_unset": true,
+      "validation_rule": "none",
+      "value_domain_ref": "skill_level",
+      "gel_field_id": 265,
+      "semantic_level_role": {
+        "dimension": "use_of_english",
+        "phase": "initial"
+      },
+      "provenance_rule": "field_identity_only_no_cross_field_value_inference"
+    },
+    {
+      "semantic_name": "initial_writing",
+      "rust_const": "INITIAL_WRITING",
+      "gel_name": "dropdown-266",
+      "control_kind": "select",
+      "applies_to": [
+        "initial",
+        "final"
+      ],
+      "summary_label": "Initial Writing",
+      "archive_name_by_type": {
+        "initial": "writing",
+        "final": "writing_before"
+      },
+      "source_roles": [
+        "summary",
+        "edit_form",
+        "new_form",
+        "post"
+      ],
+      "required_control": true,
+      "placeholder_ref": "skill",
+      "allow_unset": true,
+      "validation_rule": "none",
+      "value_domain_ref": "skill_level",
+      "gel_field_id": 266,
+      "semantic_level_role": {
+        "dimension": "writing",
+        "phase": "initial"
+      },
+      "provenance_rule": "field_identity_only_no_cross_field_value_inference"
+    },
+    {
+      "semantic_name": "initial_listening",
+      "rust_const": "INITIAL_LISTENING",
+      "gel_name": "dropdown-267",
+      "control_kind": "select",
+      "applies_to": [
+        "initial",
+        "final"
+      ],
+      "summary_label": "Initial Listening",
+      "archive_name_by_type": {
+        "initial": "listening",
+        "final": "listening_before"
+      },
+      "source_roles": [
+        "summary",
+        "edit_form",
+        "new_form",
+        "post"
+      ],
+      "required_control": true,
+      "placeholder_ref": "skill",
+      "allow_unset": true,
+      "validation_rule": "none",
+      "value_domain_ref": "skill_level",
+      "gel_field_id": 267,
+      "semantic_level_role": {
+        "dimension": "listening",
+        "phase": "initial"
+      },
+      "provenance_rule": "field_identity_only_no_cross_field_value_inference"
+    },
+    {
+      "semantic_name": "speaking",
+      "rust_const": "SPEAKING",
+      "gel_name": "dropdown-233",
+      "control_kind": "select",
+      "applies_to": [
+        "standard",
+        "final"
+      ],
+      "summary_label": "Speaking",
+      "archive_name": "speaking",
+      "source_roles": [
+        "summary",
+        "edit_form",
+        "new_form",
+        "post"
+      ],
+      "required_control": true,
+      "placeholder_ref": "skill",
+      "allow_unset": true,
+      "validation_rule": "none",
+      "value_domain_ref": "skill_level",
+      "gel_field_id": 233,
+      "semantic_level_role": {
+        "dimension": "speaking",
+        "phase": "current"
+      },
+      "provenance_rule": "field_identity_only_no_cross_field_value_inference"
+    },
+    {
+      "semantic_name": "use_of_english",
+      "rust_const": "USE_OF_ENGLISH",
+      "gel_name": "dropdown-234",
+      "control_kind": "select",
+      "applies_to": [
+        "standard",
+        "final"
+      ],
+      "summary_label": "Use of English",
+      "archive_name": "use_of_english",
+      "source_roles": [
+        "summary",
+        "edit_form",
+        "new_form",
+        "post"
+      ],
+      "required_control": true,
+      "placeholder_ref": "skill",
+      "allow_unset": true,
+      "validation_rule": "none",
+      "value_domain_ref": "skill_level",
+      "gel_field_id": 234,
+      "semantic_level_role": {
+        "dimension": "use_of_english",
+        "phase": "current"
+      },
+      "provenance_rule": "field_identity_only_no_cross_field_value_inference"
+    },
+    {
+      "semantic_name": "writing",
+      "rust_const": "WRITING",
+      "gel_name": "dropdown-235",
+      "control_kind": "select",
+      "applies_to": [
+        "standard",
+        "final"
+      ],
+      "summary_label": "Writing",
+      "archive_name": "writing",
+      "source_roles": [
+        "summary",
+        "edit_form",
+        "new_form",
+        "post"
+      ],
+      "required_control": true,
+      "placeholder_ref": "skill",
+      "allow_unset": true,
+      "validation_rule": "none",
+      "value_domain_ref": "skill_level",
+      "gel_field_id": 235,
+      "semantic_level_role": {
+        "dimension": "writing",
+        "phase": "current"
+      },
+      "provenance_rule": "field_identity_only_no_cross_field_value_inference"
+    },
+    {
+      "semantic_name": "listening",
+      "rust_const": "LISTENING",
+      "gel_name": "dropdown-236",
+      "control_kind": "select",
+      "applies_to": [
+        "standard",
+        "final"
+      ],
+      "summary_label": "Listening",
+      "archive_name": "listening",
+      "source_roles": [
+        "summary",
+        "edit_form",
+        "new_form",
+        "post"
+      ],
+      "required_control": true,
+      "placeholder_ref": "skill",
+      "allow_unset": true,
+      "validation_rule": "none",
+      "value_domain_ref": "skill_level",
+      "gel_field_id": 236,
+      "semantic_level_role": {
+        "dimension": "listening",
+        "phase": "current"
+      },
+      "provenance_rule": "field_identity_only_no_cross_field_value_inference"
+    },
+    {
+      "semantic_name": "reading",
+      "rust_const": "READING",
+      "gel_name": "dropdown-476",
+      "control_kind": "select",
+      "applies_to": [
+        "standard",
+        "final"
+      ],
+      "summary_label": "Reading",
+      "archive_name": "reading",
+      "source_roles": [
+        "summary",
+        "edit_form",
+        "new_form",
+        "post"
+      ],
+      "required_control": true,
+      "placeholder_ref": "skill",
+      "evidence": "captured Standard and Final edit forms; no Initial Reading",
+      "allow_unset": true,
+      "validation_rule": "none",
+      "value_domain_ref": "skill_level",
+      "gel_field_id": 476,
+      "semantic_level_role": {
+        "dimension": "reading",
+        "phase": "current"
+      },
+      "provenance_rule": "field_identity_only_no_cross_field_value_inference"
+    },
+    {
+      "semantic_name": "assessment_listening",
+      "rust_const": "ASSESSMENT_LISTENING",
+      "gel_name": "sl-89",
+      "control_kind": "radio_group",
+      "applies_to": [
+        "standard"
+      ],
+      "summary_label": "Assessment",
+      "archive_name": "self_listening",
+      "source_roles": [
+        "summary_composite",
+        "edit_form",
+        "new_form",
+        "post"
+      ],
+      "required_control": true,
+      "values": {
+        "1": "Needs more work",
+        "2": "OK for the current level",
+        "3": "Good for this level"
+      },
+      "allow_unset": true,
+      "validation_rule": "none"
+    },
+    {
+      "semantic_name": "assessment_reading",
+      "rust_const": "ASSESSMENT_READING",
+      "gel_name": "sr-89",
+      "control_kind": "radio_group",
+      "applies_to": [
+        "standard"
+      ],
+      "summary_label": "Assessment",
+      "archive_name": "self_reading",
+      "source_roles": [
+        "summary_composite",
+        "edit_form",
+        "new_form",
+        "post"
+      ],
+      "required_control": true,
+      "values": {
+        "1": "Needs more work",
+        "2": "OK for the current level",
+        "3": "Good for this level"
+      },
+      "allow_unset": true,
+      "validation_rule": "none"
+    },
+    {
+      "semantic_name": "assessment_writing",
+      "rust_const": "ASSESSMENT_WRITING",
+      "gel_name": "sw-89",
+      "control_kind": "radio_group",
+      "applies_to": [
+        "standard"
+      ],
+      "summary_label": "Assessment",
+      "archive_name": "self_writing",
+      "source_roles": [
+        "summary_composite",
+        "edit_form",
+        "new_form",
+        "post"
+      ],
+      "required_control": true,
+      "values": {
+        "1": "Needs more work",
+        "2": "OK for the current level",
+        "3": "Good for this level"
+      },
+      "allow_unset": true,
+      "validation_rule": "none"
+    },
+    {
+      "semantic_name": "assessment_speaking",
+      "rust_const": "ASSESSMENT_SPEAKING",
+      "gel_name": "ss-89",
+      "control_kind": "radio_group",
+      "applies_to": [
+        "standard"
+      ],
+      "summary_label": "Assessment",
+      "archive_name": "self_speaking",
+      "source_roles": [
+        "summary_composite",
+        "edit_form",
+        "new_form",
+        "post"
+      ],
+      "required_control": true,
+      "values": {
+        "1": "Needs more work",
+        "2": "OK for the current level",
+        "3": "Good for this level"
+      },
+      "allow_unset": true,
+      "validation_rule": "none"
+    },
+    {
+      "semantic_name": "assessment_vocabulary",
+      "rust_const": "ASSESSMENT_VOCABULARY",
+      "gel_name": "sv-89",
+      "control_kind": "radio_group",
+      "applies_to": [
+        "standard"
+      ],
+      "summary_label": "Assessment",
+      "archive_name": "self_vocabulary",
+      "source_roles": [
+        "summary_composite",
+        "edit_form",
+        "new_form",
+        "post"
+      ],
+      "required_control": true,
+      "values": {
+        "1": "Needs more work",
+        "2": "OK for the current level",
+        "3": "Good for this level"
+      },
+      "allow_unset": true,
+      "validation_rule": "none"
+    },
+    {
+      "semantic_name": "assessment_grammar",
+      "rust_const": "ASSESSMENT_GRAMMAR",
+      "gel_name": "sg-89",
+      "control_kind": "radio_group",
+      "applies_to": [
+        "standard"
+      ],
+      "summary_label": "Assessment",
+      "archive_name": "self_grammar",
+      "source_roles": [
+        "summary_composite",
+        "edit_form",
+        "new_form",
+        "post"
+      ],
+      "required_control": true,
+      "values": {
+        "1": "Needs more work",
+        "2": "OK for the current level",
+        "3": "Good for this level"
+      },
+      "allow_unset": true,
+      "validation_rule": "none"
+    },
+    {
+      "semantic_name": "assessment_pronunciation",
+      "rust_const": "ASSESSMENT_PRONUNCIATION",
+      "gel_name": "sp-89",
+      "control_kind": "radio_group",
+      "applies_to": [
+        "standard"
+      ],
+      "summary_label": "Assessment",
+      "archive_name": "self_pronunciation",
+      "source_roles": [
+        "summary_composite",
+        "edit_form",
+        "new_form",
+        "post"
+      ],
+      "required_control": true,
+      "values": {
+        "1": "Needs more work",
+        "2": "OK for the current level",
+        "3": "Good for this level"
+      },
+      "allow_unset": true,
+      "validation_rule": "none"
+    },
+    {
+      "semantic_name": "aims",
+      "rust_const": "AIMS",
+      "gel_name": "trecs-79",
+      "control_kind": "contenteditable_plus_hidden",
+      "applies_to": [
+        "standard"
+      ],
+      "summary_label": "Aims",
+      "archive_name": "aims",
+      "source_roles": [
+        "summary",
+        "edit_form_contenteditable",
+        "new_form",
+        "post"
+      ],
+      "required_control": true,
+      "editor_id": "tcinput",
+      "rust_editor_const": "AIMS_EDITOR_ID",
+      "evidence": "historical value in #tcinput; hidden backing field can be blank",
+      "allow_unset": true,
+      "validation_rule": "none"
+    },
+    {
+      "semantic_name": "teacher_comments",
+      "rust_const": "TEACHER_COMMENTS",
+      "gel_name": "text-225",
+      "control_kind": "textarea",
+      "applies_to": [
+        "initial",
+        "standard",
+        "final"
+      ],
+      "summary_label": "Teacher's Comments",
+      "archive_name": "teacher_comments",
+      "source_roles": [
+        "summary",
+        "edit_form",
+        "new_form",
+        "post"
+      ],
+      "required_control": true,
+      "max_chars": 970,
+      "rust_max_const": "TEACHER_COMMENTS_MAX_CHARS",
+      "allow_unset": true,
+      "validation_rule": "none"
+    },
+    {
+      "semantic_name": "additional_comments",
+      "rust_const": "ADDITIONAL_COMMENTS",
+      "gel_name": "text-226",
+      "control_kind": "textarea",
+      "applies_to": [
+        "final"
+      ],
+      "summary_label": "Additional Comments/Accommodation (under 18s only)",
+      "archive_name": "additional_comments",
+      "source_roles": [
+        "summary",
+        "edit_form",
+        "new_form",
+        "post"
+      ],
+      "required_control": true,
+      "max_chars": 600,
+      "rust_max_const": "ADDITIONAL_COMMENTS_MAX_CHARS",
+      "allow_unset": true,
+      "validation_rule": "none"
+    },
+    {
+      "semantic_name": "exam_intent",
+      "rust_const": "EXAM_INTENT",
+      "gel_name": "dropdown-413",
+      "control_kind": "select",
+      "applies_to": [
+        "initial"
+      ],
+      "summary_label": "Do you want to take an English proficiency exam?",
+      "archive_name": "exam_want",
+      "source_roles": [
+        "summary",
+        "edit_form",
+        "new_form",
+        "post"
+      ],
+      "required_control": true,
+      "placeholder_ref": "exam",
+      "known_values": [
+        "Yes",
+        "No",
+        "Not sure"
+      ],
+      "allow_unset": true,
+      "validation_rule": "none"
+    },
+    {
+      "semantic_name": "exam_type",
+      "rust_const": "EXAM_TYPE",
+      "gel_name": "dropdown-414",
+      "control_kind": "select",
+      "applies_to": [
+        "initial"
+      ],
+      "summary_label": "If yes, which exam?",
+      "archive_name": "exam_which",
+      "source_roles": [
+        "summary",
+        "edit_form",
+        "new_form",
+        "post"
+      ],
+      "required_control": true,
+      "placeholder_ref": "exam",
+      "known_values": [
+        "IELTS",
+        "PET",
+        "FCE",
+        "CAE",
+        "CPE"
+      ],
+      "constraint_policy": "do_not_hard_code_as_closed_enum",
+      "allow_unset": true,
+      "validation_rule": "none"
+    },
+    {
+      "semantic_name": "exam_when",
+      "rust_const": "EXAM_WHEN",
+      "gel_name": "dropdown-415",
+      "control_kind": "select",
+      "applies_to": [
+        "initial"
+      ],
+      "summary_label": "If yes, when do you want to take the exam?",
+      "archive_name": "exam_when",
+      "source_roles": [
+        "summary",
+        "edit_form",
+        "new_form",
+        "post"
+      ],
+      "required_control": true,
+      "placeholder_ref": "exam",
+      "known_values": [
+        "December",
+        "March",
+        "June",
+        "July"
+      ],
+      "constraint_policy": "do_not_hard_code_as_closed_enum",
+      "allow_unset": true,
+      "validation_rule": "none"
+    }
+  ],
+  "summary_rows_in_observed_order": [
+    "Name",
+    "ID",
+    "Teacher",
+    "Type",
+    "absent",
+    "Tutorial Overall Level",
+    "Tutorial",
+    "Initial Speaking",
+    "Speaking",
+    "Initial Use of English",
+    "Use of English",
+    "Initial Writing",
+    "Writing",
+    "Initial Listening",
+    "Listening",
+    "Reading",
+    "Assessment",
+    "Aims",
+    "Teacher's Comments",
+    "Additional Comments/Accommodation (under 18s only)",
+    "Do you want to take an English proficiency exam?",
+    "If yes, which exam?",
+    "If yes, when do you want to take the exam?",
+    "Actions"
+  ],
+  "non_tutorial_support_controls": [
+    "playlist",
+    "exercise",
+    "playlists_mode",
+    "search_string",
+    "search_level",
+    "name",
+    "description",
+    "level"
+  ],
+  "value_domains": {
+    "skill_level": [
+      "A0",
+      "A1-",
+      "A1",
+      "A1+",
+      "A2-",
+      "A2",
+      "A2+",
+      "B1-",
+      "B1",
+      "B1+",
+      "B2-",
+      "B2",
+      "B2+",
+      "C1-",
+      "C1",
+      "C1+",
+      "C2-",
+      "C2",
+      "C2+"
+    ],
+    "overall_level": [
+      "Ao: beginner",
+      "A1-: elementary",
+      "A1: elementary",
+      "A1+: elementary",
+      "A2-: pre-intermediate",
+      "A2: pre-intermediate",
+      "A2+: pre-intermediate",
+      "B1-: intermediate",
+      "B1: intermediate",
+      "B1+: intermediate",
+      "B2-: upper-intermediate",
+      "B2: upper-intermediate",
+      "B2+: upper-intermediate",
+      "C1-: advanced",
+      "C1: advanced",
+      "C1+: advanced",
+      "C2-: very advanced",
+      "C2: very advanced",
+      "C2+: very advanced"
+    ]
+  }
+}

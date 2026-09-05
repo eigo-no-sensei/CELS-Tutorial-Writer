@@ -1,0 +1,464 @@
+{
+  "contract_id": "ui1c_semantic_forms",
+  "contract_version": 4,
+  "status": "active_ui1c5_pending_strict_acceptance",
+  "effective_date": "2026-08-31",
+  "authority": "UI1c semantic editor contract layered over tutorial_form_semantics and N2c",
+  "prerequisite": {
+    "scope": "ui1-hybrid",
+    "accepted_result": "PASS=23 SKIP=0 FAIL=0",
+    "gri_strict_acceptance": {
+      "status": "complete_strictly_accepted",
+      "result": "PASS=39 SKIP=0 FAIL=0; TARGET STATUS: STRICT_ACCEPTED; RELEASE GATE: PASS",
+      "evidence": "external immutable evidence; not committed to source tree",
+      "purpose": "Authorizes UI1c5 implementation; the changed UI1c5 source identity still requires its own strict acceptance."
+    }
+  },
+  "ownership": {
+    "semantic_writer": "rust_semantic_form",
+    "draft_container_writer": "writer_tauri_app_service",
+    "react_role": "presentation_only",
+    "gel_write_authority": false,
+    "archive_write_authority": false
+  },
+  "field_dispositions": {
+    "values": [
+      "editable",
+      "read_only",
+      "hidden_preserved",
+      "inapplicable"
+    ],
+    "fields": [
+      "tutorial_date",
+      "overall_level",
+      "teacher_read_only",
+      "absent",
+      "initial_speaking",
+      "initial_use_of_english",
+      "initial_writing",
+      "initial_listening",
+      "current_speaking",
+      "current_use_of_english",
+      "current_writing",
+      "current_listening",
+      "reading",
+      "assessment_listening",
+      "assessment_reading",
+      "assessment_writing",
+      "assessment_speaking",
+      "assessment_vocabulary",
+      "assessment_grammar",
+      "assessment_pronunciation",
+      "aims",
+      "teacher_comments",
+      "additional_comments",
+      "initial_course_type",
+      "exam_intent",
+      "exam_type",
+      "exam_when"
+    ],
+    "matrix": {
+      "standard": {
+        "editable": [
+          "tutorial_date",
+          "overall_level",
+          "absent",
+          "current_speaking",
+          "current_use_of_english",
+          "current_writing",
+          "current_listening",
+          "reading",
+          "assessment_listening",
+          "assessment_reading",
+          "assessment_writing",
+          "assessment_speaking",
+          "assessment_vocabulary",
+          "assessment_grammar",
+          "assessment_pronunciation",
+          "aims",
+          "teacher_comments"
+        ],
+        "read_only": [
+          "teacher_read_only"
+        ],
+        "hidden_preserved": [],
+        "inapplicable": [
+          "initial_speaking",
+          "initial_use_of_english",
+          "initial_writing",
+          "initial_listening",
+          "additional_comments",
+          "initial_course_type",
+          "exam_intent",
+          "exam_type",
+          "exam_when"
+        ]
+      },
+      "initial": {
+        "editable": [
+          "tutorial_date",
+          "overall_level",
+          "initial_speaking",
+          "initial_use_of_english",
+          "initial_writing",
+          "initial_listening",
+          "initial_course_type"
+        ],
+        "read_only": [
+          "teacher_read_only"
+        ],
+        "hidden_preserved": [
+          "absent",
+          "teacher_comments",
+          "exam_intent",
+          "exam_type",
+          "exam_when"
+        ],
+        "inapplicable": [
+          "current_speaking",
+          "current_use_of_english",
+          "current_writing",
+          "current_listening",
+          "reading",
+          "assessment_listening",
+          "assessment_reading",
+          "assessment_writing",
+          "assessment_speaking",
+          "assessment_vocabulary",
+          "assessment_grammar",
+          "assessment_pronunciation",
+          "aims",
+          "additional_comments"
+        ]
+      },
+      "final": {
+        "editable": [
+          "tutorial_date",
+          "overall_level",
+          "initial_speaking",
+          "initial_use_of_english",
+          "initial_writing",
+          "initial_listening",
+          "current_speaking",
+          "current_use_of_english",
+          "current_writing",
+          "current_listening",
+          "reading",
+          "teacher_comments",
+          "additional_comments"
+        ],
+        "read_only": [
+          "teacher_read_only"
+        ],
+        "hidden_preserved": [
+          "absent"
+        ],
+        "inapplicable": [
+          "assessment_listening",
+          "assessment_reading",
+          "assessment_writing",
+          "assessment_speaking",
+          "assessment_vocabulary",
+          "assessment_grammar",
+          "assessment_pronunciation",
+          "aims",
+          "initial_course_type",
+          "exam_intent",
+          "exam_type",
+          "exam_when"
+        ]
+      }
+    },
+    "rule": "React renders editability/visibility only from the Rust-projected matrix; hidden_preserved values survive unrelated edits and are not directly editable."
+  },
+  "option_domains": {
+    "cefr": {
+      "owner": "rust_semantic_form::CefrLevel",
+      "projection": "value/label compact CEFR code",
+      "frontend_constants_forbidden": true
+    },
+    "assessment": {
+      "owner": "rust_semantic_form::AssessmentValue",
+      "options": [
+        {
+          "value": "needs_work",
+          "label": "Needs work"
+        },
+        {
+          "value": "ok",
+          "label": "OK for the current level"
+        },
+        {
+          "value": "good_for_this_level",
+          "label": "Good for this level"
+        }
+      ],
+      "frontend_constants_forbidden": true
+    },
+    "initial_course_type": {
+      "owner": "rust_semantic_form::InitialCourseType",
+      "options": [
+        "HSP",
+        "G21",
+        "G15"
+      ],
+      "frontend_constants_forbidden": true
+    },
+    "exam": {
+      "ui1c_status": "hidden_preserved",
+      "rendered_options": false,
+      "rule": "UI1c does not render exam controls and therefore does not introduce a frontend exam option domain."
+    }
+  },
+  "initial_course_type": {
+    "semantic_enum": [
+      "HSP",
+      "G21",
+      "G15"
+    ],
+    "storage_field": "Initial teacher_comments",
+    "parse_rule": "Only exact HSP/G21/G15 strings are recognized; blank/whitespace is unset; every other nonblank value is unrecognized_preserved with exact raw text.",
+    "write_rule": "Only SetInitialCourseType may replace Initial teacher_comments through the Rust adapter. Direct SetTeacherComments is FIELD_NOT_APPLICABLE for Initial.",
+    "preservation_rule": "Unknown legacy text and hidden exam values must survive all unrelated Initial edits unchanged."
+  },
+  "validation_issue": {
+    "dto": "DraftValidationIssue",
+    "required_fields": [
+      "code",
+      "field",
+      "severity",
+      "message",
+      "prior_value",
+      "candidate_value"
+    ],
+    "severity_values": [
+      "error",
+      "warning"
+    ],
+    "stable_codes": [
+      "INVALID_DATE",
+      "INVALID_OPTION",
+      "FIELD_NOT_APPLICABLE",
+      "TEXT_TOO_LONG",
+      "LEVEL_REGRESSION",
+      "INVARIANT_VIOLATION",
+      "NO_ACTIVE_DRAFT",
+      "INTERNAL_STATE_ERROR"
+    ],
+    "frontend_rule": "React may render structured fields/messages but must not parse error strings to infer semantic field identity."
+  },
+  "level_regression": {
+    "applies_to": "New only",
+    "baseline_owner": "DraftOrigin::New level_regression_baseline derived from the same N2c latest authoritative prepopulation source snapshot",
+    "overall_level": "latest authoritative overall level when known",
+    "initial_roles": "baseline only when latest source type is Initial or Final",
+    "current_roles": "baseline only when latest source type is Standard or Final",
+    "reading": "baseline only when latest source type is Standard or Final",
+    "blocking": "candidate populated CEFR lower than populated same-role baseline -> LEVEL_REGRESSION",
+    "unset_candidate": "not classified as CEFR regression in UI1c0; later completeness validation may govern unset separately",
+    "forbidden_comparisons": [
+      "initial role against current role",
+      "current role against initial role",
+      "one skill against another",
+      "Revision against later tutorials"
+    ],
+    "first_ever_new": "empty baseline"
+  },
+  "aims_assistance": {
+    "contract_ref": "ui1c_aims_assistance",
+    "semantic_authority": false
+  },
+  "typed_edit_surface": {
+    "adds": [
+      "SetInitialCourseType"
+    ],
+    "removes": [
+      "SetExamField"
+    ],
+    "reason": "Initial course type receives an explicit semantic adapter; UI1c exam values are hidden_preserved and cannot be directly mutated.",
+    "still_forbidden": [
+      "SetTeacher",
+      "SetTutorialId",
+      "SetStudentUid",
+      "SetTimestamp",
+      "SetDatetime",
+      "SetTutorialType",
+      "SetGelField",
+      "SetRawPostValue"
+    ]
+  },
+  "failure_semantics": [
+    "A non-editable field edit returns FIELD_NOT_APPLICABLE and leaves the active draft unchanged.",
+    "Invalid date/domain input returns a structured issue and leaves the active draft unchanged.",
+    "New same-role CEFR regression returns LEVEL_REGRESSION and leaves the active draft unchanged.",
+    "Invariant failures are surfaced as INVARIANT_VIOLATION without replacing current draft state.",
+    "No UI1c0 change grants GEL or archive write authority."
+  ],
+  "ui1c1_editor_framework": {
+    "status": "implemented_prerequisite_satisfied_pending_ui1c5_strict_acceptance",
+    "stage": "UI1c1",
+    "runtime_authority_change": false,
+    "react_domain_authority": false,
+    "authority": [
+      "gel-core semantic state and Rust-projected DraftFormContractView remain authoritative for applicability, option domains, text limits and validation",
+      "React may choose presentation composition for the explicitly exposed UI1c1 foundation surface only",
+      "all mutations continue through TutorialDraftEdit and candidate-before-commit Rust validation",
+      "DraftValidationIssue is routed structurally by DTO fields; React must not parse message text to infer semantic field or authority"
+    ],
+    "generic_controls": [
+      "date",
+      "select",
+      "checkbox",
+      "textarea",
+      "read_only"
+    ],
+    "foundation_surface": [
+      "tutorial_date",
+      "overall_level",
+      "teacher_read_only",
+      "absent",
+      "teacher_comments"
+    ],
+    "new_type_control_owner": "selected_student_context",
+    "must_not_duplicate_new_type_controls": true,
+    "option_sources": {
+      "overall_level": "DraftFormContractView.levelOptions",
+      "teacher_comments_max_chars": "DraftFormContractView.teacherCommentsMaxChars"
+    },
+    "disposition_rule": "inapplicable and hidden_preserved fields are not rendered; read_only fields cannot emit edits; editable fields may emit only their typed TutorialDraftEdit",
+    "validation_rule": "App retains the structured DraftValidationIssue object and passes it to reusable controls; display may use code/severity/message but may not derive semantic identity from message text",
+    "deferred_to_later_stages": [
+      "initial_course_type",
+      "initial_levels",
+      "current_levels",
+      "reading",
+      "assessments",
+      "aims",
+      "additional_comments"
+    ],
+    "failure_semantics": [
+      "a rejected edit leaves the authoritative Rust draft unchanged",
+      "the rejected DraftValidationIssue remains presentation state until a successful edit or draft identity transition clears it",
+      "infrastructure errors remain separate global errors"
+    ]
+  },
+  "ui1c2_standard": {
+    "status": "implemented_prerequisite_satisfied_pending_ui1c5_strict_acceptance",
+    "stage": "UI1c2",
+    "runtime_authority_change": false,
+    "react_domain_authority": false,
+    "surface": [
+      "tutorial_date",
+      "overall_level",
+      "teacher_read_only",
+      "absent",
+      "current_speaking",
+      "current_use_of_english",
+      "current_writing",
+      "current_listening",
+      "reading",
+      "assessment_listening",
+      "assessment_reading",
+      "assessment_writing",
+      "assessment_speaking",
+      "assessment_vocabulary",
+      "assessment_grammar",
+      "assessment_pronunciation",
+      "aims",
+      "teacher_comments"
+    ],
+    "domain_sources": {
+      "levels": "DraftFormContractView.levelOptions",
+      "assessments": "DraftFormContractView.assessmentOptions",
+      "teacher_comments_limit": "DraftFormContractView.teacherCommentsMaxChars"
+    },
+    "aims_rule": "Direct Aims editing only. No preset/hotlist UI is rendered while the curated/versioned aims assistance contract is unavailable.",
+    "mutation_boundary": "Existing TutorialDraftEdit variants only; candidate-before-commit Rust validation remains authoritative."
+  },
+  "ui1c3_initial": {
+    "status": "implemented_prerequisite_satisfied_pending_ui1c5_strict_acceptance",
+    "stage": "UI1c3",
+    "runtime_authority_change": false,
+    "react_domain_authority": false,
+    "surface": [
+      "tutorial_date",
+      "overall_level",
+      "teacher_read_only",
+      "initial_speaking",
+      "initial_use_of_english",
+      "initial_writing",
+      "initial_listening",
+      "initial_course_type"
+    ],
+    "domain_sources": {
+      "levels": "DraftFormContractView.levelOptions",
+      "course_type": "DraftFormContractView.initialCourseTypeOptions"
+    },
+    "storage_adapter_rule": "React consumes InitialCourseTypeView and never parses teacher_comments storage. Unrecognized historical nonblank storage remains preserved until an explicit SetInitialCourseType replacement.",
+    "hidden_preserved": [
+      "absent",
+      "teacher_comments",
+      "exam_intent",
+      "exam_type",
+      "exam_when"
+    ]
+  },
+  "ui1c4_final": {
+    "status": "implemented_prerequisite_satisfied_pending_ui1c5_strict_acceptance",
+    "stage": "UI1c4",
+    "runtime_authority_change": false,
+    "react_domain_authority": false,
+    "surface": [
+      "tutorial_date",
+      "overall_level",
+      "teacher_read_only",
+      "initial_speaking",
+      "initial_use_of_english",
+      "initial_writing",
+      "initial_listening",
+      "current_speaking",
+      "current_use_of_english",
+      "current_writing",
+      "current_listening",
+      "reading",
+      "teacher_comments",
+      "additional_comments"
+    ],
+    "domain_sources": {
+      "levels": "DraftFormContractView.levelOptions",
+      "teacher_comments_limit": "DraftFormContractView.teacherCommentsMaxChars",
+      "additional_comments_limit": "DraftFormContractView.additionalCommentsMaxChars"
+    },
+    "paired_role_rule": "Initial and current/final controls retain their distinct canonical semantic roles; UI presentation must not infer or copy values across roles.",
+    "hidden_preserved": [
+      "absent"
+    ]
+  },
+  "next_stage": {
+    "id": "UI1d",
+    "status": "planned_gated_on_ui1c5_strict_acceptance",
+    "scope": "Harper British-English assistance plus separately governed persistent user dictionary; no persistent tutorial drafts."
+  },
+  "ui1c5_integrated_acceptance": {
+    "id": "UI1c5",
+    "status": "implemented_pending_strict_acceptance",
+    "runtime_authority_change": false,
+    "react_domain_authority": false,
+    "release_scope": "ui1c5",
+    "baseline_scope": "gri",
+    "baseline_accepted_result": "PASS=39 SKIP=0 FAIL=0",
+    "behavioral_test": "cargo test --locked -p gel-core --test ui1c5_integrated",
+    "structural_checker": "python -S tools/check_ui1c5_integrated.py",
+    "coverage": [
+      "New Standard reconstructs same-role current/Reading/assessment/Aims state and all seven assessment edits remain typed.",
+      "New Initial reconstructs Initial roles, preserves hidden exam fields and lossless InitialCourseType storage until explicit replacement.",
+      "New Final keeps Initial/current roles independent and preserves Reading/additional comments without cross-role inference.",
+      "Rejected New same-role regression returns structured LEVEL_REGRESSION and leaves prior draft state unchanged.",
+      "Revision reconstruction retains source identity/teacher authority and is not subjected to New-only regression floors.",
+      "Existing frontend typecheck/build, UI1c1/UI1c2-4 structural checks and UI1 boundary checks remain part of the strict scope."
+    ],
+    "strict_exit": "all ui1c5 scope checks PASS; SKIP=0; FAIL=0; targetStatus STRICT_ACCEPTED; evidence outside source root",
+    "gel_tutorial_write_authority": false,
+    "archive_write_change": false
+  }
+}

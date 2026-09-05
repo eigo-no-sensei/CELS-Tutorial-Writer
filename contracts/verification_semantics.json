@@ -1,0 +1,59 @@
+{
+  "contract_id": "verification_semantics",
+  "contract_version": 1,
+  "status": "active",
+  "effective_date": "2026-08-30",
+  "evidence_classes": ["lint", "structural", "behavioral", "acceptance"],
+  "rule": "Text-presence checks may be useful lint or structural evidence but may not be the sole proof for high-value state/write/release invariants. Each listed invariant therefore binds at least one behavioral or acceptance check.",
+  "automatic_promotion": false,
+  "high_value_invariants": [
+    {
+      "id": "gel_network_write_authority",
+      "claim": "UI and read-session code cannot acquire generic GEL tutorial mutation authority.",
+      "structural_checks": ["gel_session", "ui1_boundaries"],
+      "semantic_checks": ["rust_workspace_tests", "private_post_round_trip"]
+    },
+    {
+      "id": "archive_transaction_and_writer_boundary",
+      "claim": "Archive canonical/candidate writes remain capability-scoped and transaction failure cannot partially commit canonical state.",
+      "structural_checks": ["archive_repository", "governance"],
+      "semantic_checks": ["rust_workspace_tests"]
+    },
+    {
+      "id": "new_revision_identity_teacher_timestamp",
+      "claim": "New omits datetime and uses validated New-form teacher; Revision preserves source timestamp and historical teacher.",
+      "structural_checks": ["n2a_semantic_post", "n2b_new_form"],
+      "semantic_checks": ["rust_workspace_tests", "private_post_round_trip"]
+    },
+    {
+      "id": "candidate_before_commit",
+      "claim": "Failed typed draft edits leave the prior authoritative in-memory draft unchanged.",
+      "structural_checks": ["ui1_boundaries"],
+      "semantic_checks": ["rust_workspace_tests"]
+    },
+    {
+      "id": "ui1c_initial_course_type_lossless_adapter",
+      "claim": "Initial HSP/G21/G15 is Rust-owned and unknown historical teacher-comment text is preserved until explicit replacement.",
+      "structural_checks": ["ui1c_forms_contract", "ui1c_frontend_forms"],
+      "semantic_checks": ["ui1c_semantic_validation"]
+    },
+    {
+      "id": "ui1c_new_same_role_level_regression",
+      "claim": "Level regression applies only to New and only to the same canonical semantic role.",
+      "structural_checks": ["ui1c_forms_contract"],
+      "semantic_checks": ["ui1c_semantic_validation"]
+    },
+    {
+      "id": "artifact_identity_no_rebuild_after_acceptance",
+      "claim": "Packaging revalidates the exact strict-accepted source fingerprint and performs no build before final archive verification.",
+      "structural_checks": ["release_control"],
+      "semantic_checks": ["release_control_behavior"]
+    },
+    {
+      "id": "ui1e_native_dirty_close_and_staleness_safety",
+      "claim": "Dirty drafts intercept window close and navigation discard requests; session expiry or source drift transitions drafts to stale_source without silent rebinding.",
+      "structural_checks": ["ui1e_safety"],
+      "semantic_checks": ["ui1e_workflow_behavior"]
+    }
+  ]
+}

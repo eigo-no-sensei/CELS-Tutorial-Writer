@@ -1,0 +1,29 @@
+{
+  "Aims": "Develop fluency",
+  "Listening": "B1",
+  "Reading": "B1+",
+  "Speaking": "B1",
+  "Teacher's Comments": "Good progress.",
+  "Tutorial Overall Level": "B1: intermediate",
+  "Tutorial Type": "Standard",
+  "Type": "Standard",
+  "Use of English": "B1-",
+  "Writing": "B1+",
+  "absent": "no",
+  "custom_date": "01-02-2026",
+  "fields": {
+    "Aims": "Develop fluency",
+    "Listening": "B1",
+    "Reading": "B1+",
+    "Speaking": "B1",
+    "Teacher's Comments": "Good progress.",
+    "Tutorial Overall Level": "B1: intermediate",
+    "Tutorial Type": "Standard",
+    "Use of English": "B1-",
+    "Writing": "B1+",
+    "absent": "no"
+  },
+  "print_text": "Tutorial Type Standard absent no Tutorial Overall Level B1: intermediate Speaking B1 Use of English B1- Writing B1+ Listening B1 Reading B1+ Aims Develop fluency Teacher's Comments Good progress.",
+  "student_name": "Student One",
+  "teacher_name": "Teacher One"
+}

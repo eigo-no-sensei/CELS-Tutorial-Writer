@@ -1,0 +1,6 @@
+[workspace]
+resolver = "2"
+members = [
+    "gel-core",
+    "writer-ui/src-tauri",
+]

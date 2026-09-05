@@ -1,0 +1,149 @@
+{
+  "contract_id": "ui1_layout_hybrid",
+  "contract_version": 3,
+  "status": "complete_strictly_accepted",
+  "effective_date": "2026-08-28",
+  "layout_id": "UI1-LAYOUT-AD-HYBRID",
+  "name": "Adaptive two-pane / command-centred Writer",
+  "decision": "selected",
+  "authority": {
+    "owner": "writer_react_ui",
+    "data_authority": "writer_tauri_app_service + D2 ArchiveRepository read models",
+    "semantic_authority": "rust_semantic_form",
+    "layout_only_fields": "React may format dates/ranges and labels but may not derive authoritative data values"
+  },
+  "student_read_model": {
+    "rust_dto_fields": [
+      "student_id_internal",
+      "name",
+      "course_start_date",
+      "course_end_date",
+      "attendance",
+      "last_tutorial_date",
+      "last_tutorial_type"
+    ],
+    "visible_columns": [
+      "Student",
+      "Course",
+      "Attendance",
+      "Last tutorial"
+    ],
+    "hidden_internal_fields": [
+      "student_id_internal"
+    ],
+    "forbidden_visible_fields": [
+      "school_name",
+      "school",
+      "class_id",
+      "tutorial_id",
+      "raw GEL field ids"
+    ],
+    "sources": {
+      "name": "D2 archive student.name",
+      "course_start_date": "D2 archive student.start_date",
+      "course_end_date": "D2 archive student.end_date",
+      "attendance": "D2 class membership attendance",
+      "last_tutorial_date": "first item from D2 canonical newest-first tutorial history; custom_date only",
+      "last_tutorial_type": "first item from D2 canonical newest-first tutorial history; tutorial_type only"
+    },
+    "missing_value_semantics": "render em dash; never infer an unavailable authoritative value from an unrelated timestamp",
+    "display": {
+      "course": "compact Start \u2013 End range; include years when range crosses years",
+      "attendance": "integer percent only; no progress bars",
+      "last_tutorial": "compact date \u00b7 Initial|Standard|Final"
+    }
+  },
+  "modes": {
+    "browse": {
+      "layout": "two_pane",
+      "top_bar": [
+        "class selector",
+        "student search"
+      ],
+      "left": {
+        "width": "34%",
+        "contents": [
+          "student grid"
+        ]
+      },
+      "right": {
+        "width": "66%",
+        "contents": [
+          "selected student facts",
+          "New Standard",
+          "New Initial",
+          "New Final",
+          "newest-first tutorial history"
+        ]
+      }
+    },
+    "write": {
+      "layout": "editor_dominant",
+      "left": {
+        "default_width": "250px",
+        "collapsible": true,
+        "contents": [
+          "Back to student",
+          "student name",
+          "course",
+          "attendance",
+          "last tutorial",
+          "tutorial type"
+        ]
+      },
+      "right": {
+        "width": "remaining",
+        "contents": [
+          "Rust-owned semantic draft editor"
+        ]
+      }
+    }
+  },
+  "transitions": [
+    "browse no student -> browse selected student",
+    "browse selected student -> write New via explicit tutorial-type action",
+    "browse selected student -> write Revision via authoritative history row",
+    "write -> browse selected student through discard/back; dirty state requires discard confirmation"
+  ],
+  "must_not_add": [
+    "GEL submit/save command",
+    "persistent tutorial draft",
+    "teacher editor",
+    "frontend CEFR authority",
+    "raw GEL IDs",
+    "archive writer"
+  ],
+  "tests": [
+    "tools/check_ui1_hybrid_layout.py",
+    "frontend typecheck/build",
+    "UI1 Rust clippy/tests",
+    "ui1-boundaries regression",
+    "recognized verbose GEL overall levels project to compact CEFR codes before reaching React",
+    "tutorial history visible columns are exactly Date/Type/Level/Teacher",
+    "Revision eligibility remains backend-authoritative but is not a permanent visible grid column",
+    "exceptional blocked Revision produces contextual error rather than silent no-op"
+  ],
+  "presentation_rules": {
+    "cefr_level_display": {
+      "rule": "Recognized CEFR levels are displayed as compact canonical codes only (A0, A1-, A1, A1+, ... C2+).",
+      "example": "A2-: pre-intermediate -> A2-",
+      "authority": "Rust writer_tauri_app_service projects archive source text through gel-core CefrLevel parsing; React does not strip or reinterpret level text.",
+      "source_preservation": "Archive/source strings remain unchanged in authoritative source state; this is a view-model-only projection.",
+      "unknown_value_semantics": "Unrecognized nonblank source values are preserved verbatim rather than guessed or truncated."
+    },
+    "tutorial_history_revision_affordance": {
+      "visible_columns": [
+        "Date",
+        "Type",
+        "Level",
+        "Teacher"
+      ],
+      "revision_eligibility_column": false,
+      "normal_interaction": "Double-click any tutorial row to request Revision opening.",
+      "authority": "revisionAvailable/authorityStatus remain safe backend/read-model data used only to fail closed on exceptional authority blocks; they are not routine visible status.",
+      "blocked_semantics": "If authority blocks Revision, show a contextual error and keep the tutorial read-only; do not expose a permanent eligibility column.",
+      "reason": "Revision eligibility is effectively universal in normal operation, so a permanent column adds noise without aiding the dominant workflow."
+    }
+  },
+  "strict_acceptance": "PASS=23 SKIP=0 FAIL=0; RELEASE GATE: PASS"
+}

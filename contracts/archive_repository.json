@@ -1,0 +1,141 @@
+{
+  "contract_id": "archive_repository",
+  "contract_version": 2,
+  "status": "active",
+  "effective_date": "2026-08-31",
+  "schema_ref": "archive_schema_v2",
+  "schema_version": 2,
+  "phase": "A2",
+  "evaluation": {
+    "status": "implemented_pending_strict_acceptance",
+    "summary": "A2 transfers production canonical local-archive ownership to the Rust archiver. RustArchiver acquires a complete GEL snapshot before transactional materialization, may atomically create a fresh schema-v2 database, and delegates all SQLite mutation to the crate-private ArchiveSyncRepository. Python v4.9 is retained only as historical/reference parity authority."
+  },
+  "public_read_surface": {
+    "module": "gel-core/src/archive_repository.rs",
+    "type": "ArchiveRepository",
+    "open_mode": "existing schema-v2 SQLite database; SQLITE_OPEN_READ_ONLY plus PRAGMA query_only=ON",
+    "connection_exposure": false,
+    "write_methods_allowed": false,
+    "read_models": [
+      "ArchiveClass",
+      "ArchiveClassStudent",
+      "ArchiveStudent",
+      "ArchiveTutorialListItem",
+      "ArchiveRevisionAvailability"
+    ],
+    "revision_rule": "Revision source is returned only when the canonical tutorial identity is source-present, its governed source state is source-present, and authority is proven_per_tutorial or shared_identical_collision. Unknown/missing/blocked authority and stale presence fail closed."
+  },
+  "archive_sync_write_surface": {
+    "module": "gel-core/src/archive_sync_repository.rs",
+    "visibility": "crate_private",
+    "runtime_status": "production_canonical_A2",
+    "public_reexport_forbidden": true,
+    "database_create_forbidden": true,
+    "open_mode": "existing schema-v2 SQLite database; read-write without CREATE",
+    "permitted_writer_component": "rust_archive_sync_repository",
+    "writer_callers_forbidden": [
+      "Viewer",
+      "external gel-core consumers",
+      "arbitrary Writer frontend code"
+    ],
+    "production_entry_point": "gel-core/src/archiver.rs#RustArchiver; database creation is owned by RustArchiver, not ArchiveSyncRepository"
+  },
+  "transaction_semantics": {
+    "run_record": "archive_sync_runs running row is inserted before the materialization transaction so a failed run remains observable",
+    "materialization": "All candidate archive writes for one repository sync operation occur in one SQLite transaction.",
+    "success": "Within the transaction mark the run complete, perform permitted invalidation, validate repository semantic/FK invariants, then commit.",
+    "failure": "Rollback every materialization write, preserve prior archive rows/presence, and mark the outer sync run failed.",
+    "commit_failure": "Attempt to mark the outer run failed and return a hard error.",
+    "network_rule": "RustArchiver completes GEL HTTP acquisition before ArchiveSyncRepository::run_sync opens the materialization transaction; transaction closures never own network acquisition."
+  },
+  "scope_invalidation": {
+    "full": "A successful fully-evidenced full sync may mark unseen classes, students, memberships, tutorial identities, source states and collision groups source_present=0 using presence_checked_run_id for that completed run. Rows are preserved, never deleted.",
+    "targeted": "Targeted syncs never infer absence and never mark unseen source rows not present.",
+    "failed": "Failed/rolled-back syncs never invalidate prior source presence.",
+    "partial_auxiliary": "If mandatory class/roster/tutorial-list acquisition succeeds but summary/print/edit evidence is partial, A2 uses full:preserve_source_evidence: unseen identities are still invalidated, but prior unseen source states/collision groups are retained for student+timestamp keys that this run still observed in the API. Evidence for actually disappeared tutorial keys is invalidated."
+  },
+  "canonical_identity": {
+    "tutorial_id": "immutable canonical API identity",
+    "rekey_forbidden": true,
+    "locator": "student_uid+tutorial_ts remains a reconciliation key, not identity"
+  },
+  "source_state_fingerprint": {
+    "algorithm": "sha256",
+    "encoding": "UTF-8 JSON, sort_keys=true, separators=(',', ':'), strings trimmed, booleans normalized to 0/1",
+    "parity_authority": "python-oracle/archive_schema_v2.py#legacy_state_fingerprint",
+    "include_identity_fields": [
+      "student_uid",
+      "tutorial_ts"
+    ],
+    "include_state_fields": [
+      "tutorial_type",
+      "ttype_raw",
+      "teacher_id",
+      "teacher_id_source",
+      "teacher_name",
+      "custom_date",
+      "absent",
+      "overall_level",
+      "speaking",
+      "use_of_english",
+      "writing",
+      "listening",
+      "reading",
+      "speaking_before",
+      "uoe_before",
+      "writing_before",
+      "listening_before",
+      "exam_want",
+      "exam_which",
+      "exam_when",
+      "self_listening",
+      "self_reading",
+      "self_writing",
+      "self_speaking",
+      "self_vocabulary",
+      "self_grammar",
+      "self_pronunciation",
+      "aims",
+      "teacher_comments",
+      "additional_comments"
+    ],
+    "excluded_provenance_fields": [
+      "source_method",
+      "summary_url",
+      "print_url",
+      "edit_url",
+      "summary_match_method"
+    ]
+  },
+  "association_rules": {
+    "proven_per_tutorial": "requires same-key source_state_id and no collision_group_id",
+    "shared_identical_collision": "requires identical_state collision group membership for the tutorial ID and source state",
+    "ambiguous_divergent_collision": "requires divergent_state collision membership and source_state_id=NULL",
+    "incomplete_collision_evidence": "requires incomplete_evidence collision membership and source_state_id=NULL",
+    "ambiguous_collision_unknown": "requires ambiguous_unknown collision membership and source_state_id=NULL",
+    "unmatched_source_state": "requires neither source_state_id nor collision_group_id"
+  },
+  "repository_commit_invariants": [
+    "Every source-present class membership has source-present class and student parents.",
+    "Every source-present tutorial identity/source state/collision group has a source-present student parent.",
+    "Every source-present tutorial identity has a governed tutorial_state_associations row.",
+    "Shared-identical associations reference group-owned identities and source states in an identical_state group.",
+    "Divergent/incomplete/unknown blocked associations reference group-owned identities of the matching collision kind and carry no source_state_id.",
+    "A source-present identical_state collision has at least two API identities and exactly one deduplicated semantic source state.",
+    "A source-present divergent_state collision has at least two API identities and at least two distinct source states.",
+    "PRAGMA foreign_key_check is clean before commit."
+  ],
+  "ownership": {
+    "production_canonical_writer_after_A2": "rust_archive_sync_repository",
+    "production_orchestrator": "gel-core/src/archiver.rs#RustArchiver",
+    "python_v49_status_after_A2": "historical_reference",
+    "a2_cutover": true,
+    "cutover_phase": "A2"
+  },
+  "acceptance": {
+    "contract_check": "python -S tools/check_archive_repository.py && python -S tools/check_a2_archiver.py",
+    "rust_behavioral_tests": "cargo test",
+    "release_gate_check_id": "archive_repository",
+    "strict_gate_required": true
+  }
+}

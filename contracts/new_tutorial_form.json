@@ -1,0 +1,111 @@
+{
+  "contract_id": "new_tutorial_form",
+  "contract_version": 1,
+  "status": "active",
+  "effective_date": "2026-08-27",
+  "phase": "N2b",
+  "authority": "canonical_new_tutorial_form_source_contract",
+  "role": "Validate the live GEL New-tutorial source form as immutable creation-source authority without weakening historical Revision edit-form validation.",
+  "network_write_authority": false,
+  "acquisition": {
+    "method": "GET",
+    "path_template": "/study/tutorials/add/{student_uid}/0/{ttype_raw}",
+    "fixed_zero_locator_segment": true,
+    "authenticated_session_required": true,
+    "generic_request_api": false,
+    "login_page_invalidates_session": true
+  },
+  "form_contract": {
+    "method": "POST",
+    "action_path": "/study/tutorials/process",
+    "requested_ttype_must_match": true,
+    "student_uid_must_match_route": true,
+    "forbidden_fields": [
+      "datetime"
+    ],
+    "control_source": "canonical edit-control set excluding forbidden fields, with New-specific overrides",
+    "overrides": {
+      "tid": {
+        "control_kind": "hidden",
+        "validation_rule": "positive_i64",
+        "reason": "PW1 current Standard/Initial/Final New forms expose authenticated-session teacher as hidden tid; Writer has no teacher mutation authority."
+      }
+    },
+    "unknown_non_governed_controls": "ignored unless they collide with a governed GEL field name; governed known inapplicable controls fail closed",
+    "requested_ttype_validation_order": "validate canonical returned ttype and requested/returned equality before tutorial-type-specific applicability checks"
+  },
+  "validated_source_model": {
+    "type": "ValidatedNewTutorialForm",
+    "contains": [
+      "student route identity",
+      "requested/tutorial type",
+      "opaque ValidatedNewFormTeacher",
+      "default tutorial date from customdate",
+      "validated canonical control statuses",
+      "deterministic normalized source fingerprint"
+    ],
+    "must_not_contain": [
+      "tutorial_id",
+      "tutorial_timestamp",
+      "revision identity",
+      "predicted creation timestamp",
+      "raw HTML",
+      "teacher display name"
+    ]
+  },
+  "teacher_authority": {
+    "control": "hidden tid",
+    "value": "positive i64",
+    "production_constructor": "new_tutorial_form_parser only",
+    "public_mutation": false,
+    "session_invalidation": "Authentication/session loss invalidates the fetched teacher authority; refetch the New form before any future create."
+  },
+  "date_authority": {
+    "customdate": "required valid GEL date",
+    "meaning": "source default for editable semantic tutorial_date",
+    "today_invariant": false
+  },
+  "type_applicability": {
+    "source": "tutorial_form_applicability + canonical field identity",
+    "rule": "Field identity determines semantics; equal values in unrelated fields never establish provenance. Known governed controls present for an inapplicable tutorial type are contract drift."
+  },
+  "fingerprint": {
+    "algorithm": "sha256",
+    "input": "normalized validated form method/action/type/teacher/default-date/control statuses and relevant option value domains; never raw HTML bytes or display labels",
+    "purpose": "detect source-form/state drift deterministically; never substitutes for refetch after session invalidation"
+  },
+  "failure_taxonomy": [
+    "malformed_form",
+    "contract_drift",
+    "requested_type_mismatch",
+    "student_mismatch",
+    "authentication_expired_at_acquisition_boundary"
+  ],
+  "failure_semantics": [
+    "datetime present on New -> contract_drift",
+    "tid missing/not hidden/non-positive -> fail closed",
+    "uid missing/non-positive/different from requested route -> fail closed",
+    "ttype missing/unknown/different from requested type -> fail closed",
+    "canonical returned ttype different from requested type -> requested_type_mismatch before type-specific applicability validation",
+    "customdate missing/invalid -> fail closed",
+    "required applicable control missing/wrong kind/unknown canonical option -> fail closed",
+    "known governed inapplicable control present -> contract_drift",
+    "validation failure never produces a partial ValidatedNewTutorialForm"
+  ],
+  "fixtures": {
+    "public_sanitized": [
+      "gel-core/fixtures/synthetic/new_standard.html",
+      "gel-core/fixtures/synthetic/new_initial.html",
+      "gel-core/fixtures/synthetic/new_final.html"
+    ],
+    "privacy": "Synthetic fixtures use synthetic positive student/teacher IDs and no names, comments, aims, credentials, cookies, tokens or raw private HTML."
+  },
+  "out_of_scope": [
+    "tutorial creation POST",
+    "post-create identity reconciliation",
+    "full New prepopulation policy (N2c)",
+    "teacher reassignment",
+    "Tutorial Writer UI",
+    "archive writes"
+  ]
+}

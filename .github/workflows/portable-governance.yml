@@ -1,0 +1,28 @@
+name: Portable governance
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  portable-governance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - name: Portable GRI gate
+        run: python tools/release_gate.py --profile portable --scope w2
+      - name: Status semantics
+        if: always()
+        run: echo "CI is portable evidence only; target-host strict acceptance is separate."

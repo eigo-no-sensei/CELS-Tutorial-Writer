@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 3,
+  "project": "gel-rust-bootstrap",
+  "artifactType": "source-candidate",
+  "candidateVersion": "v17.15-W2-release-verified",
+  "activeApplicationContract": {
+    "id": "ui1_writer",
+    "version": 14,
+    "status": "complete_strictly_accepted"
+  },
+  "activeDevelopment": [],
+  "agentGovernance": {
+    "protocolId": "ai-governance-protocol",
+    "protocolVersion": "1.1.0",
+    "profileId": "gel-tutorial-writer",
+    "profileVersion": "1.1.0",
+    "runtimeAuthority": false
+  },
+  "requiredGate": "w2",
+  "dependencyLockStatus": "COMPLETE",
+  "dependencyLockExceptionPolicy": {
+    "id": "LOCK_GENERATOR_UNAVAILABLE",
+    "portableResult": "SKIP",
+    "strictResult": "FAIL",
+    "automaticDetectionOnly": true,
+    "promotionCeiling": "FAST_VERIFIED"
+  },
+  "lastStrictAcceptance": {
+    "scope": "w2",
+    "status": "STRICT_ACCEPTED",
+    "result": "PASS=47 SKIP=0 FAIL=0; TARGET STATUS: STRICT_ACCEPTED; RELEASE GATE: PASS",
+    "artifactBinding": "external immutable strict evidence: w2-strict-evidence.json"
+  },
+  "releaseStatus": "STRICT_ACCEPTED",
+  "unresolvedBlockers": [
+    "w2 strict target-host acceptance has not yet been recorded for this candidate source fingerprint"
+  ],
+  "generatedFrom": {
+    "developmentPlan": "57aafcf6324bfa75c0c76764400fb240c50ff4b08d9b4fbf266cbdcd5b85c4a0",
+    "releaseGate": "c36545dbb8cecddf8acd42f3523dd7605ac5140bc7a1fae12896cbbe574d6888",
+    "componentBoundaries": "d41c3dab1221dd4aca93bfc71512ce69a69bf6e2e431cd1f36fec53f2dacfb3e",
+    "stateOwnership": "b95cbc6f09ce532bed090ca3b274c9001bc285a2b41a6f04261651e356566921",
+    "dependencyLockPolicy": "19ef080c7161fe6a6c7db86c837af4fc4f42298039c98af8eab66f6872d6600e",
+    "dependencyLockManifest": "1a34fe6969a67f852c2402e987f11d3761f7d517ec0fedd64b337e26b7e0a7d0",
+    "agentGovernanceProtocol": "2b9b6985629030fa4b2b902645dcb66b6e128870930269544483103276bfdf15",
+    "agentGovernanceProfile": "6cd5dc3351cd4fa885f3efee1c1741c16a2dbe977478acb009d868bb61e243e6",
+    "agentGovernanceProtocolSchema": "1bca8163dee503a7658d8abdf412fbbbff2666630942cd5d20336a61fd4f760f",
+    "agentGovernanceProjectProfileSchema": "e4f41d320f2f22f231b80f7d8336eb38b1891fa333c67c2e12212912fda5a493",
+    "agentGovernanceRunResultSchema": "45fc483c6b670f084ea22eb9f104320fdf036b4d262d7ede1627bc61df33be1a"
+  }
+}

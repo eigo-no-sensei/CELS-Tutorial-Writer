@@ -1,0 +1,844 @@
+{
+  "contract_id": "state_ownership",
+  "contract_version": 23,
+  "status": "active",
+  "effective_date": "2026-09-03",
+  "canonical_writer_rule": "Every canonical state class has exactly one currently permitted writer. External GEL authority and reviewed repository source changes count as explicit writers. Derived state may also have exactly one producing component.",
+  "archive_source_disappearance_policy": "Archive schema v2 represents current-source presence with source_present/first_seen/last_seen plus archive_sync_runs. A later omission may mark source_present false only after the relevant acquisition scope completes successfully. A2 full syncs with partial auxiliary summary/print/edit evidence preserve prior semantic source evidence for API tutorial keys still observed in the same completed run; failed syncs never invalidate prior presence, and preserved rows are never deleted merely because the source omitted them.",
+  "state_classes": [
+    {
+      "id": "live_gel_tutorials",
+      "class": "canonical_external",
+      "source_or_derived": "source",
+      "canonical": true,
+      "permitted_writers": [
+        "gel_server"
+      ],
+      "readers": [
+        "rust_gel_session",
+        "rust_archive_sync_repository",
+        "fixture_capture",
+        "n2_playwright_evidence_harness"
+      ],
+      "retention": "Owned externally by GEL. Created or updated on the server via live_submission_transport during Phase W2; local code never deletes live tutorial records.",
+      "invalidation": "Any GEL change makes corresponding local source snapshots potentially stale until reacquired.",
+      "current_materialization": "external",
+      "state_kind": "source"
+    },
+    {
+      "id": "canonical_tutorial_identity_state",
+      "class": "canonical_external_observation",
+      "source_or_derived": "source",
+      "canonical": true,
+      "permitted_writers": [
+        "gel_server"
+      ],
+      "readers": [
+        "rust_reconciliation",
+        "rust_gel_session",
+        "rust_archive_sync_repository"
+      ],
+      "retention": "tutorial_id observations are preserved in archive history.",
+      "invalidation": "A fresh tutorial-list fetch supersedes previous current-source observation but does not delete archived historical identity.",
+      "current_materialization": "tutorial-list API + normalized archive",
+      "state_kind": "source"
+    },
+    {
+      "id": "repository_contracts",
+      "class": "canonical_repository",
+      "source_or_derived": "source",
+      "canonical": true,
+      "permitted_writers": [
+        "canonical_contracts"
+      ],
+      "readers": [
+        "canonical_contracts",
+        "contract_tooling",
+        "governance_tooling",
+        "python_archiver_oracle",
+        "rust_summary_parser",
+        "rust_edit_form_parser",
+        "rust_edit_form_validator",
+        "rust_reconciliation",
+        "rust_semantic_form",
+        "rust_post_mapper",
+        "rust_fixture_tooling",
+        "archive_schema_migrator",
+        "rust_gel_session",
+        "dependency_lock_tooling",
+        "current_state_tooling",
+        "release_artifact_tooling",
+        "continuous_enforcement",
+        "rust_new_tutorial_form_parser",
+        "rust_print_parser",
+        "rust_archive_repository",
+        "rust_archive_sync_repository",
+        "n2_playwright_evidence_harness",
+        "live_submission_transport"
+      ],
+      "retention": "Version-controlled indefinitely.",
+      "invalidation": "Contract edits immediately invalidate dependent generated artifacts and any contradictory lower-authority documentation.",
+      "current_materialization": "contracts/*.json + schema/archive_v2.sql",
+      "state_kind": "source"
+    },
+    {
+      "id": "writer_active_draft",
+      "class": "ephemeral_application_owned_draft_container",
+      "source_or_derived": "derived",
+      "canonical": false,
+      "permitted_writers": [
+        "writer_tauri_app_service"
+      ],
+      "readers": [
+        "writer_tauri_app_service"
+      ],
+      "retention": "Process memory only. Holds immutable base semantic state plus current semantic state returned by rust_semantic_form; no persistent tutorial drafts in UI1.",
+      "invalidation": "Discard/logout/confirmed window close/process exit removes the draft. Successful submission transitions draft to cleared/unloaded upon post-submit readback and targeted archive sync. Failed submission retains draft as dirty and retryable. Session expiry (HTTP 401/403 or login redirect) or latest tutorial remote drift transitions active draft to stale_source.",
+      "current_materialization": "Rust LoadedTutorialDraft in writer-ui AppState; dirty status is derived from base != current; stale_source status is derived from session loss or source drift.",
+      "state_kind": "source"
+    },
+    {
+      "id": "development_plan_source",
+      "class": "master_spec_source",
+      "source_or_derived": "source",
+      "canonical": true,
+      "permitted_writers": [
+        "reviewed_repository_change"
+      ],
+      "readers": [
+        "governance_tooling",
+        "current_state_tooling",
+        "release_artifact_tooling",
+        "continuous_enforcement"
+      ],
+      "retention": "Version-controlled; phase status updated in same change as phase completion.",
+      "invalidation": "Plan change invalidates generated docs/DEVELOPMENT_PLAN.md and documentation index.",
+      "current_materialization": "development_plan.json",
+      "state_kind": "source"
+    },
+    {
+      "id": "generated_contract_projections",
+      "class": "derived_repository",
+      "source_or_derived": "derived",
+      "canonical": false,
+      "permitted_writers": [
+        "contract_tooling"
+      ],
+      "readers": [
+        "rust_summary_parser",
+        "rust_edit_form_parser",
+        "rust_semantic_form",
+        "rust_post_mapper",
+        "continuous_enforcement"
+      ],
+      "retention": "Regenerable; checked into repository for review/build convenience.",
+      "invalidation": "Any input contract hash change makes projection stale and release gate fails until regenerated.",
+      "current_materialization": "gel-core/src/gel_fields.rs + docs/generated contract docs",
+      "state_kind": "projection"
+    },
+    {
+      "id": "generated_governance_docs",
+      "class": "derived_repository",
+      "source_or_derived": "derived",
+      "canonical": false,
+      "permitted_writers": [
+        "governance_tooling"
+      ],
+      "readers": [
+        "developers",
+        "release_gate",
+        "continuous_enforcement"
+      ],
+      "retention": "Regenerable; checked into repository.",
+      "invalidation": "Governance contract or development plan change makes docs stale and check:governance fails.",
+      "current_materialization": "docs/generated + docs/components + architecture/ownership/release docs",
+      "state_kind": "projection"
+    },
+    {
+      "id": "normalized_local_archive",
+      "class": "canonical_local",
+      "source_or_derived": "derived_from_external_source",
+      "canonical": true,
+      "permitted_writers": [
+        "rust_archive_sync_repository"
+      ],
+      "readers": [
+        "writer_tauri_app_service",
+        "rust_archive_repository",
+        "rust_fixture_tooling",
+        "rust_semantic_form",
+        "release_gate",
+        "fixture_capture",
+        "archive_schema_migrator",
+        "rust_archive_sync_repository"
+      ],
+      "retention": "Append/preserve schema-v2 historical tutorials. RustArchiver is the A2 production orchestrator and ArchiveSyncRepository is the sole canonical local SQLite write capability. Preserved source-absent history is never deleted merely because GEL omits it.",
+      "invalidation": "Fresh authoritative GEL acquisition may upgrade/reconcile state. Fully evidenced successful Rust full syncs may mark unseen source rows source_present=false through a completed archive_sync_run. When auxiliary summary/print/edit acquisition is partial, A2 preserves prior semantic source evidence for still-observed API tutorial keys while invalidating truly disappeared identities; targeted/failed syncs never infer broader absence. Collision ambiguity remains fail-closed.",
+      "current_materialization": "Schema-v2 SQLite gel-new-v2.db (GEL_ARCHIVE_DB override; Windows default beside executable, non-Windows project-root default). Missing DB may be atomically created by RustArchiver.",
+      "state_kind": "source"
+    },
+    {
+      "id": "archive_v2_candidate_database",
+      "class": "derived_migration_candidate",
+      "source_or_derived": "derived_from_canonical_local_archive_or_empty_schema",
+      "canonical": false,
+      "permitted_writers": [
+        "archive_schema_migrator",
+        "rust_archive_sync_repository"
+      ],
+      "readers": [
+        "developers",
+        "release_gate",
+        "rust_archive_repository",
+        "rust_archive_sync_repository"
+      ],
+      "retention": "Disposable non-canonical schema-v2 migration/test database. Legacy migration always writes a separate destination and preserves the source archive unchanged; A2 may also use candidate databases for isolated migration/repository/release testing.",
+      "invalidation": "Executable schema/repository contract change invalidates prior candidates. Candidate state never automatically replaces the canonical local archive.",
+      "current_materialization": "Explicit test/migration destination created by archive schema tooling or test setup.",
+      "state_kind": "derived"
+    },
+    {
+      "id": "archive_reconciliation_metadata",
+      "class": "canonical_local_diagnostic",
+      "source_or_derived": "derived_from_external_source",
+      "canonical": true,
+      "permitted_writers": [
+        "rust_archive_sync_repository"
+      ],
+      "readers": [
+        "developers",
+        "rust_fixture_tooling",
+        "rust_reconciliation",
+        "rust_semantic_form"
+      ],
+      "retention": "Preserve collision groups, candidate source states and governed per-ID/group authority in schema v2. Positional API-ID↔state pairing is not authoritative and must never establish per-tutorial ownership.",
+      "invalidation": "Recomputed by successful Rust archive sync when external identity/state evidence changes; ambiguity cannot be silently promoted without governed proof.",
+      "current_materialization": "Schema-v2 tutorial_collision_* and tutorial_state_associations tables.",
+      "state_kind": "evidence"
+    },
+    {
+      "id": "private_fixtures",
+      "class": "private_test_evidence",
+      "source_or_derived": "captured_source",
+      "canonical": false,
+      "permitted_writers": [
+        "fixture_capture"
+      ],
+      "readers": [
+        "rust_fixture_tooling",
+        "release_gate",
+        "python_archiver_oracle"
+      ],
+      "retention": "Private/Git-ignored. Recapture replaces local evidence only; promotion to repository evidence is separate reviewed change.",
+      "invalidation": "Recapture invalidates old fixture comparison reports and requires strict parity rerun.",
+      "current_materialization": "fixtures-private/ by default; an external private root may be supplied via GEL_PRIVATE_FIXTURES_DIR for release validation.",
+      "state_kind": "evidence"
+    },
+    {
+      "id": "authenticated_gel_session",
+      "class": "ephemeral_runtime_capability",
+      "source_or_derived": "derived_from_external_authentication",
+      "canonical": false,
+      "permitted_writers": [
+        "rust_gel_session"
+      ],
+      "readers": [
+        "rust_gel_session",
+        "writer_tauri_app_service",
+        "rust_archive_sync_repository",
+        "live_submission_transport"
+      ],
+      "retention": "Process memory only. Credentials are never retained as project state; cookies remain private inside the session client and disappear with the session.",
+      "invalidation": "Any 401/403, detected Learn2 login page/redirect, failed verification or process/session disposal invalidates authenticated capability.",
+      "current_materialization": "Private reqwest client cookie store plus authenticated flag; no serialization/debug export.",
+      "state_kind": "derived"
+    },
+    {
+      "id": "gel_api_json",
+      "class": "ephemeral_source",
+      "source_or_derived": "source",
+      "canonical": false,
+      "permitted_writers": [
+        "gel_server",
+        "rust_gel_session"
+      ],
+      "readers": [
+        "rust_gel_session"
+      ],
+      "retention": "Ephemeral runtime response only. Student roster/profile values are privacy-filtered before leaving rust_gel_session; raw email-like fields are not retained.",
+      "invalidation": "A new successful GET replaces the runtime snapshot; authentication/source failure yields no replacement state.",
+      "current_materialization": "In-memory serde_json::Value returned by fixed N1 GET methods.",
+      "state_kind": "source"
+    },
+    {
+      "id": "gel_summary_html",
+      "class": "ephemeral_source",
+      "source_or_derived": "source",
+      "canonical": false,
+      "permitted_writers": [
+        "gel_server",
+        "fixture_capture",
+        "rust_gel_session"
+      ],
+      "readers": [
+        "rust_summary_parser"
+      ],
+      "retention": "Ephemeral at runtime; optionally preserved only in private fixtures.",
+      "invalidation": "New fetch replaces runtime snapshot.",
+      "current_materialization": "HTTP response/private fixture",
+      "state_kind": "source"
+    },
+    {
+      "id": "gel_edit_html",
+      "class": "ephemeral_source",
+      "source_or_derived": "source",
+      "canonical": false,
+      "permitted_writers": [
+        "gel_server",
+        "fixture_capture",
+        "rust_gel_session"
+      ],
+      "readers": [
+        "rust_edit_form_parser"
+      ],
+      "retention": "Ephemeral at runtime; optionally preserved only in private fixtures.",
+      "invalidation": "New fetch replaces runtime snapshot.",
+      "current_materialization": "HTTP response/private fixture",
+      "state_kind": "source"
+    },
+    {
+      "id": "gel_new_form_html",
+      "class": "ephemeral_external_source_snapshot",
+      "source_or_derived": "source_snapshot",
+      "canonical": false,
+      "permitted_writers": [
+        "rust_gel_session"
+      ],
+      "readers": [
+        "rust_new_tutorial_form_parser"
+      ],
+      "retention": "Process memory only. New-form HTML is transient acquisition input and is never persisted by the production Rust path.",
+      "invalidation": "Authentication/session loss, refetch, or source-form change invalidates the snapshot. It is never reused as authority after reauthentication.",
+      "current_materialization": "Authenticated GET response from /study/tutorials/add/{student_uid}/0/{ttype_raw}; no raw HTML persistence.",
+      "state_kind": "source"
+    },
+    {
+      "id": "gel_print_html",
+      "class": "ephemeral_source",
+      "source_or_derived": "source",
+      "canonical": false,
+      "permitted_writers": [
+        "gel_server",
+        "fixture_capture",
+        "rust_gel_session"
+      ],
+      "readers": [
+        "rust_print_parser"
+      ],
+      "retention": "Ephemeral at runtime; optionally preserved only in private fixtures.",
+      "invalidation": "New fetch replaces runtime snapshot.",
+      "current_materialization": "HTTP response/private fixture",
+      "state_kind": "source"
+    },
+    {
+      "id": "parsed_summary_state",
+      "class": "ephemeral_derived",
+      "source_or_derived": "derived",
+      "canonical": false,
+      "permitted_writers": [
+        "rust_summary_parser"
+      ],
+      "readers": [
+        "rust_reconciliation",
+        "rust_archive_sync_repository"
+      ],
+      "retention": "Not canonical; regenerate from source.",
+      "invalidation": "Invalid immediately when source HTML or parsing contract changes.",
+      "current_materialization": "Rust memory",
+      "state_kind": "derived"
+    },
+    {
+      "id": "parsed_edit_form_state",
+      "class": "ephemeral_derived",
+      "source_or_derived": "derived",
+      "canonical": false,
+      "permitted_writers": [
+        "rust_edit_form_parser"
+      ],
+      "readers": [
+        "rust_edit_form_validator",
+        "rust_fixture_tooling"
+      ],
+      "retention": "Not canonical; regenerate from source.",
+      "invalidation": "Invalid immediately when source HTML or parsing contract changes; semantic code must not consume this raw state directly.",
+      "current_materialization": "Rust memory",
+      "state_kind": "derived"
+    },
+    {
+      "id": "validated_edit_form_state",
+      "class": "ephemeral_validated_derived",
+      "source_or_derived": "derived",
+      "canonical": false,
+      "permitted_writers": [
+        "rust_edit_form_validator"
+      ],
+      "readers": [
+        "rust_semantic_form",
+        "rust_fixture_tooling",
+        "writer_tauri_app_service",
+        "rust_archive_sync_repository"
+      ],
+      "retention": "Not canonical; regenerate from raw parsed form and current contracts.",
+      "invalidation": "Invalid immediately when source HTML, raw parser behaviour, or GEL field/applicability validation contract changes.",
+      "current_materialization": "Rust memory",
+      "state_kind": "derived"
+    },
+    {
+      "id": "validated_new_tutorial_form_state",
+      "class": "ephemeral_validated_source_derived",
+      "source_or_derived": "derived_from_external_source",
+      "canonical": false,
+      "permitted_writers": [
+        "rust_new_tutorial_form_parser"
+      ],
+      "readers": [
+        "rust_semantic_form",
+        "rust_fixture_tooling",
+        "writer_tauri_app_service"
+      ],
+      "retention": "Ephemeral immutable New-form source authority. Stores normalized validated control state, default date, opaque teacher authority and deterministic fingerprint; never raw HTML, teacher label or GEL created identity.",
+      "invalidation": "Authentication/session loss invalidates teacher/form authority; a refetched form fingerprint change replaces it. A changed latest tutorial separately stales any semantic draft prepopulation source.",
+      "current_materialization": "Rust ValidatedNewTutorialForm with opaque ValidatedNewFormTeacher; no tutorial_id/tutorial_ts and no datetime field.",
+      "state_kind": "derived"
+    },
+    {
+      "id": "parsed_print_state",
+      "class": "ephemeral_derived",
+      "source_or_derived": "derived",
+      "canonical": false,
+      "permitted_writers": [
+        "rust_print_parser"
+      ],
+      "readers": [
+        "developers",
+        "rust_archive_sync_repository"
+      ],
+      "retention": "Not canonical; regenerate from source.",
+      "invalidation": "Invalid immediately when source HTML or parser changes.",
+      "current_materialization": "Rust memory",
+      "state_kind": "derived"
+    },
+    {
+      "id": "derived_reconciliation_result",
+      "class": "ephemeral_derived",
+      "source_or_derived": "derived",
+      "canonical": false,
+      "permitted_writers": [
+        "rust_reconciliation"
+      ],
+      "readers": [
+        "developers",
+        "rust_fixture_tooling",
+        "rust_semantic_form"
+      ],
+      "retention": "Not canonical until a future repository explicitly persists governed identity/state/association data. Collision candidate states remain group-owned in memory.",
+      "invalidation": "Identity/source-state input or reconciliation-authority contract change invalidates result.",
+      "current_materialization": "Rust memory: canonical API identities + group-owned collision states + explicit HistoricalStateAuthority",
+      "state_kind": "derived"
+    },
+    {
+      "id": "semantic_form_state",
+      "class": "ephemeral_editable_derived_with_provenance",
+      "source_or_derived": "derived",
+      "canonical": false,
+      "permitted_writers": [
+        "rust_semantic_form"
+      ],
+      "readers": [
+        "rust_post_mapper",
+        "rust_fixture_tooling",
+        "writer_tauri_app_service"
+      ],
+      "retention": "Ephemeral. Editable semantic values are the sole writable draft representation; immutable source identity/teacher authority and source fidelity are provenance. New DraftOrigin also carries a non-writable same-role CEFR regression baseline derived from its N2c latest-source snapshot. Initial course type is a Rust semantic adapter over Initial teacher_comments storage; unknown legacy text is preserved losslessly.",
+      "invalidation": "Any semantic edit invalidates a derived POST payload. Revision source/archive/authority change requires reconstruction. For New, authentication loss invalidates fetched teacher authority and a changed latest tutorial invalidates both N2c prepopulation and its CEFR regression baseline; rebuild/reconcile rather than silently rebind.",
+      "current_materialization": "Rust TutorialFormState + DraftOrigin with no New authoritative created identity before readback, plus UI1c0 field-disposition/structured-validation authority. DraftOrigin::New carries LevelRegressionBaseline; InitialCourseType is derived/mutated only through the Rust teacher_comments adapter.",
+      "state_kind": "source"
+    },
+    {
+      "id": "tutorial_post_payload",
+      "class": "ephemeral_derived",
+      "source_or_derived": "derived",
+      "canonical": false,
+      "permitted_writers": [
+        "rust_post_mapper"
+      ],
+      "readers": [
+        "developers",
+        "rust_fixture_tooling",
+        "live_submission_transport"
+      ],
+      "retention": "Ephemeral derived payload produced by rust_post_mapper, consumed by live_submission_transport for production GEL submission under Phase W2. New payloads structurally omit datetime; Revision payloads carry exact source tutorial_ts. Teacher attribution is inherited from immutable semantic origin authority. Payloads are never canonical evidence.",
+      "invalidation": "Any semantic edit, origin/source authority change, authentication invalidation of a New-form source, or semantic/round-trip contract change invalidates a built payload. New datetime presence, Revision datetime mismatch, teacher-authority mismatch, or C4 exact-map failure blocks later networking.",
+      "current_materialization": "Rust BTreeMap produced only by origin-specific NewTutorialSubmission/RevisionTutorialSubmission builders in rust_post_mapper; no network authority",
+      "state_kind": "derived"
+    },
+    {
+      "id": "fixture_comparison_reports",
+      "class": "derived_test_evidence",
+      "source_or_derived": "derived",
+      "canonical": false,
+      "permitted_writers": [
+        "rust_fixture_tooling"
+      ],
+      "readers": [
+        "developers",
+        "release_gate"
+      ],
+      "retention": "Regenerable test evidence.",
+      "invalidation": "Fixture/parser/comparator change invalidates report.",
+      "current_materialization": "stdout/optional JSON report",
+      "state_kind": "evidence"
+    },
+    {
+      "id": "offline_post_round_trip_report",
+      "class": "ephemeral_test_evidence",
+      "source_or_derived": "derived",
+      "canonical": false,
+      "permitted_writers": [
+        "rust_fixture_tooling"
+      ],
+      "readers": [
+        "release_gate",
+        "developers"
+      ],
+      "retention": "Ephemeral C4 diagnostic evidence. Regenerate from private archive/edit fixtures and current contracts; do not promote payload data to canonical history.",
+      "invalidation": "Any private fixture, semantic constructor, POST mapper, GEL field contract, absent authority rule, or offline round-trip contract change invalidates the report.",
+      "current_materialization": "Rust checker stdout/process result; no persistent runtime state",
+      "state_kind": "evidence"
+    },
+    {
+      "id": "archive_repository_read_models",
+      "class": "ephemeral_derived_read_model",
+      "source_or_derived": "derived",
+      "canonical": false,
+      "permitted_writers": [
+        "rust_archive_repository"
+      ],
+      "readers": [
+        "writer_tauri_app_service",
+        "future_viewer",
+        "developers"
+      ],
+      "retention": "Ephemeral typed projections only; regenerate from archive v2. ArchivedTutorial is emitted only for governed source-present revision state.",
+      "invalidation": "Any source archive row, source-presence, authority association, schema or repository contract change invalidates previously loaded models.",
+      "current_materialization": "Rust memory: ArchiveClass/ArchiveClassStudent/ArchiveTutorialListItem/ArchiveRevisionAvailability",
+      "state_kind": "projection"
+    },
+    {
+      "id": "n2_playwright_private_evidence",
+      "class": "private_derived_test_evidence",
+      "source_or_derived": "derived",
+      "canonical": false,
+      "permitted_writers": [
+        "n2_playwright_evidence_harness"
+      ],
+      "readers": [
+        "developers"
+      ],
+      "retention": "Gitignored local evidence only. Persist aliases/booleans/counts/control topology/classifications/student-free hashes and sanitized failure categories; never credentials, cookies, storage state, raw HTML, raw POST bodies, student identity, teacher names or raw teacher IDs.",
+      "invalidation": "Any GEL form/client drift, PW1 contract change, field contract change or harness change invalidates prior PW1 evidence; rerun zero-write capture. Historical evidence is not silently superseded by a live contradiction.",
+      "current_materialization": "evidence-private/n2-playwright/*.json generated by the temporary N2-PW1 harness",
+      "state_kind": "evidence"
+    },
+    {
+      "id": "writer_ui_view_models",
+      "class": "ephemeral_derived_presentation_model",
+      "source_or_derived": "derived",
+      "canonical": false,
+      "permitted_writers": [
+        "writer_tauri_app_service"
+      ],
+      "readers": [
+        "writer_react_ui"
+      ],
+      "retention": "Ephemeral Tauri command results only. Safe semantic projections omit raw GEL field IDs, datetime/timestamps and teacher IDs from draft editing authority and include UI1c Rust-owned field rules/option domains plus InitialCourseType view state.",
+      "invalidation": "Any underlying archive/session/draft change invalidates the corresponding view model; frontend must request/refetch rather than treating it as authority.",
+      "current_materialization": "Serde DTOs returned by ui1_* commands, including DraftView.formContract and structured DraftValidationIssue errors. Aims assistance projects unavailable until curated content is explicitly contracted.",
+      "state_kind": "projection"
+    },
+    {
+      "id": "writer_ui_presentation_state",
+      "class": "ephemeral_frontend_presentation_state",
+      "source_or_derived": "derived",
+      "canonical": false,
+      "permitted_writers": [
+        "writer_react_ui"
+      ],
+      "readers": [
+        "writer_react_ui"
+      ],
+      "retention": "React process memory only; class/student selection, filters, busy/error state and transient password input. No localStorage/sessionStorage persistence.",
+      "invalidation": "Navigation, logout, app close or backend view refresh replaces presentation state. Password state is cleared after every login attempt.",
+      "current_materialization": "React component state only; never canonical semantic/tutorial state.",
+      "state_kind": "projection"
+    },
+    {
+      "id": "dependency_manifest_source",
+      "class": "canonical_repository_build_input",
+      "source_or_derived": "source",
+      "state_kind": "source",
+      "canonical": true,
+      "permitted_writers": [
+        "reviewed_repository_change"
+      ],
+      "readers": [
+        "dependency_lock_tooling",
+        "release_artifact_tooling",
+        "continuous_enforcement"
+      ],
+      "retention": "Version-controlled Cargo.toml workspace/crate manifests and writer-ui/package.json. Dependency edits are reviewed source changes.",
+      "invalidation": "Any dependency declaration or workspace membership change invalidates dependency locks, lock manifest, current-state projection and release identity.",
+      "current_materialization": "Cargo.toml + gel-core/Cargo.toml + writer-ui/src-tauri/Cargo.toml + writer-ui/package.json"
+    },
+    {
+      "id": "dependency_lock_state",
+      "class": "canonical_repository_dependency_decision",
+      "source_or_derived": "source",
+      "state_kind": "decision",
+      "canonical": true,
+      "permitted_writers": [
+        "dependency_lock_tooling"
+      ],
+      "readers": [
+        "current_state_tooling",
+        "release_artifact_tooling",
+        "continuous_enforcement"
+      ],
+      "retention": "Cargo.lock and writer-ui/package-lock.json are version-controlled decision state and changed only with explicit dependency/workspace changes. Missing locks remain missing rather than being fabricated; a portable LOCK_GENERATOR_UNAVAILABLE exception is evidence about host capability, not replacement decision state.",
+      "invalidation": "Any dependency-manifest change requires regeneration. Missing locks fail strict validation; portable validation may explicitly SKIP only when the corresponding generator executable is objectively unavailable under dependency_lock_policy.",
+      "current_materialization": "Cargo.lock + writer-ui/package-lock.json"
+    },
+    {
+      "id": "dependency_lock_manifest",
+      "class": "derived_release_identity",
+      "source_or_derived": "derived",
+      "state_kind": "derived",
+      "canonical": false,
+      "permitted_writers": [
+        "dependency_lock_tooling"
+      ],
+      "readers": [
+        "current_state_tooling",
+        "release_artifact_tooling",
+        "continuous_enforcement"
+      ],
+      "retention": "Regenerable repository projection containing manifest/lock hashes and COMPLETE/INCOMPLETE status. Host tool availability is intentionally not persisted here; tool-unavailable exceptions are run evidence.",
+      "invalidation": "Any Cargo.toml, package.json, Cargo.lock or package-lock.json byte change invalidates the manifest.",
+      "current_materialization": "governance/dependency-lock-manifest.json"
+    },
+    {
+      "id": "current_state_projection",
+      "class": "governance_projection",
+      "source_or_derived": "derived",
+      "state_kind": "projection",
+      "canonical": false,
+      "permitted_writers": [
+        "current_state_tooling"
+      ],
+      "readers": [
+        "release_artifact_tooling",
+        "continuous_enforcement"
+      ],
+      "retention": "Regenerable version-controlled snapshot of active phase/gate/lock/release status. It is never runtime authority.",
+      "invalidation": "Any referenced active contract, development-plan, release-gate, state-ownership or lock-manifest change invalidates the projection.",
+      "current_materialization": "governance/current-state.json + docs/generated/CURRENT_STATE.md"
+    },
+    {
+      "id": "release_gate_evidence",
+      "class": "release_acceptance_evidence",
+      "source_or_derived": "derived",
+      "state_kind": "evidence",
+      "canonical": false,
+      "permitted_writers": [
+        "release_artifact_tooling"
+      ],
+      "readers": [
+        "release_artifact_tooling",
+        "current_state_tooling"
+      ],
+      "retention": "Immutable per-run JSON retained outside the governed source tree; a new run creates new evidence rather than overwriting accepted evidence.",
+      "invalidation": "Never edited in place. Source/lock/toolchain changes require a new strict run and new evidence identity.",
+      "current_materialization": "external evidence store/<run-id>/strict-result.json"
+    },
+    {
+      "id": "distribution_manifest",
+      "class": "distribution_evidence",
+      "source_or_derived": "derived",
+      "state_kind": "evidence",
+      "canonical": false,
+      "permitted_writers": [
+        "release_artifact_tooling"
+      ],
+      "readers": [
+        "release_artifact_tooling"
+      ],
+      "retention": "Embedded in each packaged candidate/release with exact distributed source-file hashes and bound acceptance identity.",
+      "invalidation": "Any distributed byte or accepted source/lock/evidence identity change requires a new manifest and package.",
+      "current_materialization": "release-manifest.json + checksums.sha256 inside staged archive"
+    },
+    {
+      "id": "release_artifact_receipt",
+      "class": "release_artifact_evidence",
+      "source_or_derived": "derived",
+      "state_kind": "evidence",
+      "canonical": false,
+      "permitted_writers": [
+        "release_artifact_tooling"
+      ],
+      "readers": [
+        "release_artifact_tooling"
+      ],
+      "retention": "Sidecar receipt for final archive bytes; immutable once RELEASE_ARTIFACT_VERIFIED.",
+      "invalidation": "Any archive-byte change creates a different artifact identity and requires a new receipt.",
+      "current_materialization": "<release.zip>.receipt.json"
+    },
+    {
+      "id": "ci_verification_evidence",
+      "class": "continuous_verification_evidence",
+      "source_or_derived": "derived",
+      "state_kind": "evidence",
+      "canonical": false,
+      "permitted_writers": [
+        "continuous_enforcement"
+      ],
+      "readers": [
+        "release_artifact_tooling"
+      ],
+      "retention": "CI-provider run logs/status retained according to repository/provider policy; never promoted automatically to strict acceptance.",
+      "invalidation": "Each source change produces new CI evidence. CI evidence cannot replace target-host/private strict evidence.",
+      "current_materialization": "CI run result / PORTABLE_GOVERNANCE_PASS or STRUCTURAL_PASS_WITH_SKIPS"
+    },
+    {
+      "id": "agent_governance_protocol_decision",
+      "class": "canonical_repository_meta_governance_decision",
+      "source_or_derived": "source",
+      "state_kind": "decision",
+      "canonical": true,
+      "permitted_writers": [
+        "reviewed_repository_change"
+      ],
+      "readers": [
+        "governance_tooling",
+        "current_state_tooling",
+        "continuous_enforcement"
+      ],
+      "retention": "Version-controlled generic AI Governance Protocol v1.1 schemas/instance under governance/agent-protocol. It governs agent workflow/claims only and is never GEL runtime or domain authority.",
+      "invalidation": "A reviewed protocol-version or schema change invalidates the GEL profile validation, generated current-state protocol identity and governance evidence until revalidated.",
+      "current_materialization": "governance/agent-protocol/ai-governance-protocol.v1.1.json plus its protocol/project/run-result schemas."
+    },
+    {
+      "id": "agent_governance_project_profile",
+      "class": "canonical_repository_project_meta_governance_decision",
+      "source_or_derived": "source",
+      "state_kind": "decision",
+      "canonical": true,
+      "permitted_writers": [
+        "reviewed_repository_change"
+      ],
+      "readers": [
+        "governance_tooling",
+        "current_state_tooling",
+        "continuous_enforcement"
+      ],
+      "retention": "Version-controlled GEL project profile binding the generic protocol to existing GEL contracts, gate profiles, subject identity and side-effect policies. runtimeAuthority=false and metaGovernanceOnly=true are mandatory.",
+      "invalidation": "Any referenced contract/gate/component/state ID or protocol-version change invalidates profile conformance until check:governance passes again.",
+      "current_materialization": "governance/agent-protocol/profiles/gel-tutorial-writer.profile.json"
+    },
+    {
+      "id": "harper_user_dictionary",
+      "class": "canonical_local_preference",
+      "source_or_derived": "source",
+      "canonical": true,
+      "permitted_writers": [
+        "harper_dictionary_repository"
+      ],
+      "readers": [
+        "writer_tauri_app_service",
+        "writer_react_ui",
+        "writer_harper_service",
+        "harper_dictionary_repository"
+      ],
+      "retention": "Writer-local durable preference only. Must not contain credentials, cookies/session state, student identifiers or tutorial text wholesale. Versioned JSON is recoverable and retained until explicit user removal.",
+      "invalidation": "Explicit add/remove replaces the current dictionary. Future schema versions fail closed. Failed atomic writes leave prior canonical bytes authoritative.",
+      "current_materialization": "harper-dictionary.json beside resolved archive by default; GEL_HARPER_DICTIONARY override; schema_version=1.",
+      "state_kind": "source"
+    },
+    {
+      "id": "harper_check_result",
+      "class": "ephemeral_runtime_derived",
+      "source_or_derived": "derived",
+      "canonical": false,
+      "permitted_writers": [
+        "writer_harper_service"
+      ],
+      "readers": [
+        "writer_tauri_app_service",
+        "writer_react_ui"
+      ],
+      "retention": "Process-memory assistance only. Each result carries the exact source snapshot and is discarded on text change or process disposal.",
+      "invalidation": "Any source-text change, dictionary mutation or request-id change invalidates prior findings; stale UI results are not applicable to newer text.",
+      "current_materialization": "HarperCheckDto returned through Tauri; never persisted.",
+      "state_kind": "derived"
+    },
+    {
+      "id": "harper_disabled_rules",
+      "class": "ephemeral_runtime_derived",
+      "source_or_derived": "derived",
+      "canonical": false,
+      "permitted_writers": [
+        "writer_react_ui"
+      ],
+      "readers": [
+        "writer_react_ui",
+        "writer_tauri_app_service"
+      ],
+      "retention": "Session-only rule suppression state hoisted to the App root. Never persisted; cleared on process disposal. Passed to ui1_harper_check as disabled_rules so a disabled rule does not run for any field until the session resets.",
+      "invalidation": "Session restart clears the set. Adding a rule removes its findings on the next debounced lint run.",
+      "current_materialization": "Set<string> in writer-ui/src/App.tsx; passed to ui1_harper_check through harperCheck(field, text, disabledRules, suppressedKinds).",
+      "state_kind": "derived"
+    },
+    {
+      "id": "harper_ignored_findings",
+      "class": "ephemeral_runtime_derived",
+      "source_or_derived": "derived",
+      "canonical": false,
+      "permitted_writers": [
+        "writer_react_ui"
+      ],
+      "readers": [
+        "writer_react_ui"
+      ],
+      "retention": "Session-only finding skip set hoisted to the App root. Never persisted; cleared on process disposal. Keyed by field + rule + span + kind + excerpt + message so a skipped finding disappears instantly from the visible findings without waiting for a re-lint.",
+      "invalidation": "Session restart clears the set. The visibleFindings useMemo recomputes instantly on skip.",
+      "current_materialization": "Set<string> in writer-ui/src/App.tsx; passed to HarperFieldAssistant as ignoredFindingKeys.",
+      "state_kind": "derived"
+    },
+    {
+      "id": "live_submission_response",
+      "class": "ephemeral_runtime_response",
+      "source_or_derived": "source",
+      "canonical": false,
+      "permitted_writers": [
+        "live_submission_transport"
+      ],
+      "readers": [
+        "writer_tauri_app_service",
+        "developers"
+      ],
+      "retention": "Process memory only. Transient HTTP response status and redirect headers from tutorial process submission.",
+      "invalidation": "Discarded immediately after readback discovery and targeted archive reconciliation.",
+      "current_materialization": "Rust LiveSubmissionReceipt in process memory.",
+      "state_kind": "source"
+    }
+  ]
+}

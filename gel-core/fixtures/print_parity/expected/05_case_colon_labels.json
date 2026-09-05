@@ -1,0 +1,14 @@
+{
+  "Speaking": "B2",
+  "Teacher's Comments": "Case-insensitive labels.",
+  "Tutorial Type": "Standard",
+  "Type": "Standard",
+  "absent": "yes",
+  "fields": {
+    "Speaking": "B2",
+    "Teacher's Comments": "Case-insensitive labels.",
+    "Tutorial Type": "Standard",
+    "absent": "yes"
+  },
+  "print_text": "tutorial type: Standard ABSENT : yes speaking: B2 teacher's comments : Case-insensitive labels."
+}

@@ -1,0 +1,10 @@
+#!/usr/bin/env python3
+from pathlib import Path
+import subprocess
+import sys
+root = Path(__file__).resolve().parent
+if len(sys.argv) != 2:
+    print("usage: ./check-strict /external/evidence/<run-id>/strict-result.json", file=sys.stderr)
+    raise SystemExit(2)
+evidence = str(Path(sys.argv[1]).expanduser().resolve())
+raise SystemExit(subprocess.run([sys.executable, str(root / "tools" / "release_gate.py"), "--profile", "strict", "--scope", "gri", "--evidence-out", evidence], cwd=root).returncode)

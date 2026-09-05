@@ -1,0 +1,311 @@
+{
+  "contract_id": "n2_playwright_zero_write_evidence",
+  "contract_version": 8,
+  "status": "core_n2_evidence_complete_with_deferred_nonblocking_teacher_serialization_residual",
+  "effective_date": "2026-08-27",
+  "phase": "N2-PW1",
+  "role": "Observe current GEL New/Edit form structure and authentic browser serialization while preventing every GEL tutorial mutation from reaching the server.",
+  "authority": {
+    "historical_bundle": "GEL_tutorial_creation_teacher_evidence_v1.zip",
+    "raw_source_archive_sha256": "29497b61eb6bd3b41cf955d7c5a751fbc90e83b555c7939bd51a8419d1c24b2d",
+    "accepted_claims": {
+      "NEW-1": "New form and create POST omit datetime; GEL assigns identity server-side.",
+      "TEACHER-1": "New form-provided tid represents the authenticated teacher in the captured create flow.",
+      "TEACHER-2": "Ordinary revision preserves the historical tutorial tid even under a different authenticated teacher.",
+      "TEACHER-3": "Deliberate teacher reassignment server acceptance/semantics are not established.",
+      "UPDATE-1": "Revision form/POST preserve the existing datetime."
+    },
+    "established_project_fact": "The latest tutorial is always the prepopulation source for a New tutorial; PW1 audits field-by-field copy/reset/derive behaviour and does not re-infer source provenance.",
+    "current_live_evidence_rule": "PW1 confirms current client/form behaviour and classifies drift. It does not silently supersede historical authority."
+  },
+  "network_state_machine": {
+    "states": [
+      "AUTHENTICATION",
+      "EVIDENCE",
+      "VERIFY",
+      "CLOSED"
+    ],
+    "firewall_installed_before_first_navigation": true,
+    "service_workers_blocked": true,
+    "authentication": {
+      "allowed_methods": [
+        "GET",
+        "HEAD",
+        "OPTIONS"
+      ],
+      "allowed_mutation": {
+        "method": "POST",
+        "origin": "https://learn2.guidedelearning.net",
+        "path": "/user/login",
+        "body_may_be_inspected": false,
+        "headers_may_be_inspected": false,
+        "purpose": "GEL login handshake submitted by the interactive /corelogin/ page only"
+      },
+      "all_other_mutations": "DEPRECATED: see origin_policy; unexpected GEL mutations abort_and_fail_closed, third-party mutations abort_nonfatal",
+      "interactive_login_page": {
+        "method": "GET",
+        "origin": "https://learn2.guidedelearning.net",
+        "path": "/corelogin/",
+        "purpose": "operator enters credentials directly into GEL browser UI; harness never reads credential control values"
+      },
+      "blocked_mutation_diagnostic": {
+        "enabled": true,
+        "destination": "stderr_only_not_persisted",
+        "fields": [
+          "phase",
+          "method",
+          "origin",
+          "redacted_path"
+        ],
+        "query_may_be_printed": false,
+        "body_may_be_inspected": false,
+        "headers_may_be_inspected": false,
+        "purpose": "Reveal the route shape required by the interactive login flow without exposing credentials/session material or widening mutation authority."
+      },
+      "two_stage_manual_login": {
+        "historical_basis": "GEL login requires the corelogin handshake followed by Learn2 /user/login session establishment.",
+        "stage_1": {
+          "page": "/corelogin/",
+          "credential_entry": "browser_only",
+          "expected_mutation": "POST /user/login"
+        },
+        "verification_after_stage_1": {
+          "method": "GET",
+          "path": "/administration/students",
+          "body_persisted": false,
+          "headers_inspected": false,
+          "credential_fields_read": false
+        },
+        "stage_2_when_required": {
+          "page": "/user/login",
+          "method": "GET",
+          "credential_entry": "browser_only",
+          "expected_mutation": "POST /user/login"
+        },
+        "evidence_phase_transition": "Only after a GET-only Learn2 session verification reports authenticated."
+      },
+      "session_verification_diagnostic": {
+        "enabled": true,
+        "fields": [
+          "login_posts_forwarded",
+          "learn2_authenticated_get",
+          "final_origin",
+          "redacted_final_path",
+          "password_control_present"
+        ],
+        "body_may_be_inspected": false,
+        "headers_may_be_inspected": false,
+        "credential_values_may_be_read": false,
+        "query_may_be_printed": false
+      },
+      "unexpected_gel_mutations": "abort_and_fail_closed",
+      "third_party_mutations": "abort_nonfatal"
+    },
+    "evidence": {
+      "allowed_methods": [
+        "GET",
+        "HEAD",
+        "OPTIONS"
+      ],
+      "expected_tutorial_mutation": {
+        "method": "POST",
+        "origin": "https://learn2.guidedelearning.net",
+        "path": "/study/tutorials/process",
+        "required_content_type": "application/x-www-form-urlencoded",
+        "inspection": "transient allowlist reduction only",
+        "persisted_fields": [
+          "teacher alias/relationship",
+          "tutorial type",
+          "customdate presence/well-formedness",
+          "datetime presence and revision-preservation boolean"
+        ],
+        "network_action": "always_abort"
+      },
+      "all_other_mutations": "DEPRECATED: see origin_policy; unexpected GEL mutations abort_and_fail_closed, third-party mutations abort_nonfatal",
+      "forwarded_tutorial_mutations": 0,
+      "unexpected_gel_mutations": "abort_and_fail_closed",
+      "third_party_mutations": "abort_nonfatal"
+    },
+    "origin_policy": {
+      "gel_origin": {
+        "origin": "https://learn2.guidedelearning.net",
+        "unexpected_mutation": "abort_and_fail_closed",
+        "body_may_be_inspected": false,
+        "headers_may_be_inspected": false
+      },
+      "third_party_origins": {
+        "mutating_requests": "abort_nonfatal",
+        "reason": "Third-party analytics/telemetry cannot write GEL tutorial state and is not evidence of GEL contract drift.",
+        "body_may_be_inspected": false,
+        "headers_may_be_inspected": false,
+        "persisted_evidence": "aggregate_count_only",
+        "terminal_diagnostic_fields": [
+          "phase",
+          "method",
+          "origin",
+          "redacted_path"
+        ]
+      }
+    },
+    "progress_diagnostic": {
+      "enabled": true,
+      "destination": "stdout_only_not_persisted",
+      "allowed_stages": [
+        "authenticated",
+        "baseline_summary",
+        "latest_revision_snapshot",
+        "new_form_standard",
+        "new_form_initial",
+        "new_form_final",
+        "revision_probe",
+        "final_verification",
+        "evidence_evaluation",
+        "privacy_validation",
+        "evidence_written"
+      ],
+      "identities_or_form_values_may_be_printed": false,
+      "purpose": "Identify the evidence stage of a fail-closed exception without exposing browser/network/form data."
+    }
+  },
+  "credential_privacy": {
+    "credential_entry": "operator types directly into GEL browser page",
+    "harness_credential_authority": "none",
+    "forbidden_inputs": [
+      "--username",
+      "--password",
+      "credential files",
+      "credential environment variables"
+    ],
+    "forbidden_browser_persistence": [
+      "storageState export",
+      "cookie export",
+      "HAR recording",
+      "trace recording",
+      "video recording"
+    ],
+    "forbidden_login_observation": [
+      "login request body",
+      "login request headers",
+      "password input value",
+      "username input value"
+    ],
+    "raw_tutorial_html_persisted": false,
+    "raw_tutorial_post_body_persisted": false,
+    "raw_request_headers_persisted": false,
+    "student_identity_persisted": false,
+    "teacher_names_or_raw_ids_persisted": false,
+    "raw_request_url_persisted": false,
+    "query_parameters_printed": false,
+    "persisted_evidence_privacy_metadata": {
+      "policy": "negative capture assertions use privacy-safe metadata keys that do not resemble forbidden raw-data field names",
+      "page_source_capture_enabled": false,
+      "submission_payload_capture_enabled": false,
+      "network_header_capture_enabled": false,
+      "staff_display_label_capture_enabled": false,
+      "student_identity_persisted": false,
+      "guard_rule": "assert_privacy_safe_evidence remains strict; schema metadata is renamed rather than allowlisting forbidden key fragments"
+    }
+  },
+  "teacher_semantics": {
+    "control_existence": "observed",
+    "new_default": "historically proven to use authenticated-teacher form tid",
+    "revision_default": "historically proven to preserve historical tutorial tid",
+    "client_change_probe": "Where an enabled select with at least two teacher options exists, choose an alternate only in the browser and observe the authentic outgoing POST before aborting it.",
+    "server_reassignment_acceptance": "unresolved",
+    "server_reassignment_authorization": "unresolved",
+    "writer_enablement_consequence": "PW1 evidence alone must not enable production teacher reassignment.",
+    "live_revision_selector": "observed editable select with 55 positive options; browser selection changed successfully",
+    "changed_tid_serialization": "deferred_non_blocking",
+    "writer_product_rule": "Revision always preserves the historical teacher; teacher reassignment is unsupported and not an N2 gate."
+  },
+  "prepopulation": {
+    "source": "latest_tutorial",
+    "source_status": "established_before_PW1",
+    "pw1_question": "For each New target type, compare only the canonical same-semantic field identity and classify copy/reset/derive behaviour; never search unrelated fields for equal values.",
+    "persist_values": false,
+    "comparison_scope": "in-memory canonical semantic field identity only; field IDs/roles are authoritative",
+    "classifications": [
+      "copied_unchanged",
+      "reset_for_new",
+      "derived_from_authenticated_session",
+      "derived_from_current_date",
+      "derived_from_requested_type",
+      "route_identity",
+      "absent_for_new",
+      "unset_or_not_carried_from_source_type",
+      "new_specific_or_transformed",
+      "contract_drift_present",
+      "contract_drift_teacher_default"
+    ],
+    "identity_projection": {
+      "subject": "route_identity represented by subject_ref only; student_uid semantic key/value is not persisted",
+      "teacher": "relationship-only rule under identity_rules.teacher; teacher_id semantic key/value is not persisted"
+    },
+    "persisted_identity_bearing_semantic_keys": false,
+    "forbidden_inference": "Cross-field provenance from equal values is forbidden; earlier copied_from_source_field/matches_multiple_source_fields results are superseded."
+  },
+  "zero_write_verification": {
+    "create_probe": "Fresh summary GET must have the same student-free tutorial locator count+digest as baseline.",
+    "revision_probe": "Fresh historical edit GET must have the same normalized semantic-state digest as baseline.",
+    "final_summary": "Tutorial locator digest must still match baseline.",
+    "request_counter_rule": "Every expected tutorial mutation is aborted; no tutorial POST/PUT/PATCH/DELETE is forwarded during EVIDENCE or VERIFY."
+  },
+  "failure_semantics": {
+    "unexpected_mutation": "Unexpected GEL-origin mutation: abort request and fail run.",
+    "unexpected_submission_encoding": "abort request and classify contract drift/unparseable; never fall back to raw persistence",
+    "new_datetime_present": "contract drift; fail run",
+    "revision_datetime_missing_or_changed": "contract drift; fail run",
+    "server_state_digest_changed": "critical zero-write failure",
+    "client_validation_blocks_request": "INCONCLUSIVE; do not bypass validation",
+    "no_real_submit_control": "INCONCLUSIVE; do not synthesize form.submit()",
+    "unknown_teacher_selector_shape": "record topology; do not manufacture a teacher mutation",
+    "authentication_failure": "Remain in AUTHENTICATION until a GET-only /administration/students verification succeeds. If stage 1 does not establish Learn2 but the canonical login POST was observed, open /user/login for a second manual browser-only credential submission. Fail closed after stage 2 if the verification remains unauthenticated. Diagnostics contain only login POST count, authenticated boolean, origin/redacted path and password-control presence.",
+    "interactive_login_page_unavailable": "fail closed; do not navigate to the POST handshake endpoint as a substitute interactive page",
+    "third_party_mutation": "Abort without body/header inspection; count as blocked third-party traffic; do not fail or classify as GEL contract drift.",
+    "privacy_projection_violation": "fail_closed before evidence write; no raw value is printed or persisted"
+  },
+  "evidence_retention": {
+    "default_directory": "evidence-private/n2-playwright",
+    "git_policy": "ignored",
+    "subject_alias": "S1",
+    "teacher_aliases": "run-local T1/T2/... only",
+    "allowed_persisted_classes": [
+      "booleans",
+      "counts",
+      "control-kind labels",
+      "tutorial-type labels",
+      "semantic field names",
+      "prepopulation relationship classifications",
+      "student-free SHA-256 digests",
+      "sanitized failure categories"
+    ]
+  },
+  "acceptance": {
+    "offline_release_check": "python -S tools/check_n2_playwright_zero_write.py",
+    "manual_live_command": "python tools/playwright/n2_zero_write_evidence.py --student-uid <NUMERIC_UID>  # opens /corelogin/ automatically",
+    "release_gate_network_access": false,
+    "live_pass_requires": [
+      "credential values captured by harness = NO",
+      "any authentication-phase blocked mutation diagnostic contains only phase/method/origin/redacted_path and is not persisted",
+      "AUTHENTICATION -> EVIDENCE occurs only after GET-only Learn2 session verification succeeds; if /corelogin/ alone is insufficient, the manual /user/login stage is completed in the same ephemeral browser context without credential inspection",
+      "new-form datetime remains absent",
+      "authentic New submission serialization is intercepted and aborted for required probes",
+      "revision datetime is preserved in intercepted serialization",
+      "tutorial locator digest remains unchanged",
+      "existing tutorial semantic digest remains unchanged",
+      "forwarded GEL tutorial mutations during evidence = 0",
+      "unexpected GEL mutation attempts = 0; blocked third-party telemetry may be nonzero and is non-fatal"
+    ],
+    "live_result_states": [
+      "PASS",
+      "INCONCLUSIVE",
+      "FAIL"
+    ],
+    "privacy_projection": "The complete initial evidence document and complete prepopulation projection must pass assert_privacy_safe_evidence before any live evidence file write."
+  },
+  "residual_status": {
+    "submit_serialization_observation": "deferred_non_blocking",
+    "reason": "Normal Tutorial Writer revisions preserve the existing historical teacher and never need to change teacher attribution.",
+    "n2_gate": false
+  }
+}

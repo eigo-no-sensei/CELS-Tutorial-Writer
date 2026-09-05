@@ -1,0 +1,814 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "agent-run-result.schema.json",
+  "title": "AI Governance Agent Run Result v1.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "protocolVersion",
+    "profileRef",
+    "runId",
+    "subjectBefore",
+    "subjectAfter",
+    "requestedChange",
+    "implementation",
+    "verification",
+    "status",
+    "claims",
+    "unresolved",
+    "evidence"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "protocolVersion": {
+      "const": "1.1.0"
+    },
+    "profileRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profileId",
+        "profileVersion"
+      ],
+      "properties": {
+        "profileId": {
+          "type": "string"
+        },
+        "profileVersion": {
+          "type": "string"
+        }
+      }
+    },
+    "runId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "subjectBefore": {
+      "$ref": "#/$defs/subject"
+    },
+    "subjectAfter": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/subject"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "requestedChange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "objective",
+        "inScope",
+        "outOfScope",
+        "authorityChanges",
+        "stateClassesAffected",
+        "invalidations",
+        "requestedPromotion"
+      ],
+      "properties": {
+        "objective": {
+          "type": "string"
+        },
+        "inScope": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "outOfScope": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "authorityChanges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/authorityChange"
+          }
+        },
+        "stateClassesAffected": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "source",
+              "decision",
+              "derived",
+              "projection",
+              "evidence"
+            ]
+          }
+        },
+        "invalidations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "requestedPromotion": {
+          "type": "string"
+        }
+      }
+    },
+    "implementation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "changedFiles",
+        "generatedFiles",
+        "migrations",
+        "scopeDrift"
+      ],
+      "properties": {
+        "changedFiles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "generatedFiles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "migrations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "scopeDrift": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "occurred",
+            "reasons",
+            "evaluated"
+          ],
+          "properties": {
+            "occurred": {
+              "type": "boolean"
+            },
+            "reasons": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "evaluated": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fastGate",
+        "candidateGate",
+        "strictGate",
+        "artifactVerification"
+      ],
+      "properties": {
+        "fastGate": {
+          "$ref": "#/$defs/gate"
+        },
+        "candidateGate": {
+          "$ref": "#/$defs/gate"
+        },
+        "strictGate": {
+          "$ref": "#/$defs/gate"
+        },
+        "artifactVerification": {
+          "$ref": "#/$defs/gate"
+        }
+      }
+    },
+    "status": {
+      "enum": [
+        "DISCOVERED",
+        "ASSESSED",
+        "IMPLEMENTED_NOT_VERIFIED",
+        "FAST_VERIFIED",
+        "CANDIDATE_QUALIFIED",
+        "STRICT_ACCEPTED",
+        "RELEASE_ARTIFACT_VERIFIED",
+        "CLOSED",
+        "BLOCKED_MISSING_INPUT",
+        "BLOCKED_AUTHORITY_CONFLICT",
+        "BLOCKED_REPRODUCIBILITY",
+        "BLOCKED_TARGET_EVIDENCE",
+        "BLOCKED_UNSAFE_MUTATION",
+        "BLOCKED_UNVERIFIABLE_BASE",
+        "FAILED_IMPLEMENTATION",
+        "FAILED_FAST_GATE",
+        "FAILED_STRICT_GATE",
+        "FAILED_POST_STATE_VERIFICATION"
+      ]
+    },
+    "claims": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "implemented",
+        "fastVerified",
+        "candidateQualified",
+        "strictlyAccepted",
+        "releaseArtifactVerified"
+      ],
+      "properties": {
+        "implemented": {
+          "type": "boolean"
+        },
+        "fastVerified": {
+          "type": "boolean"
+        },
+        "candidateQualified": {
+          "type": "boolean"
+        },
+        "strictlyAccepted": {
+          "type": "boolean"
+        },
+        "releaseArtifactVerified": {
+          "type": "boolean"
+        }
+      }
+    },
+    "unresolved": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/evidence"
+      }
+    }
+  },
+  "$defs": {
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "identityRef",
+        "projectId",
+        "artifactType",
+        "sourceIdentity",
+        "dependencyIdentity",
+        "contractSetIdentity",
+        "schemaIdentities",
+        "baseVersion",
+        "baseIdentity",
+        "toolchainIdentity",
+        "runtimeIdentity",
+        "resourceIdentities",
+        "modelIdentities",
+        "artifactIdentity"
+      ],
+      "properties": {
+        "identityRef": {
+          "type": "string",
+          "minLength": 1
+        },
+        "projectId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "artifactType": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sourceIdentity": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dependencyIdentity": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "contractSetIdentity": {
+          "type": "string",
+          "minLength": 1
+        },
+        "schemaIdentities": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "baseVersion": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "baseIdentity": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "toolchainIdentity": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "runtimeIdentity": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "resourceIdentities": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "modelIdentities": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "artifactIdentity": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "authorityChange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "authorityId",
+        "changeType",
+        "before",
+        "after",
+        "approvalPolicy"
+      ],
+      "properties": {
+        "authorityId": {
+          "type": "string"
+        },
+        "changeType": {
+          "enum": [
+            "add",
+            "modify",
+            "remove",
+            "transfer"
+          ]
+        },
+        "before": {},
+        "after": {},
+        "approvalPolicy": {
+          "enum": [
+            "none",
+            "explicit_agent_capability",
+            "human_required",
+            "external_system_required"
+          ]
+        }
+      }
+    },
+    "gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "gateId",
+        "profile",
+        "result",
+        "subjectIdentityRef",
+        "required",
+        "blockingReasons",
+        "sideEffectsObserved"
+      ],
+      "properties": {
+        "gateId": {
+          "type": "string"
+        },
+        "profile": {
+          "type": "string"
+        },
+        "result": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "SKIPPED",
+            "UNAVAILABLE",
+            "NOT_RUN",
+            "STALE_FOR_CURRENT_SUBJECT"
+          ]
+        },
+        "subjectIdentityRef": {
+          "type": "string"
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "blockingReasons": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "sideEffectsObserved": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidenceId",
+        "stage",
+        "proofClass",
+        "producer",
+        "subjectIdentityRef",
+        "observedAt",
+        "result",
+        "promotionAuthority"
+      ],
+      "properties": {
+        "evidenceId": {
+          "type": "string"
+        },
+        "stage": {
+          "enum": [
+            "diagnostic",
+            "shadow",
+            "qualification",
+            "fast_gate",
+            "strict_acceptance",
+            "artifact_verification",
+            "audit"
+          ]
+        },
+        "proofClass": {
+          "enum": [
+            "lint",
+            "structural",
+            "behavioral",
+            "acceptance"
+          ]
+        },
+        "producer": {
+          "type": "string"
+        },
+        "subjectIdentityRef": {
+          "type": "string"
+        },
+        "observedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "result": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "SKIPPED",
+            "UNAVAILABLE",
+            "NOT_RUN",
+            "STALE_FOR_CURRENT_SUBJECT"
+          ]
+        },
+        "promotionAuthority": {
+          "const": false
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "claims": {
+            "properties": {
+              "fastVerified": {
+                "const": true
+              }
+            },
+            "required": [
+              "fastVerified"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "claims": {
+            "properties": {
+              "implemented": {
+                "const": true
+              }
+            }
+          },
+          "subjectAfter": {
+            "$ref": "#/$defs/subject"
+          },
+          "verification": {
+            "properties": {
+              "fastGate": {
+                "properties": {
+                  "result": {
+                    "const": "PASS"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "claims": {
+            "properties": {
+              "candidateQualified": {
+                "const": true
+              }
+            },
+            "required": [
+              "candidateQualified"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "claims": {
+            "properties": {
+              "implemented": {
+                "const": true
+              }
+            }
+          },
+          "subjectAfter": {
+            "$ref": "#/$defs/subject"
+          },
+          "verification": {
+            "properties": {
+              "candidateGate": {
+                "properties": {
+                  "result": {
+                    "const": "PASS"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "claims": {
+            "properties": {
+              "strictlyAccepted": {
+                "const": true
+              }
+            },
+            "required": [
+              "strictlyAccepted"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "claims": {
+            "properties": {
+              "implemented": {
+                "const": true
+              }
+            }
+          },
+          "subjectAfter": {
+            "$ref": "#/$defs/subject"
+          },
+          "verification": {
+            "properties": {
+              "strictGate": {
+                "properties": {
+                  "result": {
+                    "const": "PASS"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "claims": {
+            "properties": {
+              "releaseArtifactVerified": {
+                "const": true
+              }
+            },
+            "required": [
+              "releaseArtifactVerified"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "claims": {
+            "properties": {
+              "strictlyAccepted": {
+                "const": true
+              }
+            }
+          },
+          "subjectAfter": {
+            "$ref": "#/$defs/subject"
+          },
+          "verification": {
+            "properties": {
+              "artifactVerification": {
+                "properties": {
+                  "result": {
+                    "const": "PASS"
+                  }
+                }
+              },
+              "strictGate": {
+                "properties": {
+                  "result": {
+                    "const": "PASS"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "FAST_VERIFIED"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "claims": {
+            "properties": {
+              "fastVerified": {
+                "const": true
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "CANDIDATE_QUALIFIED"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "claims": {
+            "properties": {
+              "candidateQualified": {
+                "const": true
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "STRICT_ACCEPTED"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "claims": {
+            "properties": {
+              "strictlyAccepted": {
+                "const": true
+              }
+            }
+          },
+          "verification": {
+            "properties": {
+              "strictGate": {
+                "properties": {
+                  "result": {
+                    "const": "PASS"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "RELEASE_ARTIFACT_VERIFIED"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "claims": {
+            "properties": {
+              "releaseArtifactVerified": {
+                "const": true
+              },
+              "strictlyAccepted": {
+                "const": true
+              }
+            }
+          },
+          "verification": {
+            "properties": {
+              "strictGate": {
+                "properties": {
+                  "result": {
+                    "const": "PASS"
+                  }
+                }
+              },
+              "artifactVerification": {
+                "properties": {
+                  "result": {
+                    "const": "PASS"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

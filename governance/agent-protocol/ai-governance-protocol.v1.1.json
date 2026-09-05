@@ -1,0 +1,617 @@
+{
+  "$schema": "./ai-governance-protocol.schema.json",
+  "protocolId": "ai-governance-protocol",
+  "protocolVersion": "1.1.0",
+  "status": "active",
+  "purpose": "A generic, machine-readable governance protocol for AI engineering agents. It governs authority discovery, state classification, change evaluation, evidence, promotion and release claims without replacing project-specific runtime or domain contracts.",
+  "normativeTerms": {
+    "MUST": "required",
+    "MUST_NOT": "prohibited",
+    "SHOULD": "recommended unless justified otherwise",
+    "SHOULD_NOT": "normally prohibited unless justified otherwise",
+    "MAY": "optional",
+    "PASS": "observed success only"
+  },
+  "authorityHierarchy": [
+    {
+      "rank": 1,
+      "kind": "executable",
+      "includes": [
+        "schemas",
+        "types",
+        "contracts",
+        "behavioral_tests",
+        "capability_enforcement"
+      ],
+      "currentRuntimeAuthority": true
+    },
+    {
+      "rank": 2,
+      "kind": "active_component_contract",
+      "currentRuntimeAuthority": true
+    },
+    {
+      "rank": 3,
+      "kind": "cross_component_ownership_and_lifecycle",
+      "currentRuntimeAuthority": true
+    },
+    {
+      "rank": 4,
+      "kind": "operational_guidance",
+      "currentRuntimeAuthority": false
+    },
+    {
+      "rank": 5,
+      "kind": "adr_and_history",
+      "currentRuntimeAuthority": false
+    }
+  ],
+  "conflictResolution": {
+    "steps": [
+      "determine_whether_each_source_is_active",
+      "discard_superseded_or_historical_sources_for_current_behavior",
+      "prefer_lower_numeric_authority_rank",
+      "record_governance_drift_for_lower_rank_conflicts",
+      "stop_on_equal_rank_active_canonical_conflict"
+    ],
+    "blockingStatus": "BLOCKED_AUTHORITY_CONFLICT"
+  },
+  "stateClasses": {
+    "source": {
+      "definition": "External, user-authored, or repository-authored canonical input.",
+      "maySelfPromote": false
+    },
+    "decision": {
+      "definition": "Durable reviewed human, compatibility, dependency, or governance decision constraining future rebuilds.",
+      "maySelfPromote": false,
+      "survivesDerivedRebuild": true
+    },
+    "derived": {
+      "definition": "Reproducible materialization from higher-authority inputs.",
+      "maySelfPromote": false
+    },
+    "projection": {
+      "definition": "Denormalized search, UI, report, index, or current-state representation that must never become edit-back authority by itself.",
+      "maySelfPromote": false
+    },
+    "evidence": {
+      "definition": "Diagnostic, experimental, qualification, verification, acceptance, artifact, or audit material.",
+      "maySelfPromote": false,
+      "promotionAuthority": false
+    }
+  },
+  "coreInvariants": [
+    {
+      "id": "GOV-01",
+      "level": "MUST",
+      "rule": "For each governed state there is exactly one active authority chain and permitted writer; a current-state registry is a projection and must not become runtime authority unless a project profile explicitly declares otherwise."
+    },
+    {
+      "id": "GOV-02",
+      "level": "MUST",
+      "rule": "Every authoritative durable state class has exactly one permitted writer or writer capability."
+    },
+    {
+      "id": "GOV-03",
+      "level": "MUST",
+      "rule": "Source, decision, derived, projection, and evidence state are classified distinctly."
+    },
+    {
+      "id": "GOV-04",
+      "level": "MUST_NOT",
+      "rule": "Derived, projection, or evidence state must self-promote into source or decision authority."
+    },
+    {
+      "id": "GOV-05",
+      "level": "MUST",
+      "rule": "Durable human or compatibility decisions survive rebuild unless explicitly changed through their permitted writer."
+    },
+    {
+      "id": "GOV-06",
+      "level": "MUST",
+      "rule": "Evidence proves only the exact subject identity to which it is bound."
+    },
+    {
+      "id": "GOV-07",
+      "level": "MUST",
+      "rule": "A change to any declared evidence identity input invalidates dependent evidence for the new subject while retaining old evidence as history."
+    },
+    {
+      "id": "GOV-08",
+      "level": "MUST_NOT",
+      "rule": "Diagnostic, shadow, or candidate evidence must automatically activate production behavior."
+    },
+    {
+      "id": "GOV-09",
+      "level": "MUST",
+      "rule": "Destructive or externally visible mutation uses identity preflight, bounded impact, stale-state protection, sole-writer mutation, verification, and recoverability or audit evidence."
+    },
+    {
+      "id": "GOV-10",
+      "level": "MUST",
+      "rule": "Strict acceptance verifies the exact subject identity it claims to accept; artifact verification observes existing artifact bytes without rebuilding, and any rebuild creates a new subject identity requiring new acceptance."
+    },
+    {
+      "id": "GOV-11",
+      "level": "MUST_NOT",
+      "rule": "Missing, unavailable, skipped, inferred, or stale required evidence must be reported as PASS."
+    },
+    {
+      "id": "GOV-12",
+      "level": "MUST_NOT",
+      "rule": "Historical documents or ADRs must override active runtime contracts."
+    },
+    {
+      "id": "GOV-13",
+      "level": "MUST",
+      "rule": "Retryable mutation declares idempotence; non-idempotent retry requires establishing prior-operation state."
+    },
+    {
+      "id": "GOV-14",
+      "level": "MUST",
+      "rule": "Lifecycle claims become stronger only when their declared prerequisites are evidenced for the same subject identity."
+    },
+    {
+      "id": "GOV-15",
+      "level": "MUST",
+      "rule": "Verification gates declare their side-effect policy; a gate must not perform undeclared external or authoritative mutation."
+    },
+    {
+      "id": "GOV-16",
+      "level": "MUST",
+      "rule": "Missing reproducibility identity blocks promotion to lifecycle states that require it, but does not block a scoped repair whose declared purpose is to establish that identity."
+    }
+  ],
+  "ownershipContractRequiredFields": [
+    "stateId",
+    "stateClass",
+    "owner",
+    "permittedWriter",
+    "readers",
+    "sourceInputs",
+    "invalidationTriggers",
+    "failureBehavior",
+    "forbiddenWriters",
+    "mutationPolicy",
+    "approvalPolicy"
+  ],
+  "activeComponentContractRequiredFields": [
+    "role",
+    "scope",
+    "authority",
+    "reads",
+    "writes",
+    "mustNotWrite",
+    "stateTransitions",
+    "failureSemantics",
+    "dependencies",
+    "tests"
+  ],
+  "approvalPolicies": [
+    "none",
+    "explicit_agent_capability",
+    "human_required",
+    "external_system_required"
+  ],
+  "subjectIdentity": {
+    "requiredFields": [
+      "identityRef",
+      "projectId",
+      "artifactType",
+      "sourceIdentity",
+      "dependencyIdentity",
+      "contractSetIdentity",
+      "schemaIdentities"
+    ],
+    "nullableUntilPromotionFields": [
+      "dependencyIdentity",
+      "toolchainIdentity",
+      "runtimeIdentity",
+      "artifactIdentity"
+    ],
+    "optionalFields": [
+      "baseVersion",
+      "baseIdentity",
+      "toolchainIdentity",
+      "runtimeIdentity",
+      "resourceIdentities",
+      "modelIdentities",
+      "artifactIdentity"
+    ],
+    "artifactTypeAuthority": "project_profile",
+    "rule": "All gate and evidence records reference the exact subject identity they validate. A required field may be explicitly null only where the project profile permits repair before promotion; null never satisfies a promotion prerequisite."
+  },
+  "evidence": {
+    "requiredFields": [
+      "evidenceId",
+      "stage",
+      "proofClass",
+      "producer",
+      "subjectIdentityRef",
+      "observedAt",
+      "result",
+      "promotionAuthority"
+    ],
+    "stages": [
+      "diagnostic",
+      "shadow",
+      "qualification",
+      "fast_gate",
+      "strict_acceptance",
+      "artifact_verification",
+      "audit"
+    ],
+    "proofClasses": [
+      "lint",
+      "structural",
+      "behavioral",
+      "acceptance"
+    ],
+    "resultValues": [
+      "PASS",
+      "FAIL",
+      "SKIPPED",
+      "UNAVAILABLE",
+      "NOT_RUN",
+      "STALE_FOR_CURRENT_SUBJECT"
+    ],
+    "invalidationRule": "If any declared identity input changes, evidence remains historical but becomes STALE_FOR_CURRENT_SUBJECT for the changed subject.",
+    "promotionRule": "Evidence stage and proof class are independent dimensions. Only observed evidence satisfying the project profile's required proof class and gate profile may support promotion."
+  },
+  "claimSemantics": {
+    "evidenceStatus": [
+      "observed",
+      "inferred",
+      "unavailable"
+    ],
+    "verificationStatus": [
+      "verified",
+      "not_verified",
+      "failed"
+    ],
+    "workflowStatus": [
+      "complete",
+      "blocked",
+      "planned"
+    ],
+    "rule": "Only observed evidence for the same subject may satisfy an executable gate requirement. Inferred, unavailable, skipped, stale, or not-run evidence cannot be upgraded to PASS."
+  },
+  "executionAlgorithm": [
+    {
+      "step": "A0",
+      "name": "discover_authority",
+      "actions": [
+        "load_project_profile",
+        "load_active_runtime_contracts",
+        "load_state_ownership",
+        "load_gate_definitions",
+        "regenerate_or_verify_current_state_projection",
+        "consult_history_only_for_rationale"
+      ]
+    },
+    {
+      "step": "A1",
+      "name": "establish_subject_identity",
+      "actions": [
+        "resolve_project_identity",
+        "resolve_artifact_type_from_project_profile",
+        "resolve_source_identity",
+        "resolve_dependency_identity_or_record_null",
+        "resolve_contract_set_identity",
+        "resolve_schema_identities",
+        "resolve_base_identity_when_applicable"
+      ]
+    },
+    {
+      "step": "A2",
+      "name": "evaluate_change",
+      "actions": [
+        "define_in_scope",
+        "define_out_of_scope",
+        "classify_affected_state",
+        "record_structured_authority_changes",
+        "identify_invalidations",
+        "identify_required_gate_profile",
+        "identify_recoverability_requirements"
+      ]
+    },
+    {
+      "step": "A3",
+      "name": "resolve_conflicts_or_stop",
+      "actions": [
+        "apply_authority_hierarchy",
+        "stop_on_equal_rank_active_canonical_conflict",
+        "block_only_the_promotions_that_require_missing_identity",
+        "allow_scoped_identity_repair_when_declared"
+      ]
+    },
+    {
+      "step": "A4",
+      "name": "mutate",
+      "actions": [
+        "mutate_only_through_permitted_writer",
+        "perform_preflight_when_required",
+        "apply_stale_state_guard_when_required",
+        "enforce_gate_side_effect_policy",
+        "record_scope_change_if_blocking_issue_requires_minimal_adjacent_repair"
+      ]
+    },
+    {
+      "step": "A5",
+      "name": "verify",
+      "actions": [
+        "run_smallest_relevant_checks",
+        "rerun_enclosing_gate_after_repairs",
+        "bind_evidence_to_post_change_subject_identity",
+        "record_stage_and_proof_class",
+        "never_convert_skip_or_unavailable_to_pass"
+      ]
+    },
+    {
+      "step": "A6",
+      "name": "promote_if_permitted",
+      "actions": [
+        "run_semantic_claim_validation",
+        "check_same_subject_prerequisites",
+        "respect_project_gate_profile_and_approval_policy",
+        "do_not_automatically_promote_diagnostics",
+        "stop_at_highest_evidenced_lifecycle_status"
+      ]
+    },
+    {
+      "step": "A7",
+      "name": "closeout",
+      "actions": [
+        "regenerate_current_state_projection",
+        "record_acceptance_or_blockers",
+        "archive_superseded_plans_or_evidence",
+        "verify_generated_indexes"
+      ]
+    }
+  ],
+  "lifecycle": {
+    "statuses": [
+      "DISCOVERED",
+      "ASSESSED",
+      "IMPLEMENTED_NOT_VERIFIED",
+      "FAST_VERIFIED",
+      "CANDIDATE_QUALIFIED",
+      "STRICT_ACCEPTED",
+      "RELEASE_ARTIFACT_VERIFIED",
+      "CLOSED"
+    ],
+    "blockingStatuses": [
+      "BLOCKED_MISSING_INPUT",
+      "BLOCKED_AUTHORITY_CONFLICT",
+      "BLOCKED_REPRODUCIBILITY",
+      "BLOCKED_TARGET_EVIDENCE",
+      "BLOCKED_UNSAFE_MUTATION",
+      "BLOCKED_UNVERIFIABLE_BASE",
+      "FAILED_IMPLEMENTATION",
+      "FAILED_FAST_GATE",
+      "FAILED_STRICT_GATE",
+      "FAILED_POST_STATE_VERIFICATION"
+    ],
+    "promotionOrder": [
+      "IMPLEMENTED_NOT_VERIFIED",
+      "FAST_VERIFIED",
+      "CANDIDATE_QUALIFIED",
+      "STRICT_ACCEPTED",
+      "RELEASE_ARTIFACT_VERIFIED"
+    ],
+    "rule": "A workflow may close at any evidenced lifecycle status. Stronger status is permitted only when the active project profile declares and the run result semantically proves its prerequisites for the same subject.",
+    "semanticValidationRequired": true
+  },
+  "stopConditions": [
+    {
+      "id": "STOP-01",
+      "condition": "Two active equal-rank canonical authorities conflict.",
+      "status": "BLOCKED_AUTHORITY_CONFLICT",
+      "blocks": [
+        "mutation",
+        "promotion"
+      ]
+    },
+    {
+      "id": "STOP-02",
+      "condition": "Required subject or base identity cannot be established for the requested operation.",
+      "status": "BLOCKED_UNVERIFIABLE_BASE",
+      "blocks": [
+        "mutation",
+        "promotion"
+      ]
+    },
+    {
+      "id": "STOP-03",
+      "condition": "A destructive operation lacks required recoverability or bounded preflight.",
+      "status": "BLOCKED_UNSAFE_MUTATION",
+      "blocks": [
+        "mutation",
+        "promotion"
+      ]
+    },
+    {
+      "id": "STOP-04",
+      "condition": "Dependency identity required by the requested promotion is absent.",
+      "status": "BLOCKED_REPRODUCIBILITY",
+      "blocks": [
+        "promotion_to_reproducibility_dependent_status"
+      ],
+      "repairScopeExemption": true
+    },
+    {
+      "id": "STOP-05",
+      "condition": "Required strict or target evidence is unavailable.",
+      "status": "BLOCKED_TARGET_EVIDENCE",
+      "blocks": [
+        "strict_promotion",
+        "release_promotion"
+      ]
+    },
+    {
+      "id": "STOP-06",
+      "condition": "Available evidence refers to a different or stale subject identity.",
+      "status": "BLOCKED_MISSING_INPUT",
+      "blocks": [
+        "promotion"
+      ]
+    },
+    {
+      "id": "STOP-07",
+      "condition": "Post-mutation identity or semantics differ unexpectedly.",
+      "status": "FAILED_POST_STATE_VERIFICATION",
+      "blocks": [
+        "promotion",
+        "further_mutation_until_resolved"
+      ]
+    },
+    {
+      "id": "STOP-08",
+      "condition": "A non-idempotent operation would be retried without establishing prior-operation state.",
+      "status": "BLOCKED_UNSAFE_MUTATION",
+      "blocks": [
+        "retry",
+        "promotion"
+      ]
+    }
+  ],
+  "scopeDriftPolicy": {
+    "rule": "Unrelated defects MUST be recorded and MUST NOT expand implementation scope unless they block a requested invariant. Blocking adjacent repairs MUST be minimal, evaluated, and recorded in the run result."
+  },
+  "retryPolicy": {
+    "rules": [
+      "classify_failure_before_repair",
+      "repair_only_when_cause_is_understood",
+      "rerun_smallest_relevant_check_after_repair",
+      "rerun_enclosing_gate_before_promotion",
+      "do_not_weaken_tests_to_obtain_green_status",
+      "do_not_change_expected_output_without_a_contract_change",
+      "do_not_remove_fixtures_only_to_make_a_gate_pass"
+    ]
+  },
+  "verificationSemantics": {
+    "preferredProofByProperty": {
+      "writer_exclusivity": [
+        "capability_or_type_enforcement",
+        "behavioral_test",
+        "structural_static_check"
+      ],
+      "representation_constraints": [
+        "schema_or_type_enforcement",
+        "behavioral_test"
+      ],
+      "runtime_semantics": [
+        "behavioral_or_property_test",
+        "schema_or_type_enforcement"
+      ],
+      "cross_boundary_structure": [
+        "capability_enforcement",
+        "ast_or_static_analysis"
+      ],
+      "fast_detection_only": [
+        "source_string_lint"
+      ],
+      "rationale_only": [
+        "prose_or_adr"
+      ]
+    },
+    "proofClassRule": "Evidence stage answers when/why the evidence was produced; proofClass answers how strongly it proves the invariant. A fast-gate item may be behavioral, and a strict-acceptance item may still be only structural.",
+    "rule": "Source-string checks MAY supplement but MUST NOT be sole proof for high-value semantic invariants."
+  },
+  "mutationProfiles": {
+    "derived_or_projection_rebuild": {
+      "requiresIdentityPreflight": true,
+      "requiresRecoverability": false,
+      "requiresPostconditionVerification": true,
+      "mayChangeSourceOrDecisionState": false
+    },
+    "authoritative_ephemeral_change": {
+      "requiresIdentityPreflight": true,
+      "requiresRecoverability": false,
+      "requiresCandidateBeforeCommit": true,
+      "requiresPostconditionVerification": true,
+      "mustUsePermittedWriter": true
+    },
+    "canonical_source_change": {
+      "requiresIdentityPreflight": true,
+      "requiresRecoverability": true,
+      "requiresPostconditionVerification": true,
+      "mustUsePermittedWriter": true
+    },
+    "decision_state_change": {
+      "requiresIdentityPreflight": true,
+      "requiresRecoverability": true,
+      "requiresPostconditionVerification": true,
+      "mustUsePermittedWriter": true,
+      "approvalPolicyFromOwnershipContract": true
+    },
+    "destructive_or_external_mutation": {
+      "requiresIdentityPreflight": true,
+      "requiresDryRunOrBoundedImpactProof": true,
+      "requiresStaleStateGuard": true,
+      "requiresRecoverability": true,
+      "requiresPostconditionVerification": true,
+      "mustUsePermittedWriter": true
+    },
+    "release_publication": {
+      "requiresIdentityPreflight": true,
+      "requiresStagingOrEquivalentAtomicPublication": true,
+      "requiresRecoverability": true,
+      "requiresExactArtifactVerification": true,
+      "mustNotRebuildDuringVerification": true
+    }
+  },
+  "overlaySemantics": {
+    "definition": "POST_STATE = apply(EXACT_BASE, OVERLAY)",
+    "requiredFields": [
+      "acceptedBaseIdentities",
+      "operations",
+      "idempotence",
+      "rollbackRule",
+      "expectedPostIdentity",
+      "postApplyReceipt"
+    ],
+    "rule": "If base identity does not match, an overlay MUST NOT be best-effort applied unless an explicit compatibility migration covers that base."
+  },
+  "releaseSemantics": {
+    "subjectAcceptanceRule": "Strict acceptance validates the exact declared subject identity. It may be a source candidate or a built candidate according to the project profile; the claim must say which.",
+    "artifactBindingInputs": [
+      "source_identity",
+      "dependency_identity",
+      "contract_set_identity",
+      "schema_identities",
+      "toolchain_identity",
+      "runtime_identity_when_required",
+      "helper_resource_model_identities",
+      "test_evidence",
+      "runtime_acceptance_evidence",
+      "package_manifest",
+      "final_artifact_bytes",
+      "final_archive_bytes"
+    ],
+    "verificationRule": "VERIFY observes existing subject or artifact bytes; BUILD creates a new subject identity.",
+    "noRebuildRule": "Artifact verification MUST NOT invoke BUILD or otherwise change accepted bytes.",
+    "rebuildAfterAcceptanceRule": "Any rebuild or byte-changing repack after acceptance creates a new candidate identity and requires new acceptance."
+  },
+  "historicalStatePolicy": {
+    "mayAnswer": [
+      "why_a_decision_was_made",
+      "which_alternatives_were_rejected",
+      "what_happened_in_an_earlier_phase"
+    ],
+    "mustNotAnswer": [
+      "current_runtime_contract",
+      "current_active_version",
+      "current_release_acceptance"
+    ]
+  },
+  "projectProfileSemantics": {
+    "role": "meta_governance_orchestration",
+    "runtimeAuthorityDefault": false,
+    "mustBindExistingAuthority": true,
+    "mustDeclareGateProfiles": true,
+    "mustDeclareSideEffectPolicy": true
+  },
+  "requiredRunResultSchema": "agent-run-result.schema.json",
+  "requiredProjectProfileSchema": "project-profile.schema.json"
+}

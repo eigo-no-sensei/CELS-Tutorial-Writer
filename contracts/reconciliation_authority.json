@@ -1,0 +1,72 @@
+{
+  "contract_id": "reconciliation_authority",
+  "contract_version": 1,
+  "status": "active",
+  "effective_date": "2026-08-24",
+  "identity_rule": "tutorial_id from the tutorial-list API is canonical identity. student_uid+tutorial_ts+tutorial_type is only a reconciliation locator and must never be promoted to identity.",
+  "association_rule": "Captured summary states remain separate from canonical API identities unless the reconciliation result proves a per-tutorial association. Collision handling must never assign one ambiguous summary column to a specific API tutorial_id merely by list order.",
+  "collision_classes": {
+    "identical_state": {
+      "definition": "A collision group with equal non-zero API and summary counts in which every captured summary state has the same governed state content.",
+      "per_id_association": "ambiguous",
+      "revision_rule": "Revision by tutorial_id may use the common shared state because all candidate states are equivalent, while retaining shared-identical collision provenance and preserving every canonical tutorial_id separately."
+    },
+    "divergent_state": {
+      "definition": "A collision group with equal non-zero API and summary counts and more than one governed summary state.",
+      "per_id_association": "ambiguous",
+      "revision_rule": "Revision by tutorial_id is blocked until a proven discriminator associates a specific state with that tutorial_id."
+    },
+    "incomplete_evidence": {
+      "definition": "A collision group whose API and summary counts differ or whose candidate summary evidence is absent.",
+      "per_id_association": "unproven",
+      "revision_rule": "Revision by tutorial_id is blocked."
+    }
+  },
+  "governed_summary_state": {
+    "equivalence_fields": [
+      "ttype_raw",
+      "fields"
+    ],
+    "excluded_from_equivalence": [
+      "print_url",
+      "edit_url",
+      "datetime_label"
+    ],
+    "reason": "URLs and rendering labels locate/describe the captured source entry; they do not distinguish the tutorial's normalized historical content."
+  },
+  "timestamp_route_rule": "Timestamp-only print/edit route observations are collision-group evidence. They must not be attached to a particular canonical tutorial_id as a discriminator unless a future source proves that association.",
+  "legacy_archive_rule": "Until D1 persists collision kind and state associations explicitly, any legacy archive row marked collision_ambiguous is not sufficient evidence for revision-by-ID. It must be treated as ambiguous_unknown and fail closed unless separately resolved from governed collision evidence.",
+  "revision_authority_statuses": [
+    "proven_per_tutorial",
+    "shared_identical_collision",
+    "ambiguous_divergent_collision",
+    "incomplete_collision_evidence",
+    "ambiguous_collision_unknown",
+    "unmatched_source_state"
+  ],
+  "revision_allowed_statuses": [
+    "proven_per_tutorial",
+    "shared_identical_collision"
+  ],
+  "strict_private_fixtures": {
+    "required_fixture_count": 2,
+    "required_labels": [
+      "duplicate_identical_state",
+      "duplicate_different_state"
+    ],
+    "duplicate_identical_state": {
+      "expected_api_count": 3,
+      "expected_summary_count": 3,
+      "expected_distinct_summary_states": 1,
+      "expected_collision_class": "identical_state",
+      "revision_by_id": "allowed_shared_state"
+    },
+    "duplicate_different_state": {
+      "expected_api_count": 2,
+      "expected_summary_count": 2,
+      "expected_distinct_summary_states": 2,
+      "expected_collision_class": "divergent_state",
+      "revision_by_id": "blocked"
+    }
+  }
+}

@@ -1,0 +1,21 @@
+[package]
+name = "gel-tutorial-writer-ui"
+version = "0.1.0"
+description = "GEL Tutorial Writer UI1 read-only navigation and Rust-owned draft shell"
+authors = ["GEL Tutorial Writer"]
+edition = "2021"
+
+[lib]
+name = "gel_tutorial_writer_ui_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.6.3", features = [] }
+
+[dependencies]
+tauri = { version = "2.11.5", features = [] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+chrono = { version = "0.4", features = ["serde"] }
+gel-core = { path = "../../gel-core" }
+tokio = { version = "1.53.1", features = ["rt"] }

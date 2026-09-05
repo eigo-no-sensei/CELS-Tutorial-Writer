@@ -1,0 +1,12 @@
+{
+  "Aims": "First aim Second aim",
+  "Teacher's Comments": "Rich text continued",
+  "Tutorial Type": "Standard supplement",
+  "Type": "Standard supplement",
+  "fields": {
+    "Aims": "First aim Second aim",
+    "Teacher's Comments": "Rich text continued",
+    "Tutorial Type": "Standard supplement"
+  },
+  "print_text": "Tutorial Type Standard supplement Aims First aim Second aim Teacher's Comments Rich text continued"
+}

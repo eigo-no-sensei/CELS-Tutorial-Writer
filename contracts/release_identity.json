@@ -1,0 +1,127 @@
+{
+  "contract_id": "release_identity",
+  "contract_version": 6,
+  "status": "active",
+  "effective_date": "2026-09-03",
+  "authority": "Release identity is derived from governed source, complete dependency locks, recorded toolchain identity, strict-gate evidence, package manifest and final archive bytes. The portable lock-generator-unavailable exception permits source work/intake only and never constitutes complete dependency identity or release authority.",
+  "status_taxonomy": [
+    "STRUCTURAL_PASS",
+    "STRUCTURAL_PASS_WITH_SKIPS",
+    "TARGET_ACCEPTANCE_REQUIRED",
+    "STRICT_ACCEPTED",
+    "RELEASE_ARTIFACT_VERIFIED"
+  ],
+  "current_state_projection": {
+    "path": "governance/current-state.json",
+    "schema": "governance/current-state.schema.json",
+    "classification": "projection",
+    "writer": "current_state_tooling",
+    "source_inputs": [
+      "development_plan.json",
+      "contracts/ui1_writer.json",
+      "contracts/release_gate.json",
+      "contracts/component_boundaries.json",
+      "contracts/state_ownership.json",
+      "governance/dependency-lock-manifest.json",
+      "governance/agent-protocol/ai-governance-protocol.v1.1.json",
+      "governance/agent-protocol/profiles/gel-tutorial-writer.profile.json",
+      "governance/agent-protocol/ai-governance-protocol.schema.json",
+      "governance/agent-protocol/project-profile.schema.json",
+      "governance/agent-protocol/agent-run-result.schema.json"
+    ],
+    "must_not_be_runtime_authority": true
+  },
+  "dependency_identity": {
+    "rust_workspace_manifest": "Cargo.toml",
+    "rust_lock": "Cargo.lock",
+    "npm_manifest": "writer-ui/package.json",
+    "npm_lock": "writer-ui/package-lock.json",
+    "single_rust_workspace_lock": true,
+    "release_commands_use_locked": true,
+    "frontend_install_command": [
+      "npm",
+      "ci",
+      "--no-audit",
+      "--no-fund"
+    ],
+    "policy_contract": "contracts/dependency_lock_policy.json",
+    "portable_tool_unavailable_exception": {
+      "result": "SKIP",
+      "strict_result": "FAIL",
+      "automatic_detection_only": true,
+      "manual_override_allowed": false,
+      "promotion_ceiling": "FAST_VERIFIED"
+    }
+  },
+  "toolchain_evidence": {
+    "record_at_strict_gate": [
+      "python",
+      "cargo",
+      "rustc",
+      "node",
+      "npm"
+    ],
+    "classification": "evidence",
+    "automatic_promotion": false
+  },
+  "artifact_binding": [
+    "canonical_contract_set",
+    "governed_source_tree_fingerprint",
+    "dependency_lock_set",
+    "toolchain_identity",
+    "private_evidence_gate_result",
+    "strict_gate_evidence",
+    "package_file_manifest",
+    "final_archive_sha256"
+  ],
+  "package_intake": {
+    "required": [
+      "governance/current-state.json",
+      "governance/dependency-lock-manifest.json",
+      "Cargo.lock",
+      "writer-ui/package-lock.json"
+    ],
+    "forbidden_patterns": [
+      "*.db",
+      "*-wal",
+      "*-shm",
+      ".env",
+      ".env.*",
+      "*.pem",
+      "*.key",
+      "evidence-private/**",
+      "fixtures-private/**",
+      "node_modules/**",
+      "target/**",
+      "dist/**",
+      "__pycache__/**",
+      "*.pyc"
+    ],
+    "exact_checksum_manifest": true,
+    "source_candidate_lock_exception": "LOCK_GENERATOR_UNAVAILABLE may cover missing lockfiles only for source-candidate intake; release package intake still requires every listed lock."
+  },
+  "strict_acceptance": {
+    "required_scope": "w2",
+    "automatic_promotion": false,
+    "package_after_acceptance_may_not_rebuild": true,
+    "package_must_revalidate_source_fingerprint": true,
+    "final_archive_is_verified_without_rebuild": true,
+    "prerequisite_scope": "ui1e"
+  },
+  "ci_boundary": {
+    "portable_only": true,
+    "may_report": "STRUCTURAL_PASS_WITH_SKIPS",
+    "must_not_report": [
+      "STRICT_ACCEPTED",
+      "RELEASE_ARTIFACT_VERIFIED"
+    ],
+    "private_or_authenticated_evidence": "manual/target-host only"
+  },
+  "agent_governance_identity": {
+    "protocol": "governance/agent-protocol/ai-governance-protocol.v1.1.json",
+    "profile": "governance/agent-protocol/profiles/gel-tutorial-writer.profile.json",
+    "classification": "decision",
+    "runtime_authority": false,
+    "rule": "These inputs govern agent workflow/evidence/promotion claims only. They are included in governed source/release identity but cannot override GEL runtime/domain contracts."
+  }
+}

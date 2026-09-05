@@ -1,0 +1,239 @@
+{
+  "contract_id": "evidence_baseline",
+  "contract_version": 2,
+  "authority": "canonical_evidence_record",
+  "as_of": "2026-08-27",
+  "observations": [
+    {
+      "id": "EVID-FIXTURE-270",
+      "status": "observed",
+      "description": "Post-v4.9 14-fixture comparator before Final Reading was added to comparator scope.",
+      "fixture_count": 14,
+      "field_count": 270,
+      "ok": 264,
+      "mismatch": 6,
+      "unavailable": 0,
+      "mismatch_fixtures": [
+        "initial_damian_default",
+        "initial_francesca_default",
+        "standard_assessment_blank",
+        "standard_full_good_ok",
+        "standard_full_mixed",
+        "standard_missing_pronunciation"
+      ],
+      "mismatch_shape": {
+        "field": "absent",
+        "archive": "0",
+        "edit": "true"
+      }
+    },
+    {
+      "id": "EVID-FINAL-READING",
+      "status": "observed",
+      "description": "All five captured Final edit forms contain enabled select dropdown-476; four have selected CEFR values and one is unset at Please choose level.",
+      "fixture_count": 5,
+      "gel_field": "dropdown-476",
+      "applies_to": [
+        "final"
+      ]
+    },
+    {
+      "id": "EVID-COLLISIONS",
+      "status": "observed",
+      "description": "v4.9 archive run retained 14 same-timestamp collision groups affecting 29 API rows; 13 groups had one distinct complete summary state and one group had two distinct states.",
+      "collision_groups": 14,
+      "ambiguous_api_rows": 29,
+      "identical_state_groups": 13,
+      "divergent_state_groups": 1
+    },
+    {
+      "id": "EVID-TEACHERS",
+      "status": "observed",
+      "description": "v4.9 archive run recovered historical teacher IDs for all archived tutorials.",
+      "tutorials": 125,
+      "teacher_ids_recovered": 125,
+      "teacher_ids_unavailable": 0
+    },
+    {
+      "id": "EVID-ARCHIVE-V49",
+      "status": "observed",
+      "description": "v4.9 archive refresh completed with summary primary and blank-fidelity repair.",
+      "tutorials_total": 125,
+      "new": 0,
+      "upgraded": 52,
+      "summary_failures": 0,
+      "unmatched_summaries": 0
+    },
+    {
+      "id": "EVID-FIXTURE-275",
+      "status": "observed",
+      "description": "C1 strict release gate executed after Final Reading was added to comparator scope; exact private-fixture baseline passed.",
+      "fixture_count": 14,
+      "field_count": 275,
+      "ok": 269,
+      "mismatch": 6,
+      "unavailable": 0,
+      "mismatch_fixtures": [
+        "initial_damian_default",
+        "initial_francesca_default",
+        "standard_assessment_blank",
+        "standard_full_good_ok",
+        "standard_full_mixed",
+        "standard_missing_pronunciation"
+      ],
+      "mismatch_shape": {
+        "field": "absent",
+        "archive": "0",
+        "edit": "true"
+      },
+      "release_gate_result": "PASS"
+    },
+    {
+      "id": "EVID-C2-STRICT",
+      "status": "observed",
+      "description": "C2 strict release gate passed after v8.1 with all 14 private fixtures constructing valid Revision semantic states in addition to the frozen 14/275/269/6/0 parity contract.",
+      "semantic_revision_fixtures": 14,
+      "private_parity": "14/275/269/6/0",
+      "release_gate_pass": 7,
+      "release_gate_skip": 0,
+      "release_gate_fail": 0,
+      "release_gate_result": "PASS"
+    },
+    {
+      "id": "EVID-C3-STRICT",
+      "status": "observed",
+      "description": "C3 strict release gate passed after v9.1 with both private collision-authority fixtures proving group-owned candidate states, shared-identical revision authority, and divergent revision blocking.",
+      "private_collision_fixtures": 2,
+      "private_parity": "14/275/269/6/0",
+      "release_gate_pass": 8,
+      "release_gate_skip": 0,
+      "release_gate_fail": 0,
+      "release_gate_result": "PASS"
+    },
+    {
+      "id": "EVID-C4-STRICT",
+      "status": "observed",
+      "description": "C4 strict release gate passed after v10.1 with all 14 private revision fixtures producing exact independently reconstructed POST payloads, including all five Final Reading payloads and six archive-authoritative absent discrepancies.",
+      "private_post_round_trip_fixtures": 14,
+      "final_reading_payloads": 5,
+      "archive_authoritative_absent_discrepancies": 6,
+      "private_parity": "14/275/269/6/0",
+      "release_gate_pass": 9,
+      "release_gate_skip": 0,
+      "release_gate_fail": 0,
+      "release_gate_result": "PASS"
+    },
+    {
+      "id": "EVID-D1-STRICT",
+      "status": "observed",
+      "description": "D1 strict release gate passed after v11.1 with archive schema v2 fresh/migration/FK/collision/privacy/UPSERT invariants plus all previously governed private evidence.",
+      "archive_schema_v2": "PASS",
+      "private_parity": "14/275/269/6/0",
+      "release_gate_pass": 10,
+      "release_gate_skip": 0,
+      "release_gate_fail": 0,
+      "release_gate_result": "PASS"
+    },
+    {
+      "id": "EVID-D2-STRICT",
+      "status": "observed",
+      "description": "D2 strict release gate passed with Rust archive repository boundary and all prior evidence gates.",
+      "archive_repository": "PASS",
+      "release_gate_pass": 11,
+      "release_gate_skip": 0,
+      "release_gate_fail": 0,
+      "release_gate_result": "PASS"
+    },
+    {
+      "id": "EVID-N1-STRICT-LIVE",
+      "status": "observed",
+      "description": "N1 strict release gate and credentialed read-only live parity probe passed; live probe performed zero GEL tutorial writes.",
+      "gel_session": "PASS",
+      "release_gate_pass": 12,
+      "release_gate_skip": 0,
+      "release_gate_fail": 0,
+      "release_gate_result": "PASS",
+      "live_tutorial_identities": 8,
+      "live_summary_entries": 8,
+      "live_http_requests": 8,
+      "live_gel_tutorial_writes": 0,
+      "live_result": "PASS"
+    },
+    {
+      "id": "EVID-N2-PW1-LIVE",
+      "status": "observed_core_authority_with_nonblocking_residual",
+      "description": "Live zero-write PW1 inspected New Standard/Initial/Final and an existing Revision. New forms all omitted datetime, supplied current-date customdate and hidden authenticated-teacher tid; Revision exposed an editable historical-teacher select with 55 options. No GEL tutorial mutation was forwarded and before/after locator/semantic digests were unchanged. Authentic changed-tid serialization was not observed and is deferred as non-blocking.",
+      "new_form_types_inspected": 3,
+      "new_datetime_absent_all_types": true,
+      "new_teacher_hidden_matches_authenticated_all_types": true,
+      "new_customdate_current_london_date_all_types": true,
+      "revision_teacher_control": "select",
+      "revision_teacher_positive_option_count": 55,
+      "revision_alternate_selection_changed_in_browser": true,
+      "forwarded_tutorial_mutations": 0,
+      "unexpected_gel_mutations": 0,
+      "revision_semantic_state_digest_unchanged": true,
+      "tutorial_locator_digest_unchanged": true,
+      "credential_values_captured": false,
+      "changed_tid_serialization": "deferred_non_blocking"
+    },
+    {
+      "id": "EVID-N2-FIELD-IDENTITY",
+      "status": "established_project_authority",
+      "description": "Canonical GEL level-field identity is fixed by field ID/semantic role. Initial uses 264/265/266/267; Standard/current uses 233/234/235/236 plus Reading 476; Final pairs initial/current 264+233, 265+234, 266+235, 267+236. Equal values never establish cross-field provenance.",
+      "initial": {
+        "264": "initial_speaking",
+        "265": "initial_use_of_english",
+        "266": "initial_writing",
+        "267": "initial_listening"
+      },
+      "current": {
+        "233": "speaking",
+        "234": "use_of_english",
+        "235": "writing",
+        "236": "listening",
+        "476": "reading"
+      },
+      "final_pairs": [
+        [
+          "264",
+          "233"
+        ],
+        [
+          "265",
+          "234"
+        ],
+        [
+          "266",
+          "235"
+        ],
+        [
+          "267",
+          "236"
+        ]
+      ]
+    }
+  ],
+  "expected_next_strict_fixture_baseline": {
+    "status": "confirmed_observed",
+    "reason": "The strict private-fixture gate was executed on 2026-08-24 and exactly matched the frozen 14/275/269/6/0 contract.",
+    "fixture_count": 14,
+    "field_count": 275,
+    "expected_ok": 269,
+    "expected_mismatch": 6,
+    "expected_unavailable": 0,
+    "allowed_mismatch": {
+      "field": "absent",
+      "archive": false,
+      "edit": true,
+      "fixture_labels": [
+        "initial_damian_default",
+        "initial_francesca_default",
+        "standard_assessment_blank",
+        "standard_full_good_ok",
+        "standard_full_mixed",
+        "standard_missing_pronunciation"
+      ]
+    }
+  }
+}

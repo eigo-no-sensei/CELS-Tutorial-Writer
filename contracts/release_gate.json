@@ -1,0 +1,1276 @@
+{
+  "contract_id": "release_gate",
+  "contract_version": 25,
+  "status": "active",
+  "effective_date": "2026-09-03",
+  "profiles": {
+    "portable": {
+      "description": "Reproducible repository validation. Private GEL evidence may be explicit SKIP where declared. A missing dependency lock may also be explicit SKIP only when its corresponding generator executable is objectively unavailable under contracts/dependency_lock_policy.json. Passing with skips is STRUCTURAL_PASS_WITH_SKIPS, not strict acceptance.",
+      "missing_private_fixture_policy": "skip",
+      "missing_dependency_lock_tool_policy": "skip_when_corresponding_generator_unavailable"
+    },
+    "strict": {
+      "description": "Target-host release acceptance requiring complete dependency locks, toolchains, private fixture evidence and all governed checks. Tool-unavailable lock exceptions never satisfy strict acceptance. Strict acceptance requires PASS for every check and binds evidence to the exact source fingerprint.",
+      "missing_private_fixture_policy": "fail",
+      "missing_dependency_lock_tool_policy": "fail"
+    }
+  },
+  "result_taxonomy": {
+    "PASS": "Check executed and satisfied its canonical invariant.",
+    "FAIL": "Check executed and failed, or a required dependency/evidence source is missing.",
+    "SKIP": "Permitted only by a profile/condition explicitly declared in this contract, including the portable lock-generator-unavailable exception; a skip is never reported as a pass."
+  },
+  "checks": [
+    {
+      "id": "contracts",
+      "command": [
+        "python",
+        "tools/check_contracts.py"
+      ],
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "missing_policy": "fail",
+      "purpose": "Canonical GEL contracts and projections are valid/current.",
+      "evidence_class": "structural"
+    },
+    {
+      "id": "governance",
+      "command": [
+        "python",
+        "tools/check_governance.py"
+      ],
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "missing_policy": "fail",
+      "purpose": "Validate ownership/component/documentation authority plus AI Governance Protocol v1.1 and the GEL meta-governance profile; fail any attempt to make the generic protocol runtime authority.",
+      "evidence_class": "structural"
+    },
+    {
+      "id": "python_compile",
+      "kind": "python_compile",
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "missing_policy": "fail",
+      "purpose": "Active Python tooling/oracle parses successfully.",
+      "evidence_class": "structural"
+    },
+    {
+      "id": "archive_schema_v2",
+      "command": [
+        "python",
+        "-S",
+        "tools/check_archive_schema.py"
+      ],
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "missing_policy": "fail",
+      "purpose": "D1 executable archive schema v2: fresh schema, legacy migration, FK enforcement, relational membership, collision-safe associations, source-presence lifecycle, privacy minimization and safe UPSERTs. This offline check uses Python stdlib/SQLite and must not import the live-network archiver runtime.",
+      "evidence_class": "structural"
+    },
+    {
+      "id": "archive_repository",
+      "command": [
+        "python",
+        "-S",
+        "tools/check_archive_repository.py"
+      ],
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "missing_policy": "fail",
+      "purpose": "D2/A2 Rust repository boundary and D1 parity: public read-only API, public RustArchiver production orchestration, crate-private transactional writer, schema-v2/open-mode rules, rollback/invalidation semantics and Rust canonical-writer ownership.",
+      "evidence_class": "structural"
+    },
+    {
+      "id": "a1_print_parity",
+      "kind": "command",
+      "command": [
+        "python",
+        "-S",
+        "tools/check_a1_print_parity.py"
+      ],
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "missing_policy": "fail",
+      "purpose": "A1 public Python-v4.9 print fallback parity contract: exact result shape, 14 oracle-backed fixtures and structured-DOM prose-boundary protection.",
+      "evidence_class": "structural"
+    },
+    {
+      "id": "a1_print_behavior",
+      "kind": "command",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "gel-core",
+        "--test",
+        "print_parity"
+      ],
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "missing_policy": "fail",
+      "purpose": "A1 executable Rust exact print-parity fixture comparison and prose false-positive regression.",
+      "evidence_class": "behavioral"
+    },
+    {
+      "id": "private_print_parity",
+      "kind": "private_print_parity",
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "private": true,
+      "portable_missing_policy": "skip",
+      "strict_missing_policy": "fail",
+      "purpose": "A1 strict exact comparison against the private historical print fixture set.",
+      "evidence_class": "acceptance"
+    },
+    {
+      "id": "a2_archiver",
+      "kind": "command",
+      "command": [
+        "python",
+        "-S",
+        "tools/check_a2_archiver.py"
+      ],
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "missing_policy": "fail",
+      "purpose": "A2 canonical-writer cutover boundary: RustArchiver orchestration, atomic schema-v2 creation, acquire-before-transaction, collision-safe materialization and explicit Writer sync.",
+      "evidence_class": "structural"
+    },
+    {
+      "id": "a2_archiver_behavior",
+      "kind": "command",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "gel-core",
+        "archiver::tests"
+      ],
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "missing_policy": "fail",
+      "purpose": "A2 Rust archiver fresh-DB, semantic precedence and transactional materialization regression tests.",
+      "evidence_class": "behavioral"
+    },
+    {
+      "id": "gel_session",
+      "command": [
+        "python",
+        "-S",
+        "tools/check_gel_session.py"
+      ],
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "missing_policy": "fail",
+      "purpose": "N1 offline transport boundary: fixed read-only GEL acquisition surface, two login-only POSTs, private credentials/cookies, student-email stripping, no generic request or tutorial mutation API. Live parity is separate manual evidence.",
+      "evidence_class": "structural"
+    },
+    {
+      "id": "n2_playwright_zero_write",
+      "command": [
+        "python",
+        "-S",
+        "tools/check_n2_playwright_zero_write.py"
+      ],
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "missing_policy": "fail",
+      "purpose": "N2-PW1 offline safety/behaviour contract: firewall before login, no credential/session capture, expected tutorial probes always abort, private evidence is redacted, latest-tutorial prepopulation source is fixed, and changed-teacher submit/server semantics remain deferred non-blocking.",
+      "evidence_class": "structural"
+    },
+    {
+      "id": "n2a_semantic_post",
+      "kind": "command",
+      "command": [
+        "python",
+        "-S",
+        "tools/check_n2a_semantic_post.py"
+      ],
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "purpose": "N2a canonical field identity, New/Revision authority, datetime omission/preservation, immutable teacher ownership, first-ever New support and offline-only POST mapping.",
+      "evidence_class": "structural"
+    },
+    {
+      "id": "n2b_new_form",
+      "kind": "command",
+      "command": [
+        "python",
+        "-S",
+        "tools/check_n2b_new_form.py"
+      ],
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "missing_policy": "fail",
+      "purpose": "N2b fixed New-form GET and distinct fail-closed ValidatedNewTutorialForm parser: no datetime, hidden immutable teacher authority, canonical field applicability/fingerprint, no network write.",
+      "evidence_class": "structural"
+    },
+    {
+      "id": "n2c_prepopulation",
+      "kind": "command",
+      "command": [
+        "python",
+        "-S",
+        "tools/check_n2c_prepopulation.py"
+      ],
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "missing_policy": "fail",
+      "purpose": "N2c canonical field-by-field New prepopulation/default/reset projection from the latest tutorial plus validated New-form defaults; no cross-dimension inference or network write.",
+      "evidence_class": "structural"
+    },
+    {
+      "id": "dependency_locks",
+      "kind": "dependency_locks",
+      "command": [
+        "python",
+        "-S",
+        "tools/check_dependency_lockfiles.py"
+      ],
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "missing_policy": "fail",
+      "evidence_class": "structural",
+      "purpose": "Require synchronized Rust/npm dependency identity; portable may explicitly SKIP a missing lock only when its corresponding generator executable is unavailable. Strict always requires complete locks.",
+      "portable_tool_unavailable_policy": "skip",
+      "strict_tool_unavailable_policy": "fail",
+      "policy_contract": "contracts/dependency_lock_policy.json"
+    },
+    {
+      "id": "dependency_lock_exception_behavior",
+      "kind": "command",
+      "command": [
+        "python",
+        "-S",
+        "tools/check_dependency_lock_exception_behavior.py"
+      ],
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "missing_policy": "fail",
+      "evidence_class": "behavioral",
+      "purpose": "Prove LOCK_GENERATOR_UNAVAILABLE is automatic, per-lock, invalidated when the corresponding generator is available, and never substitutes for complete locks."
+    },
+    {
+      "id": "rust_workspace_fmt",
+      "kind": "command",
+      "command": [
+        "cargo",
+        "fmt",
+        "--all",
+        "--",
+        "--check"
+      ],
+      "cwd": ".",
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "missing_policy": "fail",
+      "evidence_class": "structural",
+      "purpose": "Format the complete Rust workspace under one release identity."
+    },
+    {
+      "id": "rust_workspace_clippy",
+      "kind": "command",
+      "command": [
+        "cargo",
+        "clippy",
+        "--workspace",
+        "--all-targets",
+        "--locked",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "cwd": ".",
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "missing_policy": "fail",
+      "evidence_class": "structural",
+      "purpose": "Static analysis for every Rust workspace target using the accepted Cargo.lock."
+    },
+    {
+      "id": "rust_workspace_tests",
+      "kind": "command",
+      "command": [
+        "cargo",
+        "test",
+        "--workspace",
+        "--locked"
+      ],
+      "cwd": ".",
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "missing_policy": "fail",
+      "evidence_class": "behavioral",
+      "purpose": "Behavioral tests for the complete Rust workspace using the accepted Cargo.lock."
+    },
+    {
+      "id": "private_fixture_parity",
+      "kind": "private_fixture_parity",
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "private": true,
+      "portable_missing_policy": "skip",
+      "strict_missing_policy": "fail",
+      "purpose": "Validate every private historical edit form through C1 and C2 before enforcing the exact approved semantic/archive parity baseline.",
+      "evidence_class": "acceptance"
+    },
+    {
+      "id": "private_collision_authority",
+      "kind": "private_collision_authority",
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "private": true,
+      "portable_missing_policy": "skip",
+      "strict_missing_policy": "fail",
+      "purpose": "Validate C3 collision authority against the two private reconciliation fixtures: collision candidates remain group-owned, identical-state groups may resolve shared state, and divergent-state groups block revision-by-ID.",
+      "evidence_class": "acceptance"
+    },
+    {
+      "id": "private_post_round_trip",
+      "kind": "private_post_round_trip",
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "private": true,
+      "portable_missing_policy": "skip",
+      "strict_missing_policy": "fail",
+      "purpose": "Validate C4 all-14 offline Revision semantic-to-POST exact round trips and authoritative absent handling without any GEL network write.",
+      "evidence_class": "acceptance"
+    },
+    {
+      "id": "ui1_boundaries",
+      "kind": "command",
+      "command": [
+        "python",
+        "-S",
+        "tools/check_ui1_boundaries.py"
+      ],
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "missing_policy": "fail",
+      "purpose": "UI1/A2 static command/state boundary: explicit Tauri allowlist, read-only archive navigation, delegated RustArchiver sync, Rust-owned ephemeral draft, typed semantic edits, no GEL tutorial or raw SQLite mutation authority.",
+      "evidence_class": "structural"
+    },
+    {
+      "id": "frontend_dependencies",
+      "kind": "command",
+      "command": [
+        "npm",
+        "ci",
+        "--no-audit",
+        "--no-fund"
+      ],
+      "cwd": "writer-ui",
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "missing_policy": "fail",
+      "evidence_class": "structural",
+      "purpose": "Install the exact writer-ui package-lock graph; release/build paths never use floating npm install."
+    },
+    {
+      "id": "ui1_frontend_typecheck",
+      "kind": "command",
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "cwd": "writer-ui",
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "missing_policy": "fail",
+      "purpose": "UI1 React/TypeScript compile-time contract.",
+      "evidence_class": "structural"
+    },
+    {
+      "id": "ui1_frontend_build",
+      "kind": "command",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "cwd": "writer-ui",
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "missing_policy": "fail",
+      "purpose": "UI1 production frontend bundle builds from the governed source.",
+      "evidence_class": "structural"
+    },
+    {
+      "id": "ui1_hybrid_layout",
+      "kind": "command",
+      "command": [
+        "python",
+        "-S",
+        "tools/check_ui1_hybrid_layout.py"
+      ],
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "missing_policy": "fail",
+      "purpose": "Selected A+D hybrid layout/read-model invariants: authoritative course/attendance/latest tutorial projection, no School/internal IDs, focused browse and editor-dominant write mode.",
+      "evidence_class": "structural"
+    },
+    {
+      "id": "ui1c_forms_contract",
+      "kind": "command",
+      "command": [
+        "python",
+        "-S",
+        "tools/check_ui1c_forms_contract.py"
+      ],
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "missing_policy": "fail",
+      "purpose": "UI1c0 executable field-disposition/options/InitialCourseType/structured-validation/Aims-assistance/New-regression contract closure.",
+      "evidence_class": "structural"
+    },
+    {
+      "id": "ui1c_semantic_validation",
+      "kind": "command",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "gel-core",
+        "--test",
+        "ui1c_semantic_contract"
+      ],
+      "cwd": ".",
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "missing_policy": "fail",
+      "evidence_class": "behavioral",
+      "purpose": "Focused UI1c semantic behavior: field disposition, course-type losslessness, structured validation, candidate-before-commit and New-only same-role regression."
+    },
+    {
+      "id": "ui1c_frontend_forms",
+      "kind": "command",
+      "command": [
+        "python",
+        "-S",
+        "tools/check_ui1c_frontend_forms.py"
+      ],
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "missing_policy": "fail",
+      "purpose": "UI1c0 frontend no-authority check: React consumes Rust field/options projections and does not duplicate CEFR/assessment/course-type/Aims domains or expose hidden exam edits.",
+      "evidence_class": "structural"
+    },
+    {
+      "id": "current_state",
+      "kind": "command",
+      "command": [
+        "python",
+        "-S",
+        "tools/check_current_state.py"
+      ],
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "missing_policy": "fail",
+      "evidence_class": "structural",
+      "purpose": "Generated current-state projection is current and remains explicitly non-authoritative."
+    },
+    {
+      "id": "verification_semantics",
+      "kind": "command",
+      "command": [
+        "python",
+        "-S",
+        "tools/check_verification_semantics.py"
+      ],
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "missing_policy": "fail",
+      "evidence_class": "structural",
+      "purpose": "Every release check is evidence-classified and high-value invariants have semantic behavioral/acceptance proof."
+    },
+    {
+      "id": "source_intake",
+      "kind": "command",
+      "command": [
+        "python",
+        "-S",
+        "tools/check_intake.py",
+        "--mode",
+        "source"
+      ],
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "missing_policy": "fail",
+      "evidence_class": "structural",
+      "purpose": "Distribution/source intake: generated state required; complete locks required unless a source-candidate missing lock is covered by automatic LOCK_GENERATOR_UNAVAILABLE; release-package intake never receives the exception; forbidden runtime/private/build artifacts absent."
+    },
+    {
+      "id": "release_control",
+      "kind": "command",
+      "command": [
+        "python",
+        "-S",
+        "tools/check_release_control.py"
+      ],
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "missing_policy": "fail",
+      "evidence_class": "structural",
+      "purpose": "Release identity/package commands are fail-closed, locked, no-rebuild and exact-source-bound."
+    },
+    {
+      "id": "release_control_behavior",
+      "kind": "command",
+      "command": [
+        "python",
+        "-S",
+        "tools/check_release_control_behavior.py"
+      ],
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "missing_policy": "fail",
+      "evidence_class": "behavioral",
+      "purpose": "Behavioral tamper test proves package intake accepts an exact manifest and rejects byte changes."
+    },
+    {
+      "id": "ci_contract",
+      "kind": "command",
+      "command": [
+        "python",
+        "-S",
+        "tools/check_ci_contract.py"
+      ],
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "missing_policy": "fail",
+      "evidence_class": "structural",
+      "purpose": "CI continuously runs portable governance only and cannot claim strict acceptance or use private credentials."
+    },
+    {
+      "id": "ui1c1_editor_framework",
+      "kind": "command",
+      "command": [
+        "python",
+        "-S",
+        "tools/check_ui1c1_editor_framework.py"
+      ],
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "missing_policy": "fail",
+      "evidence_class": "structural",
+      "purpose": "UI1c1 reusable editor framework consumes Rust field rules/options, preserves structured validation DTOs and does not expose UI1c2-c4 form sections early."
+    },
+    {
+      "id": "ui1c2_4_semantic_forms",
+      "kind": "command",
+      "command": [
+        "python",
+        "-S",
+        "tools/check_ui1c2_4_semantic_forms.py"
+      ],
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "missing_policy": "fail",
+      "evidence_class": "structural",
+      "purpose": "UI1c2-c4 complete Standard/Initial/Final presentation consumes Rust-projected applicability/domains, preserves hidden state, routes structured validation and adds no GEL/archive write capability."
+    },
+    {
+      "id": "ui1c5_integrated",
+      "kind": "command",
+      "command": [
+        "python",
+        "-S",
+        "tools/check_ui1c5_integrated.py"
+      ],
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "missing_policy": "fail",
+      "evidence_class": "structural",
+      "purpose": "UI1c5 integrated release closure: accepted GRI baseline binding, cross-form reconstruction coverage, structured validation routing, immutable Revision authority, no new GEL/archive mutation surface and current UI1c5 lifecycle metadata."
+    },
+    {
+      "id": "ui1c5_integrated_behavior",
+      "kind": "command",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "gel-core",
+        "--test",
+        "ui1c5_integrated"
+      ],
+      "cwd": ".",
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "missing_policy": "fail",
+      "evidence_class": "behavioral",
+      "purpose": "Executable UI1c5 cross-form behavior for New Standard/Initial/Final reconstruction, structured New regression failure/candidate immutability, and Revision identity/teacher immutability without New regression."
+    },
+    {
+      "id": "ui1d_harper",
+      "command": [
+        "python",
+        "-S",
+        "tools/check_ui1d_harper.py"
+      ],
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "missing_policy": "fail",
+      "purpose": "UI1d structural Harper/dictionary ownership, DTO, Tauri command and React presentation boundary.",
+      "evidence_class": "structural"
+    },
+    {
+      "id": "ui1d_harper_behavior",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "gel-core",
+        "--test",
+        "ui1d_harper"
+      ],
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "missing_policy": "fail",
+      "purpose": "UI1d behavioral British-English Harper, dictionary persistence/migration/failure and field-scope regressions.",
+      "evidence_class": "behavioral"
+    },
+    {
+      "id": "ui1e_safety",
+      "command": [
+        "python",
+        "-S",
+        "tools/check_ui1e_safety.py"
+      ],
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "missing_policy": "fail",
+      "purpose": "UI1e safety invariants: native window close interception, discard guards on all navigation paths, stale_source transition handling, and absence of live write or persistent draft commands.",
+      "evidence_class": "structural"
+    },
+    {
+      "id": "ui1e_workflow_behavior",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "gel-core",
+        "--test",
+        "ui1e_workflow"
+      ],
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "missing_policy": "fail",
+      "purpose": "UI1e end-to-end workflow simulation: dirty-close interception, navigation discard guards, Harper integration, session expiry and stale-source transitions.",
+      "evidence_class": "behavioral"
+    },
+    {
+      "id": "w2_boundaries",
+      "command": [
+        "python",
+        "-S",
+        "tools/check_w2_boundaries.py"
+      ],
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "missing_policy": "fail",
+      "purpose": "W2 live submission transport boundaries: governed POST transport, readback discovery, targeted archive sync, and dirty-on-failure recovery.",
+      "evidence_class": "structural"
+    },
+    {
+      "id": "w2_submission_behavior",
+      "command": [
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "gel-core",
+        "--test",
+        "submission_transport"
+      ],
+      "profiles": [
+        "portable",
+        "strict"
+      ],
+      "missing_policy": "fail",
+      "purpose": "W2 live submission transport behavioral tests: New datetime omission, Revision timestamp preservation, unauthenticated fail-closed, and zero blind inserts.",
+      "evidence_class": "behavioral"
+    }
+  ],
+  "private_fixture_parity": {
+    "expected_dir": "fixtures-private/expected/edit_forms",
+    "raw_dir": "fixtures-private/raw/edit_forms",
+    "baseline_source": "contracts/evidence_baseline.json#expected_next_strict_fixture_baseline",
+    "required_fixture_count": 14,
+    "required_field_count": 275,
+    "required_ok": 269,
+    "required_mismatch": 6,
+    "required_unavailable": 0,
+    "allowed_mismatches": [
+      {
+        "field": "absent",
+        "archive_value": "0",
+        "edit_value": "true",
+        "count": 6
+      }
+    ],
+    "rule": "Each raw edit form must pass C1 contract validation and construct a valid C2 Revision semantic state whose explicit source identity matches the archive fixture. Counts alone are insufficient: every parity mismatch must match the allowlist and no unavailable field is permitted.",
+    "fixture_root_env": "GEL_PRIVATE_FIXTURES_DIR",
+    "default_fixture_root": "fixtures-private",
+    "expected_subdir": "expected/edit_forms",
+    "raw_subdir": "raw/edit_forms",
+    "semantic_revision_required": true
+  },
+  "live_write_rule": "No automated release-gate command may create, revise, delete, or otherwise mutate a GEL tutorial. Login/session POSTs used by separate manual acquisition tooling are not invoked by the release gate.",
+  "future_growth_rule": "Phase W2 live submission verification extends from the strictly accepted ui1e/w1 baseline; production release requires w2 strict acceptance.",
+  "private_collision_authority": {
+    "fixture_root_env": "GEL_PRIVATE_FIXTURES_DIR",
+    "expected_dir": "fixtures-private/expected/reconciliation",
+    "raw_dir": "fixtures-private/raw/reconciliation",
+    "expected_subdir": "expected/reconciliation",
+    "raw_subdir": "raw/reconciliation",
+    "required_fixture_count": 2,
+    "required_labels": [
+      "duplicate_different_state",
+      "duplicate_identical_state"
+    ]
+  },
+  "private_post_round_trip": {
+    "fixture_root_env": "GEL_PRIVATE_FIXTURES_DIR",
+    "expected_dir": "fixtures-private/expected/edit_forms",
+    "raw_dir": "fixtures-private/raw/edit_forms",
+    "expected_subdir": "expected/edit_forms",
+    "raw_subdir": "raw/edit_forms",
+    "required_fixture_count": 14,
+    "required_final_fixture_count": 5,
+    "required_absent_source_discrepancy_count": 6,
+    "contract_ref": "offline_post_round_trip"
+  },
+  "scopes": {
+    "n2a": {
+      "purpose": "Historical N2a regression scope using current workspace-level Rust verification; historical PASS=14 acceptance remains recorded in development history.",
+      "checks": [
+        "contracts",
+        "governance",
+        "python_compile",
+        "archive_schema_v2",
+        "archive_repository",
+        "gel_session",
+        "n2_playwright_zero_write",
+        "n2a_semantic_post",
+        "rust_workspace_fmt",
+        "rust_workspace_clippy",
+        "rust_workspace_tests",
+        "private_fixture_parity",
+        "private_collision_authority",
+        "private_post_round_trip"
+      ]
+    },
+    "n2b": {
+      "purpose": "Historical N2b regression scope using current workspace-level Rust verification.",
+      "checks": [
+        "contracts",
+        "governance",
+        "python_compile",
+        "archive_schema_v2",
+        "archive_repository",
+        "gel_session",
+        "n2_playwright_zero_write",
+        "n2a_semantic_post",
+        "n2b_new_form",
+        "rust_workspace_fmt",
+        "rust_workspace_clippy",
+        "rust_workspace_tests",
+        "private_fixture_parity",
+        "private_collision_authority",
+        "private_post_round_trip"
+      ]
+    },
+    "n2c": {
+      "purpose": "Historical N2c regression scope using current workspace-level Rust verification.",
+      "checks": [
+        "contracts",
+        "governance",
+        "python_compile",
+        "archive_schema_v2",
+        "archive_repository",
+        "gel_session",
+        "n2_playwright_zero_write",
+        "n2a_semantic_post",
+        "n2b_new_form",
+        "n2c_prepopulation",
+        "rust_workspace_fmt",
+        "rust_workspace_clippy",
+        "rust_workspace_tests",
+        "private_fixture_parity",
+        "private_collision_authority",
+        "private_post_round_trip"
+      ]
+    },
+    "ui1-initial": {
+      "purpose": "Current regression form of the strictly accepted UI1a/b baseline; workspace Rust checks replace duplicated per-crate invocations.",
+      "checks": [
+        "contracts",
+        "governance",
+        "python_compile",
+        "archive_schema_v2",
+        "archive_repository",
+        "gel_session",
+        "n2_playwright_zero_write",
+        "n2a_semantic_post",
+        "n2b_new_form",
+        "n2c_prepopulation",
+        "rust_workspace_fmt",
+        "rust_workspace_clippy",
+        "rust_workspace_tests",
+        "private_fixture_parity",
+        "private_collision_authority",
+        "private_post_round_trip",
+        "ui1_boundaries",
+        "frontend_dependencies",
+        "ui1_frontend_typecheck",
+        "ui1_frontend_build"
+      ]
+    },
+    "ui1-hybrid": {
+      "purpose": "Current regression form of the strictly accepted A+D hybrid baseline.",
+      "checks": [
+        "contracts",
+        "governance",
+        "python_compile",
+        "archive_schema_v2",
+        "archive_repository",
+        "gel_session",
+        "n2_playwright_zero_write",
+        "n2a_semantic_post",
+        "n2b_new_form",
+        "n2c_prepopulation",
+        "rust_workspace_fmt",
+        "rust_workspace_clippy",
+        "rust_workspace_tests",
+        "private_fixture_parity",
+        "private_collision_authority",
+        "private_post_round_trip",
+        "ui1_boundaries",
+        "frontend_dependencies",
+        "ui1_frontend_typecheck",
+        "ui1_frontend_build",
+        "ui1_hybrid_layout"
+      ]
+    },
+    "ui1c": {
+      "purpose": "UI1c0 semantic-form acceptance scope before reproducible-release controls are added.",
+      "checks": [
+        "contracts",
+        "governance",
+        "python_compile",
+        "archive_schema_v2",
+        "archive_repository",
+        "a1_print_parity",
+        "a1_print_behavior",
+        "private_print_parity",
+        "a2_archiver",
+        "a2_archiver_behavior",
+        "gel_session",
+        "n2_playwright_zero_write",
+        "n2a_semantic_post",
+        "n2b_new_form",
+        "n2c_prepopulation",
+        "rust_workspace_fmt",
+        "rust_workspace_clippy",
+        "rust_workspace_tests",
+        "private_fixture_parity",
+        "private_collision_authority",
+        "private_post_round_trip",
+        "ui1_boundaries",
+        "frontend_dependencies",
+        "ui1_frontend_typecheck",
+        "ui1_frontend_build",
+        "ui1_hybrid_layout",
+        "ui1c_forms_contract",
+        "ui1c_semantic_validation",
+        "ui1c_frontend_forms",
+        "ui1c1_editor_framework",
+        "ui1c2_4_semantic_forms"
+      ]
+    },
+    "gri": {
+      "purpose": "Current GRI release-control scope: UI1c semantics plus A1 print parity, A2 Rust archiver cutover, complete locks/current-state/intake/semantic evidence/release-control/CI invariants. Strict zero-SKIP/FAIL result is required for promotion.",
+      "checks": [
+        "contracts",
+        "governance",
+        "python_compile",
+        "archive_schema_v2",
+        "archive_repository",
+        "a1_print_parity",
+        "a1_print_behavior",
+        "private_print_parity",
+        "a2_archiver",
+        "a2_archiver_behavior",
+        "gel_session",
+        "n2_playwright_zero_write",
+        "n2a_semantic_post",
+        "n2b_new_form",
+        "n2c_prepopulation",
+        "rust_workspace_fmt",
+        "rust_workspace_clippy",
+        "rust_workspace_tests",
+        "private_fixture_parity",
+        "private_collision_authority",
+        "private_post_round_trip",
+        "ui1_boundaries",
+        "frontend_dependencies",
+        "ui1_frontend_typecheck",
+        "ui1_frontend_build",
+        "ui1_hybrid_layout",
+        "ui1c_forms_contract",
+        "ui1c_semantic_validation",
+        "ui1c_frontend_forms",
+        "dependency_locks",
+        "dependency_lock_exception_behavior",
+        "current_state",
+        "verification_semantics",
+        "source_intake",
+        "release_control",
+        "release_control_behavior",
+        "ci_contract",
+        "ui1c1_editor_framework",
+        "ui1c2_4_semantic_forms"
+      ]
+    },
+    "ui1c5": {
+      "purpose": "UI1c5 integrated semantic-form release scope: the strictly accepted 39-check GRI baseline plus dedicated structural and behavioral cross-form integration closure.",
+      "checks": [
+        "contracts",
+        "governance",
+        "python_compile",
+        "archive_schema_v2",
+        "archive_repository",
+        "a1_print_parity",
+        "a1_print_behavior",
+        "private_print_parity",
+        "a2_archiver",
+        "a2_archiver_behavior",
+        "gel_session",
+        "n2_playwright_zero_write",
+        "n2a_semantic_post",
+        "n2b_new_form",
+        "n2c_prepopulation",
+        "rust_workspace_fmt",
+        "rust_workspace_clippy",
+        "rust_workspace_tests",
+        "private_fixture_parity",
+        "private_collision_authority",
+        "private_post_round_trip",
+        "ui1_boundaries",
+        "frontend_dependencies",
+        "ui1_frontend_typecheck",
+        "ui1_frontend_build",
+        "ui1_hybrid_layout",
+        "ui1c_forms_contract",
+        "ui1c_semantic_validation",
+        "ui1c_frontend_forms",
+        "dependency_locks",
+        "dependency_lock_exception_behavior",
+        "current_state",
+        "verification_semantics",
+        "source_intake",
+        "release_control",
+        "release_control_behavior",
+        "ci_contract",
+        "ui1c1_editor_framework",
+        "ui1c2_4_semantic_forms",
+        "ui1c5_integrated",
+        "ui1c5_integrated_behavior"
+      ]
+    },
+    "ui1d": {
+      "purpose": "UI1d Harper + persistent dictionary release scope: strictly accepted UI1c5 plus Rust-owned British-English assistance, persistent local dictionary ownership and dictionary failure semantics.",
+      "checks": [
+        "contracts",
+        "governance",
+        "python_compile",
+        "archive_schema_v2",
+        "archive_repository",
+        "a1_print_parity",
+        "a1_print_behavior",
+        "private_print_parity",
+        "a2_archiver",
+        "a2_archiver_behavior",
+        "gel_session",
+        "n2_playwright_zero_write",
+        "n2a_semantic_post",
+        "n2b_new_form",
+        "n2c_prepopulation",
+        "rust_workspace_fmt",
+        "rust_workspace_clippy",
+        "rust_workspace_tests",
+        "private_fixture_parity",
+        "private_collision_authority",
+        "private_post_round_trip",
+        "ui1_boundaries",
+        "frontend_dependencies",
+        "ui1_frontend_typecheck",
+        "ui1_frontend_build",
+        "ui1_hybrid_layout",
+        "ui1c_forms_contract",
+        "ui1c_semantic_validation",
+        "ui1c_frontend_forms",
+        "dependency_locks",
+        "dependency_lock_exception_behavior",
+        "current_state",
+        "verification_semantics",
+        "source_intake",
+        "release_control",
+        "release_control_behavior",
+        "ci_contract",
+        "ui1c1_editor_framework",
+        "ui1c2_4_semantic_forms",
+        "ui1c5_integrated",
+        "ui1c5_integrated_behavior",
+        "ui1d_harper",
+        "ui1d_harper_behavior"
+      ]
+    },
+    "ui1e": {
+      "purpose": "UI1e safety, dirty-close, and E2E release scope: strictly accepted UI1d plus native window close interception, navigation discard guards, stale-source handling, and end-to-end workflow behavioral proof.",
+      "checks": [
+        "contracts",
+        "governance",
+        "python_compile",
+        "archive_schema_v2",
+        "archive_repository",
+        "a1_print_parity",
+        "a1_print_behavior",
+        "private_print_parity",
+        "a2_archiver",
+        "a2_archiver_behavior",
+        "gel_session",
+        "n2_playwright_zero_write",
+        "n2a_semantic_post",
+        "n2b_new_form",
+        "n2c_prepopulation",
+        "rust_workspace_fmt",
+        "rust_workspace_clippy",
+        "rust_workspace_tests",
+        "private_fixture_parity",
+        "private_collision_authority",
+        "private_post_round_trip",
+        "ui1_boundaries",
+        "frontend_dependencies",
+        "ui1_frontend_typecheck",
+        "ui1_frontend_build",
+        "ui1_hybrid_layout",
+        "ui1c_forms_contract",
+        "ui1c_semantic_validation",
+        "ui1c_frontend_forms",
+        "dependency_locks",
+        "dependency_lock_exception_behavior",
+        "current_state",
+        "verification_semantics",
+        "source_intake",
+        "release_control",
+        "release_control_behavior",
+        "ci_contract",
+        "ui1c1_editor_framework",
+        "ui1c2_4_semantic_forms",
+        "ui1c5_integrated",
+        "ui1c5_integrated_behavior",
+        "ui1d_harper",
+        "ui1d_harper_behavior",
+        "ui1e_safety",
+        "ui1e_workflow_behavior"
+      ]
+    },
+    "w2": {
+      "purpose": "Phase W2 production submission release scope: strictly accepted UI1e baseline plus dedicated W2 submission boundary checks.",
+      "checks": [
+        "contracts",
+        "governance",
+        "python_compile",
+        "archive_schema_v2",
+        "archive_repository",
+        "a1_print_parity",
+        "a1_print_behavior",
+        "private_print_parity",
+        "a2_archiver",
+        "a2_archiver_behavior",
+        "gel_session",
+        "n2_playwright_zero_write",
+        "n2a_semantic_post",
+        "n2b_new_form",
+        "n2c_prepopulation",
+        "rust_workspace_fmt",
+        "rust_workspace_clippy",
+        "rust_workspace_tests",
+        "private_fixture_parity",
+        "private_collision_authority",
+        "private_post_round_trip",
+        "ui1_boundaries",
+        "frontend_dependencies",
+        "ui1_frontend_typecheck",
+        "ui1_frontend_build",
+        "ui1_hybrid_layout",
+        "ui1c_forms_contract",
+        "ui1c_semantic_validation",
+        "ui1c_frontend_forms",
+        "dependency_locks",
+        "dependency_lock_exception_behavior",
+        "current_state",
+        "verification_semantics",
+        "source_intake",
+        "release_control",
+        "release_control_behavior",
+        "ci_contract",
+        "ui1c1_editor_framework",
+        "ui1c2_4_semantic_forms",
+        "ui1c5_integrated",
+        "ui1c5_integrated_behavior",
+        "ui1d_harper",
+        "ui1d_harper_behavior",
+        "ui1e_safety",
+        "ui1e_workflow_behavior",
+        "w2_boundaries",
+        "w2_submission_behavior"
+      ]
+    }
+  },
+  "current_release_scope": "w2",
+  "acceptance_status_taxonomy": {
+    "STRUCTURAL_PASS": "Portable checks executed with no FAIL/SKIP; does not imply target acceptance.",
+    "STRUCTURAL_PASS_WITH_SKIPS": "Portable checks have no FAIL but one or more explicitly permitted SKIPs; target acceptance remains required.",
+    "TARGET_ACCEPTANCE_REQUIRED": "Candidate has not satisfied the current strict target-host gate for its exact source identity.",
+    "STRICT_ACCEPTED": "Exact source/lock/toolchain identity passed the required strict scope with zero SKIP/FAIL; still not a verified release archive.",
+    "RELEASE_ARTIFACT_VERIFIED": "Final archive bytes and embedded manifests were verified after strict acceptance without rebuilding."
+  },
+  "historical_acceptance_records": {
+    "n2a": "PASS=14 SKIP=0 FAIL=0",
+    "n2b": "PASS=15 SKIP=0 FAIL=0",
+    "n2c": "PASS=16 SKIP=0 FAIL=0",
+    "ui1-initial": "PASS=22 SKIP=0 FAIL=0",
+    "ui1-hybrid": "PASS=23 SKIP=0 FAIL=0",
+    "gri": "PASS=39 SKIP=0 FAIL=0; TARGET STATUS: STRICT_ACCEPTED; RELEASE GATE: PASS",
+    "ui1c5": "PASS=41 SKIP=0 FAIL=0; TARGET STATUS: STRICT_ACCEPTED; RELEASE GATE: PASS",
+    "ui1c5_evidence": "external immutable evidence: ui1c5-strict-20260831-201228.json",
+    "ui1d": "PASS=43 SKIP=0 FAIL=0; TARGET STATUS: STRICT_ACCEPTED; RELEASE GATE: PASS",
+    "ui1d_evidence": "external immutable evidence: ui1d-strict-20260901-183000.json",
+    "ui1e": "PASS=45 SKIP=0 FAIL=0; TARGET STATUS: STRICT_ACCEPTED; RELEASE GATE: PASS",
+    "ui1e_evidence": "external immutable evidence: ui1e-strict-evidence.json",
+    "w1": "MANUAL CONTROLLED WRITE VALIDATION: PASS; ZERO BLIND INSERTS: PASS; RETRYABLE DIRTY RECOVERY: PASS",
+    "w1_evidence": "evidence-private/w1-verification/w1-controlled-write-evidence.json",
+    "w2": "PASS=47 SKIP=0 FAIL=0; TARGET STATUS: STRICT_ACCEPTED; RELEASE GATE: PASS",
+    "w2_evidence": "external immutable evidence: w2-strict-evidence.json"
+  },
+  "artifact_acceptance": {
+    "contract_ref": "release_identity",
+    "strict_scope": "w2",
+    "strict_evidence_location": "outside repository source root",
+    "packager": "tools/package_release.py",
+    "verifier": "tools/verify_release_archive.py",
+    "rebuild_after_acceptance": false,
+    "automatic_promotion": false
+  },
+  "private_print_parity": {
+    "fixture_root_env": "GEL_PRIVATE_FIXTURES_DIR",
+    "expected_dir": "fixtures-private/expected/print",
+    "raw_dir": "fixtures-private/raw/print",
+    "expected_subdir": "expected/print",
+    "raw_subdir": "raw/print",
+    "required_fixture_count": 14,
+    "rule": "Every private print fixture must serialize from Rust to the exact Python-v4.9 fallback JSON result shape; no per-field tolerance or prose-label heuristic is allowed."
+  }
+}

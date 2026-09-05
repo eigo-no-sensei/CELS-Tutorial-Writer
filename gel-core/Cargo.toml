@@ -1,0 +1,22 @@
+[package]
+name = "gel-core"
+version = "0.12.0"
+edition = "2021"
+description = "GEL tutorial parsing, archive repository, and read-only acquisition core"
+license = "MIT"
+
+[dependencies]
+anyhow = "1"
+chrono = { version = "0.4", features = ["serde"] }
+regex = "1"
+reqwest = { version = "0.12", default-features = false, features = ["blocking", "cookies", "json", "rustls-tls"] }
+rpassword = "7"
+scraper = "0.27"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+rusqlite = { version = "0.37", features = ["bundled"] }
+sha2 = "0.10"
+harper-core = "=2.8.0"
+
+[dev-dependencies]
+pretty_assertions = "1"

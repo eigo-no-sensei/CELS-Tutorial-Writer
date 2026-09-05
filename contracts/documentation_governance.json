@@ -1,0 +1,67 @@
+{
+  "contract_id": "documentation_governance",
+  "contract_version": 3,
+  "status": "active",
+  "effective_date": "2026-08-30",
+  "authority_order": [
+    {
+      "rank": 1,
+      "class": "executable_contracts_tests",
+      "label": "Executable schema/contracts/tests",
+      "rule": "Current executable contracts and tests are runtime authority. Lower-ranked documentation must not contradict them."
+    },
+    {
+      "rank": 2,
+      "class": "active_component_specs",
+      "label": "Active component specs",
+      "rule": "Describe current component responsibilities and boundaries; generated from component boundary contracts where possible."
+    },
+    {
+      "rank": 3,
+      "class": "master_cross_component_specs",
+      "label": "Master/cross-component specs",
+      "rule": "Describe architecture, ownership and lifecycle across components without overriding higher-ranked authority."
+    },
+    {
+      "rank": 4,
+      "class": "operational_docs",
+      "label": "Operational docs",
+      "rule": "Explain how to operate and validate the project; must follow current contracts/specs."
+    },
+    {
+      "rank": 5,
+      "class": "adrs_history",
+      "label": "ADRs/history",
+      "rule": "Historical rationale only. Every ADR has explicit status and cannot override current contracts/specs."
+    }
+  ],
+  "active_spec_required_sections": [
+    "Role",
+    "Scope",
+    "Authority",
+    "Reads",
+    "Writes",
+    "Must not write",
+    "State transitions",
+    "Failure semantics",
+    "Dependencies",
+    "Tests"
+  ],
+  "adr_statuses": [
+    "proposed",
+    "accepted_historical",
+    "superseded",
+    "rejected"
+  ],
+  "adr_rule": "ADRs record historical decisions and rationale with explicit status. They are never current runtime authority; current behaviour is defined by higher-ranked executable contracts/tests and active specs. Superseded phase plans and acceptance narratives belong under docs/history/ or an external evidence store.",
+  "same_change_rule": "Any change to ownership, schema, state transitions, canonical field contracts, or externally visible behaviour must update the governing executable contract/spec/documentation in the same change.",
+  "index_rule": "Documentation indexes and current-state status pages are generated where possible and must be current under check:governance. governance/current-state.json is a projection only and cannot override contracts, active component specs, or tests.",
+  "state_classification_taxonomy": {
+    "source": "External or user/repository-authored canonical input.",
+    "decision": "Durable reviewed compatibility/dependency decision constraining later rebuilds.",
+    "derived": "Reproducible materialization from higher-authority inputs.",
+    "projection": "Denormalized/read/UI/status representation that must never become edit-back authority.",
+    "evidence": "Diagnostic, experimental, CI or acceptance material that cannot self-promote."
+  },
+  "meta_governance_protocol_rule": "governance/agent-protocol defines AI-agent workflow, evidence and promotion semantics only. It is a reviewed meta-governance decision and is not GEL runtime/domain authority; the GEL project profile must bind to existing canonical contracts and may not override executable contracts/tests, active component specs, or state ownership."
+}

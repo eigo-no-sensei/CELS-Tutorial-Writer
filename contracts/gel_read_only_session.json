@@ -1,0 +1,117 @@
+{
+  "contract_id": "gel_read_only_session",
+  "contract_version": 2,
+  "status": "active",
+  "effective_date": "2026-08-27",
+  "evaluation": {
+    "status": "approved_with_amendments",
+    "summary": "N1 remains a narrow authenticated acquisition boundary. N2b extends only the fixed GET surface with current New-tutorial form acquisition using the canonical zero-locator route; credentials/cookies remain session-private, student email fields are stripped at acquisition, and no generic request or GEL tutorial mutation API exists. Login remains the only POST authority."
+  },
+  "origins": {
+    "api_base": "https://api2.guidedelearning.net",
+    "learn2_base": "https://learn2.guidedelearning.net"
+  },
+  "authentication": {
+    "login_path": "/user/login?destination=login_redirect",
+    "login_form_id": "user_login",
+    "ajax_success_status": "authNotNeeded",
+    "login_post_count": 2,
+    "api_verification_path": "/staff/classes?open=true",
+    "learn2_verification_path": "/administration/students",
+    "credential_retention": "none",
+    "cookie_ownership": "Cookies are private to the Rust GEL session client and are never returned to parsers, repositories, UI models, logs or diagnostics.",
+    "error_redaction_rule": "Authentication errors must not include the supplied password, cookie values, serialized login form body or full response body."
+  },
+  "read_surface": [
+    {
+      "id": "classes",
+      "method": "GET",
+      "path_template": "/staff/classes?open=true",
+      "response": "json"
+    },
+    {
+      "id": "class_students",
+      "method": "GET",
+      "path_template": "/staff/classes/{class_id}/students",
+      "response": "json_privacy_filtered"
+    },
+    {
+      "id": "student_profile",
+      "method": "GET",
+      "path_template": "/staff/students/{student_uid}",
+      "response": "json_privacy_filtered"
+    },
+    {
+      "id": "tutorial_list",
+      "method": "GET",
+      "path_template": "/staff/students/{student_uid}/tutorials",
+      "response": "json_and_typed_identity_projection"
+    },
+    {
+      "id": "tutorial_summary",
+      "method": "GET",
+      "path_template": "/study/tutorials/summary/{student_uid}",
+      "response": "html"
+    },
+    {
+      "id": "tutorial_print",
+      "method": "GET",
+      "path_template": "/study/tutorials/print/{student_uid}/{tutorial_ts}",
+      "response": "html"
+    },
+    {
+      "id": "new_tutorial_form",
+      "method": "GET",
+      "path_template": "/study/tutorials/add/{student_uid}/0/{ttype_raw}",
+      "response": "html_new_form_source"
+    },
+    {
+      "id": "tutorial_edit",
+      "method": "GET",
+      "path_template": "/study/tutorials/add/{student_uid}/{tutorial_ts}/{ttype_raw}",
+      "response": "html"
+    }
+  ],
+  "privacy": {
+    "student_fields_removed_immediately": [
+      "email",
+      "mail",
+      "email_address",
+      "emailaddress"
+    ],
+    "rule": "Student email-like fields are removed recursively before student roster/profile JSON leaves the session component."
+  },
+  "network_authority": {
+    "allowed_post_purposes": [
+      "Learn2 login handshake step 1",
+      "Learn2 login handshake step 2"
+    ],
+    "forbidden_http_methods_after_authentication": [
+      "POST",
+      "PUT",
+      "PATCH",
+      "DELETE"
+    ],
+    "generic_request_api": false,
+    "gel_tutorial_write_authority": false,
+    "rule": "N1/N2b grant fixed read acquisition only. The New-form zero-locator GET is source acquisition, not create authority. No create, revise, delete or arbitrary transport method is exposed."
+  },
+  "failure_semantics": {
+    "unauthenticated_read": "fail before request",
+    "http_401_403": "mark session unauthenticated and fail",
+    "learn2_login_redirect_or_login_form": "mark session unauthenticated and fail",
+    "malformed_tutorial_identity_json": "fail closed; do not invent id or timestamp",
+    "unexpected_login_page": "fail authentication without exposing response body"
+  },
+  "live_acceptance": {
+    "release_gate_network_access": false,
+    "manual_probe_binary": "check_gel_read_only_live",
+    "required_evidence": [
+      "Rust login succeeds against api2 and learn2",
+      "tutorial-list identity timestamp agrees with a parsed summary entry",
+      "matching print and historical edit pages can be fetched by GET",
+      "historical edit page passes C1 validation",
+      "probe emits metadata/status only and does not print tutorial HTML or credentials"
+    ]
+  }
+}

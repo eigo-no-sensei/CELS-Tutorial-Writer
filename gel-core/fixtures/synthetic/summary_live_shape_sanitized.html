@@ -1,0 +1,590 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:fb="http://ogp.me/ns/fb#">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+  <title>GEL</title>
+    
+  <!--<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>-->
+
+  <script src="/themes/master/js/jquery-1.9.1.min.js"></script>
+  <script type='text/javascript' src='/themes/master/js/jquery-ui-1.10.1.custom.min.js'></script>
+  <script type='text/javascript' src='/themes/master/js/jquery.masonry.min.js'></script>
+  <script type='text/javascript' src='/themes/master/js/jquery.dataTables.min.js'></script>
+  <script type='text/javascript' src='/themes/master/js/moment-with-locales.js'></script>
+
+  <!-- we need jquery migrate for a couple of plugins like tooltip or fixedcolumns -->
+  <script type="text/javascript" src="/themes/master/js/jquery-migrate.min.js"></script>
+
+  <script type='text/javascript' src='/themes/master/js/FixedColumns.js'></script>
+  <script type='text/javascript' src='/themes/master/js/easypaginate.js'></script>
+  <script type='text/javascript' src='/themes/master/js/pickadate.js'></script>
+  <script type='text/javascript' src='/themes/master/js/toggle.js'></script>
+  <script type='text/javascript' src='/themes/master/js/jquery-center.js'></script>
+  <script type='text/javascript' src='/themes/master/js/jquery.cookie.js'></script>
+  <script type='text/javascript' src='/themes/master/js/file-input-drop-zone.js'></script>
+  <script type='text/javascript' src='/themes/master/js/jquery-visibility.js'></script>
+  <script type='text/javascript' src='/themes/master/js/scripts.js'></script>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css" media="all">@import "/misc/drupal.css";</style>
+<script type="text/javascript" src="/misc/drupal.js?1787006876"></script>
+<script type="text/javascript" src="/modules/tutorials/tutorials-summary.js?1787006876"></script>      <link rel="shortcut icon" href="/themes/master/favicon.ico" type="image/x-icon">
+          <link href="https://fonts.googleapis.com/css?family=Raleway:300,400,600,700,800,900" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet">
+  <link rel="stylesheet" href="/themes/master/css/jquery-ui-1.8.18.custom.css" />
+  <link rel="stylesheet" href="/themes/master/boilerplate.css" />
+    
+          <link rel="stylesheet" media="only screen and (max-device-width: 900px)" href="/themes/master/css/mobile-block.css" type="text/css">
+            <style>
+/* CUSTOMIZED BRANDING 
+******************************************************************************/
+#branding-masthead {
+	    height: 145px;
+	    width: 940px;
+    }
+a,
+a:visited,
+#powerbar .powerlinks a:hover,
+#powerbar .powerlinks li:hover a,
+#PrevQButton, #NextQButton
+{
+/*	color:#b0c11d;
+		color:#C00;*/
+		color:#18A6D5; /*blue links*/
+}
+.event-listings .event-details .title a:hover,
+.page-title a:hover, 
+a:hover,
+#PrevQButton:hover, #NextQButton:hover
+
+{
+		color:#136581; /*blue links*/
+}
+div.color_study.handle, img.color1,
+.event-calendar-mini .mv-container .st-dtitle a,
+#main-menu .menu li.current:hover a,
+#main-menu .menu li.current a span.pointer,
+#main-menu .menu li.current a,
+#main-menu .menu li.current a:hover,
+.cell .cell-title.branded,
+.cell .cell-title.branded a,
+#lesson-overlay-tabs .current a,
+#lesson-overlay-tabs .current a:hover,
+.cell .tab-menu .current a,
+.cell .tab-menu .current a:hover
+{
+	background-color:#007fa3;
+}
+.tutorial-cell .cell-title {
+	background:#007fa3 !important;
+	color: white;
+}
+.cell .tab-menu .current a,
+.cell .tab-menu .current a:hover,
+.cell .tab-menu,
+#gel-lesson-overlay{
+	border-color:##007fa3;
+		/*border-color:#C00;*/
+	
+}
+/* we need to define the branded color without having to create cells or buttons*/
+.branded_background, .message {
+	background-color:#007fa3;
+	color: white;
+}
+/*IE is having a bad time with this block*/
+a.button.branded:hover,
+a.button.branded,
+button.branded,
+input[type="button"].branded,
+input[type="button"].branded:hover,
+input.button[type="submit"].branded,
+input.button[type="submit"].branded:hover{
+	background:#007fa3;
+	background-color:#007fa3 !important;
+	color:#fff;
+	border:none;
+}
+.optionbutton_selected {
+    max-width: 100%;
+    white-space: normal;
+    text-align: left !important;
+    height: 50px;
+    width: 400px;
+	background: #007fa3 !important;
+	color:#fff !important;
+	margin-right: 10px !important;
+	margin-top: 10px !important;
+	margin-bottom: 10px !important;
+}
+.gap_selected {
+	width: 100px !important;
+	margin-right: 0px;
+   	border: 1px #FFB300 solid !important;
+   	background-color: #007fa3 !important;
+    font-weight: bold;
+    color: #fff !important;
+    padding: 3px;
+    line-height: normal;
+}
+
+.answerfield_selected {
+	min-width: 100px;
+	font-weight: bold;
+	margin-top: 4px;
+	margin-bottom: 8px;
+   	background-color: #007fa3 !important;
+   	border: 1px #FFB300 solid !important;
+   	padding: 3px;
+	width: 100%;
+	color: #fff !important;
+}
+</style>
+  <link rel="stylesheet" media="only screen and (max-device-width: 1024px)" href="/themes/master/ipad.css" type="text/css" />
+  <style type="text/css" media="all">@import "/themes/master/oldstyle.css";</style>
+    <style type="text/css" media="all">@import "/modules/calendar/calendar.css";</style><style type="text/css" media="all">@import "/modules/date/date.css";</style>
+    <meta property="og:image" content="http://learn2.guidedelearning.net/school_icons/990001.png" /></head>
+<body data-lang="en" data-localize-code="en-GB">
+<div id="wrap">
+
+
+<body class="news-lesson" style="min-width: 1024px">
+
+<link rel="stylesheet" type="text/css" href="/themes/master/css/tutorial_table_style.css">
+
+<div class="loading_overlay">
+    <div class="loading_overlay_content">
+        <p>Loading...</p>
+        <p><img src="/themes/master/images/ajax-loader.gif"></p>
+    </div>
+</div>
+<div class="content-main-wrap ">
+    <div class="content">
+    	<div class="cell-wrapper">
+            <br>
+            		    <!-- begin content --><div id="new-button-wrap"><ul><li><a href="/study/tutorials/add/900001"><b>+ New Tutorial with <span class="undakwak">Student X</span></b></a></div><div class="cell cell-wide clear-cell tutorial-all"><form style='margin:0;padding-bottom:0;'><input type='button' class='branded' onClick='javascript:window.location = "/administration/tutorials/search"' value='Go back'>&nbsp;&nbsp;&nbsp;&nbsp;<input type='button' class='branded' onClick='javascript:window.location = "/study/tutorials/add/900001"' value='+ New Tutorial'></form><br><select id="tutorialsteachers"  class="hidden"><option SELECTED value="0"></select><input type="hidden" id="tutorialstudent" value="900001"><br><br>From: <input id="tutorialsfrom" class="color_study" value=17/08/2026> To: <input id="tutorialsto"  class="color_study" value=17/08/2026><input onclick="processtutorials();" type="button" value="go!"><input onclick="window.location='/blank/tutorials/csv/900001///'" type="button" value="download"><br><br>
+			<div id="tableDiv_Array" class="tableDiv">
+			<table width="100%" border="0" cellspacing="0" cellpadding="0" id="Open_Text_General" class="FixedTables"><thead>
+				<tr>
+					<th>Date<br>Time</th><th axis="sstring" headers="TUTdatetime" title="0">05-08-2026<br>12:00 pm (absent)</th><th axis="sstring" headers="TUTdatetime" title="1">20-07-2026<br>3:18 pm</th><th axis="sstring" headers="TUTdatetime" title="2">16-06-2026<br>11:38 am</th><th axis="sstring" headers="TUTdatetime" title="3">21-05-2026<br>11:40 am</th><th axis="sstring" headers="TUTdatetime" title="4">20-04-2026<br>11:58 am</th><th axis="sstring" headers="TUTdatetime" title="5">19-03-2026<br>3:06 pm</th><th axis="sstring" headers="TUTdatetime" title="6">17-02-2026<br>8:38 am</th><th axis="sstring" headers="TUTdatetime" title="7">17-02-2026<br>8:36 am</th><th axis="sstring" headers="TUTdatetime" title="8">10-02-2026<br>9:34 am</th></tr></thead><tbody><tr><td>Name</td><td class="undakwak">Student X</td><td class="undakwak">Student X</td><td class="undakwak">Student X</td><td class="undakwak">Student X</td><td class="undakwak">Student X</td><td class="undakwak">Student X</td><td class="undakwak">Student X</td><td class="undakwak">Student X</td><td class="undakwak">Student X</td></tr><tr><td>ID</td><td>SYNTHETIC001</td><td>SYNTHETIC001</td><td>SYNTHETIC001</td><td>SYNTHETIC001</td><td>SYNTHETIC001</td><td>SYNTHETIC001</td><td>SYNTHETIC001</td><td>SYNTHETIC001</td><td>SYNTHETIC001</td></tr><tr><td>Teacher</td><td class="undakwak">Teacher A</td><td class="undakwak">Teacher A</td><td class="undakwak">Teacher B</td><td class="undakwak">Teacher B</td><td class="undakwak">Teacher B</td><td class="undakwak">Teacher C</td><td class="undakwak">Teacher C</td><td class="undakwak">Teacher C</td><td class="undakwak">Teacher D</td></tr><tr><td>Type</td><td>final</td><td>standard</td><td>standard</td><td>standard</td><td>standard</td><td>standard</td><td>standard</td><td>initial</td><td>initial</td></tr><tr><td>absent</td><td class="undakwak">yes</td><td class="undakwak">no</td><td class="undakwak">no</td><td class="undakwak">no</td><td class="undakwak">no</td><td class="undakwak">no</td><td class="undakwak">no</td><td class="undakwak">no</td><td class="undakwak">no</td></tr><tr><td>Tutorial Overall Level</td><td class="undakwak">A2-: pre-intermediate</td><td class="undakwak">A2-: pre-intermediate</td><td class="undakwak">A1+: elementary</td><td class="undakwak">A1+: elementary</td><td class="undakwak">A1+: elementary</td><td class="undakwak">A1+: elementary</td><td class="undakwak">A1+: elementary</td><td class="undakwak">Choose...</td><td class="undakwak">Choose...</td></tr><tr><td>Tutorial</td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td></tr><tr><td>Initial Speaking</td><td class="undakwak">A1</td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak">A1</td><td class="undakwak">A1</td></tr><tr><td>Speaking</td><td class="undakwak">A2</td><td class="undakwak">A2</td><td class="undakwak">A2</td><td class="undakwak">A2-</td><td class="undakwak">A1+</td><td class="undakwak">A1+</td><td class="undakwak">A1+</td><td class="undakwak"></td><td class="undakwak"></td></tr><tr><td>Initial Use of English</td><td class="undakwak">A1</td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak">A1</td><td class="undakwak">A1</td></tr><tr><td>Use of English</td><td class="undakwak">A2-</td><td class="undakwak">A2-</td><td class="undakwak">A2-</td><td class="undakwak">A1+</td><td class="undakwak">A1</td><td class="undakwak">A1</td><td class="undakwak">A1</td><td class="undakwak"></td><td class="undakwak"></td></tr><tr><td>Initial Writing</td><td class="undakwak">A1+</td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak">A1+</td><td class="undakwak">A2</td></tr><tr><td>Writing</td><td class="undakwak">A1+</td><td class="undakwak">A1+</td><td class="undakwak">A1+</td><td class="undakwak">A1+</td><td class="undakwak">A1+</td><td class="undakwak">A1+</td><td class="undakwak">A1+</td><td class="undakwak"></td><td class="undakwak"></td></tr><tr><td>Initial Listening</td><td class="undakwak">A1</td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak">A1</td><td class="undakwak">A1</td></tr><tr><td>Listening</td><td class="undakwak">A2</td><td class="undakwak">A2</td><td class="undakwak">A2</td><td class="undakwak">A1+</td><td class="undakwak">A1+</td><td class="undakwak">A1+</td><td class="undakwak">A1+</td><td class="undakwak"></td><td class="undakwak"></td></tr><tr><td>Reading</td><td class="undakwak">A2</td><td class="undakwak">A2</td><td class="undakwak">A2-</td><td class="undakwak">A1+</td><td class="undakwak">A1+</td><td class="undakwak">A1+</td><td class="undakwak">A1+</td><td class="undakwak"></td><td class="undakwak"></td></tr><tr><td>Assessment</td><td class="undakwak"><strong>listening:</strong>
+<strong>reading:</str...<br><a id="show-more" class="show-more">read more</a><span class="hidden-text"><strong>listening:</strong> 
+<strong>reading:</strong> 
+<strong>writing:</strong> 
+<strong>speaking:</strong> 
+<strong>vocabulary:</strong> 
+<strong>grammar:</strong> 
+<strong>pronunciation:</strong> </span></td><td class="undakwak"><strong>listening:</strong> Good for this level
+<s...<br><a id="show-more" class="show-more">read more</a><span class="hidden-text"><strong>listening:</strong> Good for this level
+<strong>reading:</strong> Good for this level
+<strong>writing:</strong> OK for the current level
+<strong>speaking:</strong> OK for the current level
+<strong>vocabulary:</strong> OK for the current level
+<strong>grammar:</strong> OK for the current level
+<strong>pronunciation:</strong> Good for this level</span></td><td class="undakwak"><strong>listening:</strong> Good for this level
+<s...<br><a id="show-more" class="show-more">read more</a><span class="hidden-text"><strong>listening:</strong> Good for this level
+<strong>reading:</strong> Good for this level
+<strong>writing:</strong> OK for the current level
+<strong>speaking:</strong> OK for the current level
+<strong>vocabulary:</strong> OK for the current level
+<strong>grammar:</strong> OK for the current level
+<strong>pronunciation:</strong> Good for this level</span></td><td class="undakwak"><strong>listening:</strong> Good for this level
+<s...<br><a id="show-more" class="show-more">read more</a><span class="hidden-text"><strong>listening:</strong> Good for this level
+<strong>reading:</strong> OK for the current level
+<strong>writing:</strong> OK for the current level
+<strong>speaking:</strong> Good for this level
+<strong>vocabulary:</strong> OK for the current level
+<strong>grammar:</strong> OK for the current level
+<strong>pronunciation:</strong> Good for this level</span></td><td class="undakwak"><strong>listening:</strong> Good for this level
+<s...<br><a id="show-more" class="show-more">read more</a><span class="hidden-text"><strong>listening:</strong> Good for this level
+<strong>reading:</strong> OK for the current level
+<strong>writing:</strong> OK for the current level
+<strong>speaking:</strong> Good for this level
+<strong>vocabulary:</strong> OK for the current level
+<strong>grammar:</strong> OK for the current level
+<strong>pronunciation:</strong> Good for this level</span></td><td class="undakwak"><strong>listening:</strong> Good for this level
+<s...<br><a id="show-more" class="show-more">read more</a><span class="hidden-text"><strong>listening:</strong> Good for this level
+<strong>reading:</strong> OK for the current level
+<strong>writing:</strong> OK for the current level
+<strong>speaking:</strong> Good for this level
+<strong>vocabulary:</strong> OK for the current level
+<strong>grammar:</strong> OK for the current level
+<strong>pronunciation:</strong> Good for this level</span></td><td class="undakwak"><strong>listening:</strong> OK for the current lev...<br><a id="show-more" class="show-more">read more</a><span class="hidden-text"><strong>listening:</strong> OK for the current level
+<strong>reading:</strong> OK for the current level
+<strong>writing:</strong> OK for the current level
+<strong>speaking:</strong> OK for the current level
+<strong>vocabulary:</strong> OK for the current level
+<strong>grammar:</strong> OK for the current level
+<strong>pronunciation:</strong> OK for the current level</span></td><td class="undakwak"><strong>listening:</strong> 
+<strong>reading:</str...<br><a id="show-more" class="show-more">read more</a><span class="hidden-text"><strong>listening:</strong> 
+<strong>reading:</strong> 
+<strong>writing:</strong> 
+<strong>speaking:</strong> 
+<strong>vocabulary:</strong> 
+<strong>grammar:</strong> 
+<strong>pronunciation:</strong> </span></td><td class="undakwak"><strong>listening:</strong> 
+<strong>reading:</str...<br><a id="show-more" class="show-more">read more</a><span class="hidden-text"><strong>listening:</strong> 
+<strong>reading:</strong> 
+<strong>writing:</strong> 
+<strong>speaking:</strong> 
+<strong>vocabulary:</strong> 
+<strong>grammar:</strong> 
+<strong>pronunciation:</strong> </span></td></tr><tr><td>Aims</td><td class="undakwak"></td><td class="undakwak">Read one graded reader - It is important to contin...<br><a id="show-more" class="show-more">read more</a><span class="hidden-text">Read one graded reader - It is important to continue building vocabulary.<br>Listen to a BBC iplayer radio programme<br>Listen to 3 songs using lyricstraining.com<br>Extend your answers in class by giving a reason and example each time to improve your fluency<br>Attend one social programme event<br></span></td><td class="undakwak">Read one graded reader - It is important to contin...<br><a id="show-more" class="show-more">read more</a><span class="hidden-text">Read one graded reader - It is important to continue building vocabulary.<br>Listen to a BBC iplayer radio programme<br>Listen to 3 songs using lyricstraining.com<br>Extend your answers in class by giving a reason and example each time to improve your fluency<br>Attend one social programme event<br></span></td><td class="undakwak">Read one graded reader - It is important to contin...<br><a id="show-more" class="show-more">read more</a><span class="hidden-text">Read one graded reader - It is important to continue building vocabulary.<br>Listen to a BBC iplayer radio programme<br>Listen to 3 songs using lyricstraining.com<br>Extend your answers in class by giving a reason and example each time to improve your fluency<br>Attend one social programme event<br></span></td><td class="undakwak">Read one graded reader - It is important to contin...<br><a id="show-more" class="show-more">read more</a><span class="hidden-text">Read one graded reader - It is important to continue building vocabulary.<br>Listen to a BBC iplayer radio programme<br>Listen to 3 songs using lyricstraining.com<br>Extend your answers in class by giving a reason and example each time to improve your fluency<br></span></td><td class="undakwak">Read one graded reader - It is important to contin...<br><a id="show-more" class="show-more">read more</a><span class="hidden-text">Read one graded reader - It is important to continue building vocabulary.<br><div>Try to use English outside the classroom as often as possible.</div>Read one graded reader.<br><div>It is suggested that Student X try to borrow a graded reader book from the library which will help improve his vocabulary and notice grammar/sentence structure.</div><div>In addition, Student X has also said that he likes comic books and it is recommended that he visit Example Shop and Example Cafe in Example City.</div></span></td><td class="undakwak">Read one graded reader - It is important to contin...<br><a id="show-more" class="show-more">read more</a><span class="hidden-text">Read one graded reader - It is important to continue building vocabulary.<br><div>Try to use English outside the classroom as often as possible.</div></span></td><td class="undakwak"></td><td class="undakwak"></td></tr><tr><td>Teacher's Comments</td><td class="undakwak">Student X's reading ability has shown some improvemen...<br><a id="show-more" class="show-more">read more</a><span class="hidden-text">Student X's reading ability has shown some improvement.  An area for him to continue to work on is writing.  He often struggles to produce more than a few lines in classroom writing tasks.  The biggest obstacle to improvement for Student X is motivation.  So far we have not been successful in finding ways to motivate him.  I had hoped that the more international nature of the summer school might motivate him, and while he has spoken English more with other students in class this hasn't translated into much of an increase in motivation. Student X does little outside of class to support his English learning: he doesn't read in English, rarely speaks English outside of class and only occasionally watches films or TV in English. This coupled with his often minimal participation in class activities is restricting the amount of progress he is making. MW</span></td><td class="undakwak">Student X's reading ability has shown some improvemen...<br><a id="show-more" class="show-more">read more</a><span class="hidden-text">Student X's reading ability has shown some improvement.  An area for him to continue to work on is writing.  He often struggles to produce more than a few lines in classroom writing tasks.  The biggest obstacle to improvement for Student X is motivation.  So far we have not been successful in finding ways to motivate him.  I had hoped that the more international nature of the summer school might motivate him, and while he has spoken English more with other students in class this hasn't translated to much increase in motivation. MW</span></td><td class="undakwak">We discussed targets above - good effort with read...<br><a id="show-more" class="show-more">read more</a><span class="hidden-text">We discussed targets above - good effort with reading a book from library and has watched some of the World Cup for listening. Attended a social event - please continue doing so as there will be a lot of events running during Summer School. GK </span></td><td class="undakwak">We discussed targets above - good effort with read...<br><a id="show-more" class="show-more">read more</a><span class="hidden-text">We discussed targets above - good effort with reading a book from library; needs to do a bit more on listening e.g. watching iPlayer or Netflix. Has signed up for a social event - continue doing so. Test result was a bit weaker than previous one, though Student X admitted he hadn't revised much for this. GK </span></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td></tr><tr><td>Additional Comments/Accommodation (under 18s only)</td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td></tr><tr><td>Do you want to take an English proficiency exam?</td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak">Please choose:</td><td class="undakwak">Please choose:</td></tr><tr><td>If yes, which exam?</td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak">Please choose:</td><td class="undakwak">Please choose:</td></tr><tr><td>If yes, when do you want to take the exam?</td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak"></td><td class="undakwak">Please choose:</td><td class="undakwak">Please choose:</td></tr><tr><td>Actions</td><td><a class="color_study_text" href="/study/tutorials/print/900001/1900000001">view/print</a><br><a class="color_study_text" href="/study/tutorials/add/900001/1900000001/1">edit</a></td><td><a class="color_study_text" href="/study/tutorials/print/900001/1900000002">view/print</a><br><a class="color_study_text" href="/study/tutorials/add/900001/1900000002/0">edit</a></td><td><a class="color_study_text" href="/study/tutorials/print/900001/1900000003">view/print</a><br><a class="color_study_text" href="/study/tutorials/add/900001/1900000003/0">edit</a></td><td><a class="color_study_text" href="/study/tutorials/print/900001/1900000004">view/print</a><br><a class="color_study_text" href="/study/tutorials/add/900001/1900000004/0">edit</a></td><td><a class="color_study_text" href="/study/tutorials/print/900001/1900000005">view/print</a><br><a class="color_study_text" href="/study/tutorials/add/900001/1900000005/0">edit</a></td><td><a class="color_study_text" href="/study/tutorials/print/900001/1900000006">view/print</a><br><a class="color_study_text" href="/study/tutorials/add/900001/1900000006/0">edit</a></td><td><a class="color_study_text" href="/study/tutorials/print/900001/1900000007">view/print</a><br><a class="color_study_text" href="/study/tutorials/add/900001/1900000007/0">edit</a></td><td><a class="color_study_text" href="/study/tutorials/print/900001/1900000008">view/print</a><br><a class="color_study_text" href="/study/tutorials/add/900001/1900000008/2">edit</a></td><td><a class="color_study_text" href="/study/tutorials/print/900001/1900000009">view/print</a><br><a class="color_study_text" href="/study/tutorials/add/900001/1900000009/2">edit</a></td></tr></tbody></table></div><div class="clear: both;"><br></div></div><!-- end content -->		</div>
+	</div>
+</div>
+
+<script type="text/javascript" src="/themes/master/js/jquery.fixedtable.js"></script>
+<script type="text/javascript" src="/themes/master/js/sh_main.min.js"></script>
+<script type="text/javascript" src="/themes/master/js/sh_javascript.js"></script>
+<script type="text/javascript" src="/themes/master/js/tutorial_table_js.js"></script>
+
+<script type="text/javascript">
+var winH = $(window).height();
+		winH = winH + "px";
+		//alert(winH);
+		var sTable = $('#tutorial-table').dataTable({
+						"sScrollX": "100%",
+			"sScrollY": "100%",
+			"sScrollXInner": "150%",
+			"bScrollCollapse": true,
+			"iDisplayLength": -1,
+			"bPaginate": false,
+			"bFilter": false,
+			"bInfo": false,
+			"bSort": false,
+			"bAutoWidth ": true
+
+ 		});
+
+		if ($('#tutorial-table').length != 0){
+			new FixedColumns( sTable, {
+				"iLeftColumns": 1,
+				"iLeftWidth": 130,
+				"bSort": true,
+				"bPaginate": false,
+				"sHeightMatch": auto
+			} );
+		}
+
+</script>
+
+<script>
+	$(function(){
+		var sTable = $('#student-management').dataTable({
+		    
+			"bSortClasses": false,
+		 	"bPaginate": true,
+
+ 		});
+
+        $('#email-report').dataTable({
+            "bSort": true,
+            "bSortClasses": false,
+            "bPaginate": true
+        });
+
+		$.fn.dataTableExt.ofnSearch['title-numeric'] = function ( sData ) {
+		   return sData.replace(/\n/g," ").replace( /&lt;.*?&gt;/g, "" );
+		}
+
+		var standardDT = {
+		    			"bSort": true,
+	 		 "bPaginate": false,
+		}
+		var handoverDT = {
+		   			"bSort": true,
+			"aaSorting": [[ 0, "desc" ]],
+	 		 "bPaginate": false,
+	 		 "aoColumns": [{ "sType": "uk_date" },{ "sType": "uk_date" },null,null,null,null,null,null]
+		}
+		var handoverDTeach = {
+		    			"bSort": true,
+			"aaSorting": [[ 0, "desc" ]],
+	 		 "bPaginate": false,
+	 		 "aoColumns": [{ "sType": "uk_date" },{ "sType": "uk_date" },null,null,null,null,null]
+		}
+		var assignmentTableDT = {
+		    aoColumns: [null,null,{ 'sType': 'uk_date' },null,null,null,null,null,null],			"bSort": true,
+			"aaSorting": [[ 6, "asc" ]],
+	 		 "bPaginate": false,
+		}
+        var ereceptionResultsTable = {
+            aoColumns: [null,null,{ 'sType': 'uk_date' },null,null,null],            "bSort": true,
+            "aaSorting": [[ 3, "desc" ]],
+            "bPaginate": true,
+        }
+		if($("#assignment-report-table").length == 0) {
+ 		 	var avgCol = 0;
+ 		 	var disableCol = [2]
+		} else {
+			var avgCol = $( "#assignment-report-table tr:nth-child(1) td" ).length - 2;
+			var disableCol = [];
+			var j=1;
+			for(i=2; i<avgCol; i++){
+				disableCol[j++] = i;
+			}
+		}
+
+		var assignmentPlListRepTableDT = {
+		    			"bSort": true,
+			"sPaginationType" : "full_numbers",
+	 		"iDisplayLength" : 25,
+	 		"iFullNumbersShowPages" : 3,
+		}
+
+		var exercisesListDT = {
+						"bSort": true,
+			"sPaginationType" : "full_numbers",
+			"aaSorting": [[0,'desc']],
+			"iDisplayLength" : 25,
+			"iFullNumbersShowPages" : 3,
+		}
+		 $('#assignment-table-1').DataTable(assignmentTableDT);
+		 $('#assignment-table-2').DataTable(assignmentTableDT);
+		 $('#ereception-results-table').DataTable(ereceptionResultsTable);
+		 $('#handover-table').DataTable(handoverDT);
+		 $('#handover-table-teacher').DataTable(handoverDTeach);
+ 		 $('#teacher-table').DataTable(standardDT);
+ 		 $('#admin-table').DataTable(standardDT);
+		 $('#staff-management').DataTable(standardDT);
+		 $('#feedback-table').DataTable(standardDT);
+		 $('#ec-test-scores-table').DataTable(standardDT);
+         $('#classhub_templates').DataTable(standardDT);
+		 $('#our-exercises').DataTable(standardDT);
+		 $('#questionnaires-table').DataTable(standardDT);
+		 $('#requests-table').DataTable(standardDT);
+		 $('#exercises-list').DataTable(exercisesListDT);
+		 $('#test-questions-table').dataTable(standardDT);
+		 $('#announce-table').dataTable(standardDT);
+		 $('#resource-page-report').dataTable(standardDT);
+         var studentGradingTable = $('#student-grading-list').dataTable(standardDT);
+         if ($('#student-grading-list').length != 0){
+            new FixedColumns( studentGradingTable, {
+	            "iLeftColumns": 1,
+	            "bSort": true,
+            });
+        }
+		var nonstandardDT = {
+		   			"bSort": true,
+			"aaSorting": window.location.pathname === '/administration/flashpoint/assignments' ? [[3,'desc']] : [[0, 'desc']],
+	 		 "bPaginate": false,
+		}
+		$('#flashpoint-table').dataTable(nonstandardDT);
+
+		var $container = $('.three-column-layout .masonry-wrapper');
+
+		$container.imagesLoaded(function(){
+			$container.masonry({
+				itemSelector : '.cell-narrow',
+				columnWidth : 260
+		  	});
+		});
+
+		var $containerstaff = $('.two-column-layout .masonry-wrapper');
+
+		$containerstaff.imagesLoaded(function(){
+			$containerstaff.masonry({
+				itemSelector : '.cell-narrow',
+				columnWidth : 350
+		  	});
+		});
+
+		$( "#sortable" ).sortable({
+			placeholder: "ui-state-highlight"
+		});
+
+		$( "#sortable" ).disableSelection();
+
+		$( "#sortable" ).sortable({
+			placeholder: "ui-state-highlight"
+		});
+
+		$( ".sortable-wrapper .sortable" ).sortable({
+			placeholder: "ui-state-highlight",
+			axis: 'h',
+		    tolerance: 'pointer'
+		});
+		$( ".sortable-wrapper .sortable" ).disableSelection();
+
+		$('video').contextmenu(function() {
+		    return false;
+		});
+		$('audio').contextmenu(function() {
+		    return false;
+		});
+	});
+
+	jQuery.fn.dataTableExt.oSort['uk_date-asc']  = function(a,b) {
+        var a = $("<div>").html(a).text();
+        var b = $("<div>").html(b).text();
+		re = /\//g;
+     		a = a.replace(re,'-');
+  		b = b.replace(re,'-');
+
+        a = a.split(' ');
+        b = b.split(' ');
+
+        var ukDatea = a[0].split('-');
+        var ukDateb = b[0].split('-');
+
+        //Treat blank/non date formats as highest sort
+	    if (isNaN(parseInt(ukDatea[0]))) {
+		return 1;
+	    }
+
+	    if (isNaN(parseInt(ukDateb[0]))) {
+		return -1;
+	    }
+
+	    var x = (ukDatea[2] + ukDatea[1] + ukDatea[0]) * 1;
+	    var y = (ukDateb[2] + ukDateb[1] + ukDateb[0]) * 1;
+
+	    return ((x < y) ? -1 : ((x > y) ?  1 : 0));
+	};
+
+	jQuery.fn.dataTableExt.oSort['uk_date-desc'] = function(a,b) {
+        var a = $("<div>").html(a).text();
+        var b = $("<div>").html(b).text();
+		re = /\//g;
+     	a = a.replace(re,'-');
+  		b = b.replace(re,'-');
+
+  		a = a.split(' ');
+  		b = b.split(' ');
+
+	    var ukDatea = a[0].split('-');
+	    var ukDateb = b[0].split('-');
+
+	    //Treat blank/non date formats as highest sort
+	    if (isNaN(parseInt(ukDatea[0]))) {
+			return -1;
+	    }
+
+	    if (isNaN(parseInt(ukDateb[0]))) {
+		return 1;
+	    }
+
+	    var x = (ukDatea[2] + ukDatea[1] + ukDatea[0]) * 1;
+	    var y = (ukDateb[2] + ukDateb[1] + ukDateb[0]) * 1;
+
+	    return ((x < y) ? 1 : ((x > y) ?  -1 : 0));
+	};
+
+    jQuery.extend(jQuery.fn.dataTableExt.oSort, {
+        "datetime-us-pre": function (a) {
+
+            var stripedHtml = $("<div>").html(a).text();
+            //console.log(stripedHtml);console.log("juuunta");
+            var b = stripedHtml.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
+
+
+            if(b == null){
+                var b = stripedHtml.match(/(\d{1,2})\-(\d{1,2})\-(\d{2,4}) (\d{1,2}):(\d{1,2}) (am|pm|AM|PM|Am|Pm)/),
+                    month = b[1],
+                    day = b[2],
+                    year = b[3];
+
+                    if (year.length == 2) {
+                        if (parseInt(year, 10) < 70) {
+                            year = '20' + year;
+                        }
+                        else {
+                            year = '19' + year;
+                        }
+                    }
+                    if (month.length == 1) {
+                        month = '0' + month;
+                    }
+                    if (day.length == 1) {
+                        day = '0' + day;
+                    }
+
+
+                    var tt = year + month + day;
+                    return tt;
+
+            }else {
+                var month = b[1],
+                    day = b[2],
+                    year = b[3].toLowerCase();
+
+                if (year.length == 2) {
+                    if (parseInt(year, 10) < 70) {
+                        year = '20' + year;
+                    }
+                    else {
+                        year = '19' + year;
+                    }
+                }
+                if (month.length == 1) {
+                    month = '0' + month;
+                }
+                if (day.length == 1) {
+                    day = '0' + day;
+                }
+
+                var tt = year + month + day ;
+                return tt;
+            }
+
+
+
+        },
+
+        "datetime-us-asc": function (a, b) {
+            return a - b;
+        },
+
+        "datetime-us-desc": function (a, b) {
+            return b - a;
+        },
+
+    });
+
+
+	jQuery.fn.dataTableExt.aTypes.push(
+		function ( sData ){
+	    	if (sData.match(/^(0[1-9]|[12][0-9]|3[01])\-(0[1-9]|1[012])\-(19|20|21)\d\d$/)){
+				return 'uk_date';
+			}
+	    	return null;
+		}
+	);
+
+</script>
+<script type="text/javascript">
+      var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+      document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript" src="/super_set_var.js"></script>
+<script type="text/javascript">
+	unSetVar('/group=');
+	unSetVar('/user=');
+	superSetVar('/group="990001"');
+	superSetVar('/user="910001"');
+      try {
+        var pageTracker = _gat._getTracker("UA-10328300-1");
+        pageTracker._trackPageview();
+      } catch(err) {}
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-43238244-1', 'guidedelearning.com');
+  ga('send', 'pageview');
+  var dimensionValue = 'Example City';
+  ga('set', 'dimension1', dimensionValue);
+  var dimensionValue = 'c';
+  ga('set', 'dimension2', dimensionValue);
+  var dimensionValue = '990001';
+  ga('set', 'dimension3', dimensionValue);
+  var dimensionValue = '910001';
+  ga('set', 'dimension4', dimensionValue);
+  var dimensionValue = 'pre';
+  ga('set', 'dimension5', dimensionValue);
+</script>
+</body>
+</html>
+</body>
+</html>

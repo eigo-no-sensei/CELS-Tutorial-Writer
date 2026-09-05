@@ -1,0 +1,13 @@
+{
+  "Initial Listening": "A2",
+  "Tutorial Type": "Initial",
+  "Type": "Initial",
+  "custom_date": "11-02-2026",
+  "fields": {
+    "Initial Listening": "A2",
+    "Tutorial Type": "Initial"
+  },
+  "print_text": "Tutorial Type Initial Initial Listening A2",
+  "student_name": "Student Space",
+  "teacher_name": "Teacher Space"
+}

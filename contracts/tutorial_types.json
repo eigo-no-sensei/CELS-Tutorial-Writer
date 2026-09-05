@@ -1,0 +1,28 @@
+{
+  "contract_id": "tutorial_types",
+  "contract_version": 1,
+  "authority": "canonical_executable_contract",
+  "types": [
+    {
+      "semantic": "standard",
+      "display": "Standard",
+      "ttype": "0",
+      "route_suffix": "0"
+    },
+    {
+      "semantic": "final",
+      "display": "Final",
+      "ttype": "1",
+      "route_suffix": "1"
+    },
+    {
+      "semantic": "initial",
+      "display": "Initial",
+      "ttype": "2",
+      "route_suffix": "2"
+    }
+  ],
+  "edit_route_template": "/study/tutorials/add/{student_uid}/{tutorial_ts}/{ttype}",
+  "print_route_template": "/study/tutorials/print/{student_uid}/{tutorial_ts}",
+  "identity_rule": "tutorial_id from tutorial-list API is canonical identity; student_uid+tutorial_ts+tutorial_type is only a locator/reconciliation key"
+}

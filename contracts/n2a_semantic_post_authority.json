@@ -1,0 +1,120 @@
+{
+  "contract_id": "n2a_semantic_post_authority",
+  "contract_version": 3,
+  "status": "active",
+  "effective_date": "2026-09-03",
+  "authority": "canonical_n2a_semantic_post_contract",
+  "phase": "N2a",
+  "scope": "Define New/Revision semantic identity, teacher authority, source-vs-derived ownership and offline POST serialization. No GEL network write.",
+  "resolved_preconditions": {
+    "first_ever_tutorial": "The semantic model supports DraftOrigin::New with no prepopulation source so it never invents a source for a student with no prior tutorial. When a prior tutorial exists, the prepopulation source must be the latest tutorial. This is a fail-safe representability rule, not a claim that PW1 observed a first-ever case.",
+    "final_reading": "Field 476 Reading applies to Standard and Final; five captured Final edit fixtures plus C4 exact payload evidence already establish it.",
+    "teacher_serialization_residual": "Changed-teacher authentic serialization and server reassignment are permanently unsupported and non-blocking in production Writer: Revisions strictly preserve historical teacher, and New tutorials strictly use authenticated teacher."
+  },
+  "canonical_level_fields": {
+    "initial": {
+      "264": "initial_speaking",
+      "265": "initial_use_of_english",
+      "266": "initial_writing",
+      "267": "initial_listening"
+    },
+    "current": {
+      "233": "speaking",
+      "234": "use_of_english",
+      "235": "writing",
+      "236": "listening",
+      "476": "reading"
+    },
+    "final_pairs": [
+      [
+        "264",
+        "233",
+        "speaking"
+      ],
+      [
+        "265",
+        "234",
+        "use_of_english"
+      ],
+      [
+        "266",
+        "235",
+        "writing"
+      ],
+      [
+        "267",
+        "236",
+        "listening"
+      ]
+    ],
+    "rule": "Field identity/semantic role is authoritative. Equal CEFR values in unrelated fields never establish cross-field provenance."
+  },
+  "origin_authority": {
+    "new": {
+      "created_identity_before_readback": "none",
+      "prepopulation_source": "optional_latest_tutorial_provenance_only",
+      "teacher": "immutable opaque ValidatedNewFormTeacher constructed only from a validated N2b hidden tid source control",
+      "datetime_post": "absent_key",
+      "customdate": "editable_semantic_tutorial_date; current date is a source default, not an immutable submission rule"
+    },
+    "revision": {
+      "identity": "existing TutorialIdentity",
+      "teacher": "immutable_historical_teacher",
+      "datetime_post": "exact source tutorial_ts",
+      "customdate": "editable semantic tutorial date initially derived from source form"
+    }
+  },
+  "type_safety": {
+    "submission_types": [
+      "NewTutorialSubmission",
+      "RevisionTutorialSubmission"
+    ],
+    "rule": "New submission type has no datetime member/path. Revision submission derives datetime only from its source identity.",
+    "generic_option_datetime_forbidden": true
+  },
+  "source_vs_derived": {
+    "source_state": {
+      "new": [
+        "optional latest prepopulation TutorialIdentity",
+        "ValidatedNewTutorialForm fetched/validated under current authenticated session",
+        "opaque ValidatedNewFormTeacher derived from hidden tid",
+        "requested tutorial type"
+      ],
+      "revision": [
+        "existing TutorialIdentity",
+        "historical teacher",
+        "historical semantic state"
+      ]
+    },
+    "editable_derived_state": [
+      "tutorial_date",
+      "semantic level/assessment/text fields permitted by tutorial type"
+    ],
+    "derived_submission_state": "GEL successful-control payload produced only by rust_post_mapper",
+    "permitted_writers": {
+      "new_form_source_state": "rust_new_tutorial_form_parser only",
+      "editable_semantic_fields": "future Writer draft editor/UI",
+      "gel_payload": "rust_post_mapper only"
+    }
+  },
+  "invalidation": {
+    "new_prepopulation_source_changed": "If a fresh read shows a different latest tutorial than the source snapshot, mark the New draft stale; never silently reinterpret it against the newer source.",
+    "authentication_lost": "A fetched New-form teacher authority is invalid after session loss; refetch/revalidate the New form before any future create.",
+    "revision_source_changed": "Revision conflict/staleness handling must not silently alter source identity or historical teacher."
+  },
+  "failure_semantics": [
+    "Revision construction requires historical state authority permitted by the reconciliation_authority contract.",
+    "Revision origin source student_uid and tutorial_type must match the semantic draft.",
+    "A New draft prepopulation source, when present, must belong to the same student and is provenance only; it is not the future tutorial identity.",
+    "Type-inapplicable semantic values fail validation rather than being silently omitted.",
+    "New submission containing datetime is a contract violation; blank/zero/source timestamps are not substitutes for omission.",
+    "Revision submission missing datetime or using a timestamp different from its source identity is a contract violation.",
+    "New teacher must equal the immutable validated New-form teacher authority; Revision teacher must equal the immutable historical teacher authority.",
+    "No Writer/public API may mutate teacher attribution during N2.",
+    "No authoritative GEL identity may be fabricated for New before fresh server readback.",
+    "No semantic field provenance may be inferred from equality with an unrelated field.",
+    "Network write authority is granted exclusively through live_submission_transport under Phase W2."
+  ],
+  "network_write_authority": true,
+  "deferred_non_blocking": []
+}

@@ -1,0 +1,50 @@
+{
+  "contract_id": "dependency_lock_policy",
+  "contract_version": 1,
+  "status": "active",
+  "effective_date": "2026-08-30",
+  "authority": "Dependency locks remain required decision state for reproducible strict/release identity. A missing lock may receive a narrow portable exception only when the corresponding package-manager executable that would generate it is objectively unavailable on the executing host.",
+  "locks": {
+    "Cargo.lock": {
+      "generator": "cargo",
+      "manifest": "Cargo.toml"
+    },
+    "writer-ui/package-lock.json": {
+      "generator": "npm",
+      "manifest": "writer-ui/package.json"
+    }
+  },
+  "tool_unavailable_exception": {
+    "id": "LOCK_GENERATOR_UNAVAILABLE",
+    "detection": "Automatic executable discovery on PATH by the dependency-lock checker. No manual flag, environment override, placeholder lock, or prose assertion may establish the exception.",
+    "applies_per_missing_lock": true,
+    "all_missing_locks_must_be_explained": true,
+    "portable_result": "SKIP",
+    "strict_result": "FAIL",
+    "source_intake": "Permitted for a source-candidate only when every missing lock is covered by this exception. The intake result does not claim complete dependency identity.",
+    "release_package_intake": "Forbidden. Accepted/release package intake always requires complete lockfiles and lockSetSha256.",
+    "promotion_ceiling": "FAST_VERIFIED",
+    "manual_override_allowed": false,
+    "network_unavailable_is_not_tool_unavailable": true,
+    "command_failure_is_not_tool_unavailable": true,
+    "invalidation": "The exception ceases to apply immediately when the corresponding generator executable becomes available; the lock must then be generated and validated before the lock check can pass.",
+    "must_not": [
+      "Create synthetic or placeholder lockfiles.",
+      "Report the dependency-lock check as PASS while a required lock is missing.",
+      "Permit STRICT_ACCEPTED or RELEASE_ARTIFACT_VERIFIED without complete dependency identity.",
+      "Treat a package-manager command failure or unavailable network as equivalent to an unavailable executable."
+    ]
+  },
+  "complete_identity": {
+    "required_for": [
+      "STRICT_ACCEPTED",
+      "RELEASE_ARTIFACT_VERIFIED"
+    ],
+    "requires": [
+      "Cargo.lock",
+      "writer-ui/package-lock.json",
+      "governance/dependency-lock-manifest.json status COMPLETE",
+      "non-null lockSetSha256"
+    ]
+  }
+}

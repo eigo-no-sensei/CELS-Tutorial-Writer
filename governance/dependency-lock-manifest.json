@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 3,
+  "classification": "derived",
+  "writer": "dependency_lock_tooling",
+  "policyContract": "contracts/dependency_lock_policy.json",
+  "toolUnavailableException": "run evidence only; never persisted as dependency identity",
+  "status": "COMPLETE",
+  "rustManifests": [
+    {
+      "path": "Cargo.toml",
+      "present": true,
+      "sha256": "5b24da4814d8738e126bacae3f5e86cbc3cce48132d534f39f649a4b8187510d"
+    },
+    {
+      "path": "gel-core/Cargo.toml",
+      "present": true,
+      "sha256": "7aba55dbcaf192431613b4806079dd7d4f23c86a6a7ee63560898f6635eab031"
+    },
+    {
+      "path": "writer-ui/src-tauri/Cargo.toml",
+      "present": true,
+      "sha256": "2ead22876fbab0b011343118838ada17d8123e4db2d1c76bd47a740be568a15c"
+    }
+  ],
+  "declaredExternalRustDependencies": [
+    "anyhow",
+    "chrono",
+    "harper-core",
+    "regex",
+    "reqwest",
+    "rpassword",
+    "rusqlite",
+    "scraper",
+    "serde",
+    "serde_json",
+    "sha2",
+    "tauri",
+    "tokio"
+  ],
+  "rustLock": {
+    "path": "Cargo.lock",
+    "present": true,
+    "sha256": "54ef7cb25fc2cad631de375581d458e4d1e49e37b2d61ddf65da420be47e0605"
+  },
+  "npmManifest": {
+    "path": "writer-ui/package.json",
+    "present": true,
+    "sha256": "28fb5a9a705299e655dec3a706f1a9336fb5ecba08ccca98a490db9c0180c4c5"
+  },
+  "npmLock": {
+    "path": "writer-ui/package-lock.json",
+    "present": true,
+    "sha256": "9a85291ea76ca55d60d20d98a506c353aaef52da3bfae700f6d183b4c1ce2fa8"
+  },
+  "lockSetSha256": "57f1e56a116a84ddf0803737d298bd97a47f5fe53a26e12a61e7e6386e779d2b",
+  "blockers": [],
+  "invalidation": "Any workspace Cargo.toml, package.json, Cargo.lock, or package-lock.json change invalidates this projection; declared external Rust dependencies must exist in Cargo.lock."
+}

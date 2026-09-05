@@ -1,0 +1,181 @@
+{
+  "$schema": "../project-profile.schema.json",
+  "profileId": "gel-tutorial-writer",
+  "profileVersion": "1.1.0",
+  "protocolId": "ai-governance-protocol",
+  "protocolVersion": "1.1.0",
+  "project": {
+    "projectId": "gel-rust-bootstrap",
+    "artifactFamily": "GEL Tutorial Writer with GEL backend",
+    "metaGovernanceOnly": true,
+    "runtimeAuthority": false
+  },
+  "authorityBinding": {
+    "protocolRole": "meta_governance_orchestration",
+    "runtimeAuthority": false,
+    "authorityOrderContract": "contracts/documentation_governance.json",
+    "runtimeAuthoritySources": [
+      "contracts/*.json",
+      "schema/archive_v2.sql",
+      "gel-core/tests/**",
+      "writer-ui/src-tauri/src/**"
+    ],
+    "mustNotOverride": [
+      "GEL field identity/applicability",
+      "Tutorial semantic state and POST mapping",
+      "Archive schema and writer ownership",
+      "GEL session endpoint/write authority",
+      "UI draft/runtime semantics"
+    ],
+    "currentStateSemantics": "projection_only",
+    "kindMapping": {
+      "executable": "executable_contracts_tests",
+      "active_component_contract": "active_component_specs",
+      "cross_component_ownership_and_lifecycle": "master_cross_component_specs",
+      "operational_guidance": "operational_docs",
+      "adr_and_history": "adrs_history"
+    }
+  },
+  "contractBindings": {
+    "documentationGovernance": "contracts/documentation_governance.json",
+    "componentBoundaries": "contracts/component_boundaries.json",
+    "stateOwnership": "contracts/state_ownership.json",
+    "releaseGate": "contracts/release_gate.json",
+    "releaseIdentity": "contracts/release_identity.json",
+    "verificationSemantics": "contracts/verification_semantics.json",
+    "uiWriter": "contracts/ui1_writer.json",
+    "semanticForms": "contracts/ui1c_semantic_forms.json",
+    "dependencyLockPolicy": "contracts/dependency_lock_policy.json"
+  },
+  "stateTaxonomyMapping": {
+    "source": "source",
+    "decision": "decision",
+    "derived": "derived",
+    "projection": "projection",
+    "evidence": "evidence"
+  },
+  "artifactTypes": [
+    "working-tree",
+    "overlay",
+    "source-candidate",
+    "candidate",
+    "accepted-source",
+    "accepted-release"
+  ],
+  "gateProfiles": {
+    "portable": {
+      "releaseGateProfile": "portable",
+      "missingRequiredPrivateEvidence": "SKIP_EXPLICITLY",
+      "skipMayCountAsPass": false,
+      "promotionCeiling": "FAST_VERIFIED"
+    },
+    "strict": {
+      "releaseGateProfile": "strict",
+      "missingRequiredPrivateEvidence": "FAIL",
+      "skipMayCountAsPass": false,
+      "promotionCeiling": "STRICT_ACCEPTED"
+    }
+  },
+  "gateSideEffectPolicy": {
+    "automatedTutorialWrites": false,
+    "automatedArchiveCanonicalWrites": false,
+    "allowedExternalSideEffects": [
+      "dependency download/install into disposable/local build caches when explicitly invoked",
+      "read-only authenticated GEL acquisition for separately authorized live evidence",
+      "write acceptance evidence outside source root",
+      "write candidate/release archives outside source root"
+    ]
+  },
+  "subjectIdentityBinding": {
+    "sourceIdentity": "tools/release_common.py governed_source_fingerprint",
+    "dependencyIdentity": "governance/dependency-lock-manifest.json complete lockSetSha256",
+    "contractSetIdentity": "canonical contracts hash set produced by release tooling",
+    "schemaIdentities": "archive schema contract/version plus governed schema hashes",
+    "toolchainIdentity": "strict gate recorded python/cargo/rustc/node/npm versions",
+    "runtimeIdentity": "required only by a gate that explicitly declares target-runtime evidence"
+  },
+  "evidenceBinding": {
+    "proofClassContract": "contracts/verification_semantics.json",
+    "releaseGateContract": "contracts/release_gate.json",
+    "privateEvidencePortablePolicy": "SKIP_EXPLICITLY",
+    "privateEvidenceStrictPolicy": "FAIL_MISSING_REQUIRED"
+  },
+  "promotionPolicy": {
+    "missingDependencyIdentity": {
+      "blocksStatuses": [
+        "STRICT_ACCEPTED",
+        "RELEASE_ARTIFACT_VERIFIED"
+      ],
+      "repairScopeAllowed": true,
+      "toolUnavailableException": {
+        "automaticDetectionOnly": true,
+        "manualOverrideAllowed": false,
+        "portableResult": "SKIP",
+        "strictResult": "FAIL",
+        "promotionCeiling": "FAST_VERIFIED",
+        "invalidatedWhenToolAvailable": true
+      }
+    },
+    "ciPromotionCeiling": "FAST_VERIFIED",
+    "strictAcceptanceStatus": "STRICT_ACCEPTED",
+    "releaseArtifactStatus": "RELEASE_ARTIFACT_VERIFIED"
+  },
+  "mutationProfileBindings": {
+    "writerDraftEdit": "authoritative_ephemeral_change",
+    "gelExternalMutation": "destructive_or_external_mutation",
+    "releasePublication": "release_publication"
+  },
+  "validationBindings": {
+    "knownGateIds": [
+      "governance",
+      "dependency_locks",
+      "dependency_lock_exception_behavior",
+      "current_state",
+      "verification_semantics",
+      "release_control",
+      "ci_contract",
+      "ui1_boundaries",
+      "ui1c_forms_contract",
+      "ui1c_semantic_validation",
+      "private_fixture_parity",
+      "private_collision_authority",
+      "private_post_round_trip"
+    ],
+    "knownComponentIds": [
+      "canonical_contracts",
+      "governance_tooling",
+      "rust_semantic_form",
+      "rust_post_mapper",
+      "rust_archive_repository",
+      "rust_archive_sync_repository",
+      "rust_gel_session",
+      "writer_tauri_app_service",
+      "writer_react_ui",
+      "dependency_lock_tooling",
+      "current_state_tooling",
+      "release_artifact_tooling",
+      "continuous_enforcement"
+    ],
+    "knownStateIds": [
+      "repository_contracts",
+      "semantic_form_state",
+      "tutorial_post_payload",
+      "archive_v2_candidate_database",
+      "normalized_local_archive",
+      "writer_active_draft",
+      "dependency_lock_state",
+      "current_state_projection",
+      "release_gate_evidence",
+      "distribution_manifest",
+      "release_artifact_receipt"
+    ],
+    "requiredProjectChecks": [
+      "check:contracts",
+      "check:governance",
+      "check:dependency-locks",
+      "check:current-state",
+      "check:verification-semantics",
+      "check:release-control"
+    ]
+  }
+}
