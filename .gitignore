@@ -1,4 +1,187 @@
-```
-# Build artifacts
-writer-ui/dist/
+```ts
+// Ignore compiled JavaScript and TypeScript files
+*.js
+*.jsx
+*.ts
+*.tsx
+*.d.ts
+
+// Ignore build outputs
+dist/
+build/
+out/
+.next/
+.nuxt/
+
+// Dependencies
+node_modules/
+
+// Environment variables
+.env
+.env.local
+.env.*
+!.env.example
+
+// Logs
+*.log
+
+// OS generated files
+.DS_Store
+Thumbs.db
+
+// IDE specific
+.vscode/
+.idea/
+*.swp
+*.swo
+
+// Coverage reports
+coverage/
+htmlcov/
+*.coverage
+
+// Python specific (if applicable)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.Python-version
+
+// Virtual environments
+venv/
+.venv/
+env/
+.ENV
+
+// Testing
+.mypy_cache/
+.pytest_cache/
+.nyc_output/
+coverage/
+
+// Temporary files
+*.tmp
+*.temp
+*~
+
+// Package managers
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnp.bzl
+.pnp.js
+
+// Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+// Debug
+debug.log
+
+// Production
+public/uploads/
+*.min.js
+*.min.css
+
+// React/Next.js specific
+.next/
+out/
+export/
+
+// TypeScript build output
+*.js.map
+*.ts.map
+*.jsx.map
+*.tsx.map
+
+// Lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+bun.lockb
+
+// Browser extensions
+*.crx
+*.xpi
+*.nex
+
+// System files
+ehthumbs.db
+Icon?
+._*
+
+// Editor preferences
+.editorconfig
+
+// Docker
+.docker/
+
+// Git
+.git/
+
+// Temporary build files
+*.bundle.js
+*.bundle.css
+
+// Cache directories
+.cache/
+.tmp/
+.temp/
+
+// Configuration
+.config/
+
+// Secrets
+secrets/
+*.key
+*.pem
+*.crt
+*.cert
+
+// Database
+*.db
+*.db.*
+
+// Local development
+local/
+dev/
+development/
+
+// Backup files
+*~
+*.bak
+*.backup
+
+// Hidden files
+.*
+
+// Compressed files
+*.zip
+*.tar
+*.gz
+*.tgz
+*.bz2
+*.xz
+*.7z
+*.rar
+*.Z
+*.lz
+*.lzo
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.tar.zst
+
+// Images (uncomment if needed, but typically should not be ignored)
+# *.png
+# *.jpg
+# *.jpeg
+# *.gif
+# *.svg
+# *.ico
+# *.webp
 ```

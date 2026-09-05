@@ -23,15 +23,20 @@ export const StudentSearchPane: React.FC<StudentSearchPaneProps> = ({
   const [totalRecords, setTotalRecords] = useState(0);
   const { isAuthenticated } = useGelSession();
 
-  // Debounce search term
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearchTerm(searchTerm);
-      setPage(1); // Reset to first page when search term changes
-    }, 300);
-
-    return () => clearTimeout(timer);
+  // Handle explicit search trigger
+  const handleSearch = useCallback(() => {
+    if (searchTerm.trim()) {
+      setDebouncedSearchTerm(searchTerm.trim());
+      setPage(1); // Reset to first page on new search
+    }
   }, [searchTerm]);
+
+  // Handle Enter key press
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
 
   // Perform search when debounced term or page changes
   useEffect(() => {
@@ -98,8 +103,17 @@ export const StudentSearchPane: React.FC<StudentSearchPaneProps> = ({
             placeholder="Search by name, UID, or course..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyPress={handleKeyPress}
             disabled={isLoading}
           />
+          <button
+            className="search-button"
+            onClick={handleSearch}
+            disabled={isLoading || !searchTerm.trim()}
+            aria-label="Search students"
+          >
+            {isLoading ? 'Searching...' : 'Search'}
+          </button>
           {isLoading && <span className="loading-indicator">Searching...</span>}
         </div>
       </div>
