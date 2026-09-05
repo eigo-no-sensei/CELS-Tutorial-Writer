@@ -205,6 +205,27 @@ export interface HarperDictionaryMutation {
   words: HarperDictionaryEntry[];
 }
 
+export interface StudentSearchResult {
+  uid: number;
+  name: string;
+  courseStart: string | null;
+  courseEnd: string | null;
+  tutorialEnd: string | null;
+  inArchive: boolean;
+}
+
+export interface StudentSearchParams {
+  searchTerm: string;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface StudentSearchResponse {
+  results: StudentSearchResult[];
+  totalRecords: number;
+  page: number;
+  pageSize: number;
+}
 
 export interface SubmissionReceiptView {
   tutorialId: number;
