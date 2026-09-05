@@ -7,7 +7,7 @@ use gel_core::{
     check_harper_text, parse_edit_form, parse_new_tutorial_form, validate_edit_form,
     ArchiveRepository, ArchiveRevisionAvailability, ArchiveSyncReport, DraftValidationIssue,
     GelSession, HarperCheckDto, HarperDictionaryEntry, HarperDictionaryMutation,
-    HarperDictionaryRepository, LiveStudentSearchRow, RustArchiver, TutorialDraftEdit,
+    HarperDictionaryRepository, LiveStudentSearchResponse, LiveStudentSearchRow, RustArchiver, TutorialDraftEdit,
     HARPER_DICTIONARY_ENV, HARPER_DICTIONARY_FILE_NAME,
 };
 use serde::Serialize;
@@ -97,7 +97,7 @@ struct StudentView {
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-struct StudentSearchResultView {
+pub struct StudentSearchResultView {
     student_uid: i64,
     code: String,
     name: String,
@@ -785,8 +785,12 @@ fn ui1_harper_dictionary_remove(
 async fn ui1_search_live_students(
     app: AppHandle,
     search_term: String,
-) -> Result<Vec<StudentSearchResultView>, String> {
-    let results = tauri::async_runtime::spawn_blocking(move || -> Result<Vec<StudentSearchResultView>, String> {
+    course_start_before: Option<String>,
+    course_end_after: Option<String>,
+) -> Result<LiveStudentSearchResponse, String> {
+    use gel_core::parse_optional_iso_date;
+    
+    let response = tauri::async_runtime::spawn_blocking(move || -> Result<LiveStudentSearchResponse, String> {
         let state = app.state::<WriterAppState>();
         let _operation = state
             .writer_operation
@@ -801,40 +805,37 @@ async fn ui1_search_live_students(
             .filter(|s| s.is_authenticated())
             .ok_or_else(|| "an authenticated GEL session is required to search live students".to_string())?;
         
-        let rows = session
-            .search_live_students(&search_term)
+        // Parse optional ISO date strings
+        let start_before = parse_optional_iso_date(course_start_before.as_deref())?;
+        let end_after = parse_optional_iso_date(course_end_after.as_deref())?;
+        
+        let result = session
+            .search_live_students(&search_term, start_before, end_after)
             .map_err(|error| format!("search live students: {error}"))?;
         
         let archive = state.open_archive().ok();
         
-        let mut views = Vec::with_capacity(rows.len());
-        for row in rows {
-            let in_archive = archive
-                .as_ref()
-                .map(|repo| repo.student_exists(row.student_uid).unwrap_or(false))
-                .unwrap_or(false);
-            
-            views.push(StudentSearchResultView {
-                student_uid: row.student_uid,
-                code: row.code,
-                name: row.name,
-                created_at: row.created_at.map(|dt| dt.to_rfc3339()),
-                course_start: row.course_start.map(|d| d.format("%Y-%m-%d").to_string()),
-                course_end: row.course_end.map(|d| d.format("%Y-%m-%d").to_string()),
-                tutorial_end: row.tutorial_end.map(|d| d.format("%Y-%m-%d").to_string()),
-                tutor_date: row.tutor_date.map(|d| d.format("%Y-%m-%d").to_string()),
-                tutor_name: row.tutor_name,
-                absent: row.absent,
-                in_archive,
-            });
-        }
+        // Check archive membership for each row
+        let archive_statuses: Vec<bool> = result
+            .rows
+            .iter()
+            .map(|row| {
+                archive
+                    .as_ref()
+                    .map(|repo| repo.student_exists(row.student_uid).unwrap_or(false))
+                    .unwrap_or(false)
+            })
+            .collect();
         
-        Ok(views)
+        // Convert to response with camelCase fields
+        let response = LiveStudentSearchResponse::from((result, archive_statuses));
+        
+        Ok(response)
     })
     .await
     .map_err(|e| format!("background search task failed: {e}"))??;
     
-    Ok(results)
+    Ok(response)
 }
 
 #[tauri::command]

@@ -36,8 +36,8 @@ pub use harper::{
     HARPER_DICTIONARY_ENV, HARPER_DICTIONARY_FILE_NAME, HARPER_VERSION,
 };
 pub use live_student_search_parser::{
-    LiveStudentSearchInfoFooter, LiveStudentSearchParseReport, LiveStudentSearchResult,
-    LiveStudentSearchRow,
+    LiveStudentSearchInfoFooter, LiveStudentSearchParseReport, LiveStudentSearchResponse,
+    LiveStudentSearchResult, LiveStudentSearchRow, LiveStudentSearchRowView, parse_optional_iso_date,
 };
 pub use models::{
     CollisionStateKind, HistoricalStateAuthority, HistoricalStateAuthorityStatus,

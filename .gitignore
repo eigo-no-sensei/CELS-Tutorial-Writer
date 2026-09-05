@@ -1,65 +1,67 @@
 ```
 # Compiled and build artifacts
-*.pyc
-__pycache__/
 *.o
 *.obj
-*.so
-*.dll
 *.exe
-*.class
+*.dll
+*.so
+*.a
 *.out
+build/
+dist/
+target/
 
 # Dependencies
-.venv/
-venv/
+**/node_modules/
+**/venv/
+**/env/
+**/.venv/
+**/__pycache__/
+**/*.pyc
+**/.mypy_cache/
+**/.pytest_cache/
+**/.gradle/
+**/Pods/
+**/vendor/bundle/
+**/vendor/ruby/
+
+# Rust specific
+Cargo.lock
+**/target/
+**/*.rlib
+**/*.so
+**/*.dylib
+**/*.dll
+
+# Tauri specific
+**/src-tauri/target/
+**/src-tauri/Cargo.lock
+
+# Editors
+**/.vscode/
+**/.idea/
+**/*.swp
+**/*.swo
+**/Thumbs.db
+**/.DS_Store
+
+# Environment
 .env
 .env.local
 .env.*
 
-# Build directories
-dist/
-build/
-target/
-
-# Python specific
-*.pyc
-__pycache__/
-*.pyo
-*.pyd
-.Python
-env/
-venv/
-ENV/
-pip-log.txt
-pip-delete-this-directory.txt
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
+# Logs
 *.log
+**/logs/
+**/*.log
+
+# Coverage
+coverage/
+htmlcov/
+.coverage
+
+# Temp files
 *.tmp
-
-# Rust specific
-Cargo.lock
-target/
-
-# IDE and editor files
-.vscode/
-.idea/
-*.swp
-*.swo
 *~
 .DS_Store
-Thumbs.db
-
-# Test and coverage
-.coverage
-htmlcov/
-.nyc_output
-coverage/
-.junit/
 ```

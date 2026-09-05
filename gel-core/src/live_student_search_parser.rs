@@ -66,6 +66,75 @@ impl LiveStudentSearchResult {
     }
 }
 
+/// CamelCase view struct for JSON serialization to TypeScript.
+/// Matches the LiveStudentSearchRow but with camelCase field names
+/// for frontend consumption.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LiveStudentSearchRowView {
+    pub student_uid: i64,
+    pub code: String,
+    pub name: String,
+    pub created_at: Option<String>,
+    pub course_start: Option<String>,
+    pub course_end: Option<String>,
+    pub tutorial_end: Option<String>,
+    pub tutor_date: Option<String>,
+    pub tutor_name: Option<String>,
+    pub absent: bool,
+    pub in_archive: bool,
+}
+
+impl From<(LiveStudentSearchRow, bool)> for LiveStudentSearchRowView {
+    fn from((row, archive_status): (LiveStudentSearchRow, bool)) -> Self {
+        Self {
+            student_uid: row.student_uid,
+            code: row.code,
+            name: row.name,
+            created_at: row.created_at.map(|dt| dt.to_rfc3339()),
+            course_start: row.course_start.map(|d| d.format("%Y-%m-%d").to_string()),
+            course_end: row.course_end.map(|d| d.format("%Y-%m-%d").to_string()),
+            tutorial_end: row.tutorial_end.map(|d| d.format("%Y-%m-%d").to_string()),
+            tutor_date: row.tutor_date.map(|d| d.format("%Y-%m-%d").to_string()),
+            tutor_name: row.tutor_name,
+            absent: row.absent,
+            in_archive: archive_status,
+        }
+    }
+}
+
+/// Response struct with governance signals for the Tauri command.
+/// Includes capture_rate, total_entries, and pagination metadata
+/// as required by §5.4 of the STUDENT_SEARCH_PLAN.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LiveStudentSearchResponse {
+    pub rows: Vec<LiveStudentSearchRowView>,
+    pub total_entries: u64,
+    pub pages_fetched: u64,
+    pub info_footer_raw: String,
+    pub capture_rate: f64,
+}
+
+impl From<(LiveStudentSearchResult, Vec<bool>)> for LiveStudentSearchResponse {
+    fn from((result, archive_statuses): (LiveStudentSearchResult, Vec<bool>)) -> Self {
+        let rows = result
+            .rows
+            .into_iter()
+            .zip(archive_statuses.into_iter())
+            .map(|(row, in_archive)| LiveStudentSearchRowView::from((row, in_archive)))
+            .collect();
+        
+        Self {
+            rows,
+            total_entries: result.total_entries,
+            pages_fetched: result.pages_fetched,
+            info_footer_raw: result.info_footer_raw,
+            capture_rate: result.capture_rate(),
+        }
+    }
+}
+
 pub struct LiveStudentSearchParseReport {
     pub rows: Vec<LiveStudentSearchRow>,
     pub skipped_malformed: usize,
@@ -486,5 +555,39 @@ mod tests {
         assert_eq!(never_row.tutor_date, None);
         assert_eq!(never_row.tutor_name, None);
         assert!(!never_row.absent);
+    }
+
+    /// Test date parsing helper function
+    #[test]
+    fn parses_iso_date_strings() {
+        use crate::parse_optional_iso_date;
+        
+        // Valid ISO date
+        let result = parse_optional_iso_date(Some("2024-01-15")).unwrap();
+        assert_eq!(result, Some(chrono::NaiveDate::from_ymd_opt(2024, 1, 15).unwrap()));
+        
+        // Empty string becomes None
+        let result = parse_optional_iso_date(Some("")).unwrap();
+        assert_eq!(result, None);
+        
+        // None input returns None
+        let result = parse_optional_iso_date(None).unwrap();
+        assert_eq!(result, None);
+        
+        // Invalid format returns error
+        let result = parse_optional_iso_date(Some("not-a-date"));
+        assert!(result.is_err());
+    }
+}
+
+/// Parse an optional ISO 8601 date string into a NaiveDate.
+/// Returns Ok(None) for empty strings or None input.
+/// Returns Err(GelError::InvalidDateFormat) if parsing fails.
+pub fn parse_optional_iso_date(iso_string: Option<&str>) -> Result<Option<NaiveDate>, String> {
+    match iso_string {
+        None | Some("") => Ok(None),
+        Some(s) => NaiveDate::parse_from_str(s, "%Y-%m-%d")
+            .map(Some)
+            .map_err(|e| format!("Invalid date format '{}': {}", s, e)),
     }
 }

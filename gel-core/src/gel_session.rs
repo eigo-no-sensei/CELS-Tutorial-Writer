@@ -5,9 +5,10 @@
 //! no generic request API and no tutorial mutation transport.
 
 use crate::gel_fields;
-use crate::live_student_search_parser::{parse_live_student_search_html, LiveStudentSearchResult, LiveStudentSearchRow};
+use crate::live_student_search_parser::{parse_live_student_search_html, passes_date_filter, LiveStudentSearchResult, LiveStudentSearchRow};
 use crate::models::ApiTutorial;
 use anyhow::{bail, Context, Result};
+use chrono::NaiveDate;
 use reqwest::blocking::{Client, Response};
 use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, CONTENT_TYPE, ORIGIN, REFERER, USER_AGENT};
 use reqwest::{redirect::Policy, StatusCode};
