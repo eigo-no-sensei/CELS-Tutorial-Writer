@@ -9,6 +9,7 @@ mod form_parser_common;
 pub mod gel_fields;
 pub mod gel_session;
 pub mod harper;
+pub mod live_student_search_parser;
 pub mod models;
 pub mod new_form_parser;
 pub mod post_mapper;

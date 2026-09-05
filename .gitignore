@@ -1,7 +1,4 @@
-# Private live browser evidence; never commit authenticated/student captures.
-evidence-private/
-# Rust build artifacts
+```
 target/
-
-# Ignore the entire Downloads folder if this repo is accidentally inside it
-Downloads/
+**/*.rs.bk
+```
