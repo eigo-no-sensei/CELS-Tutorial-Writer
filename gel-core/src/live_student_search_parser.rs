@@ -162,11 +162,11 @@ fn parse_row(row_elem: scraper::ElementRef) -> Option<LiveStudentSearchRow> {
     let code = spaced_text_content(code_cell);
     let name = spaced_text_content(cells.get(1)?);
     
-    // Parse dates from cells 2-6
-    let created_at = parse_created_timestamp(cells.get(2)?);
-    let course_start = parse_date_cell(cells.get(3)?);
-    let course_end = parse_date_cell(cells.get(4)?);
-    let tutorial_end = parse_date_cell(cells.get(5)?);
+    // Parse dates from cells 2-6 - pass Options directly
+    let created_at = parse_created_timestamp(cells.get(2));
+    let course_start = parse_date_cell(cells.get(3));
+    let course_end = parse_date_cell(cells.get(4));
+    let tutorial_end = parse_date_cell(cells.get(5));
     
     // Cell 7: Tutor cell with complex format
     let tutor_cell_text = spaced_text_content(cells.get(7)?);
@@ -208,16 +208,16 @@ fn spaced_text_content(elem: &scraper::ElementRef) -> String {
                 }
             }
             scraper::Node::Element(_) => {
-                if let Some(elem_ref) = child.as_element() {
-                    let elem_text = scraper::ElementRef::wrap(child).map(|e| e.text().collect::<String>()).unwrap_or_default();
-                    let trimmed = elem_text.trim();
-                    if !trimmed.is_empty() {
-                        if prev_was_element && !result.ends_with(' ') && !trimmed.starts_with(' ') {
-                            result.push(' ');
-                        }
-                        result.push_str(trimmed);
-                        prev_was_element = true;
+                // For element nodes, wrap them as ElementRef and extract text
+                let elem_ref = scraper::ElementRef::wrap(child).unwrap();
+                let elem_text = elem_ref.text().collect::<String>();
+                let trimmed = elem_text.trim();
+                if !trimmed.is_empty() {
+                    if prev_was_element && !result.ends_with(' ') && !trimmed.starts_with(' ') {
+                        result.push(' ');
                     }
+                    result.push_str(trimmed);
+                    prev_was_element = true;
                 }
             }
             _ => {}
