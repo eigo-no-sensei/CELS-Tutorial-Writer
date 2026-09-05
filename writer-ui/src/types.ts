@@ -227,6 +227,33 @@ export interface StudentSearchResponse {
   pageSize: number;
 }
 
+export interface LiveStudentSearchRowView {
+  uid: number;
+  fullName: string;
+  courseStart: string | null;
+  courseEnd: string | null;
+  tutorialEnd: string | null;
+  tutorName: string | null;
+  isAbsent: boolean;
+  inArchive: boolean;
+}
+
+export interface LiveStudentSearchResponse {
+  rows: LiveStudentSearchRowView[];
+  totalEntries: number;
+  pagesFetched: number;
+  infoFooterRaw: string;
+  captureRate: number;
+}
+
+export interface LiveStudentSearchParams {
+  searchTerm: string;
+  courseStartBefore?: string | null;
+  courseEndAfter?: string | null;
+  page?: number;
+  pageSize?: number;
+}
+
 export interface SubmissionReceiptView {
   tutorialId: number;
   tutorialTs: number;

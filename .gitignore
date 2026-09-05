@@ -1,67 +1,10 @@
 ```
-# Compiled and build artifacts
-*.o
-*.obj
-*.exe
-*.dll
-*.so
-*.a
-*.out
-build/
-dist/
-target/
-
 # Dependencies
-**/node_modules/
-**/venv/
-**/env/
-**/.venv/
-**/__pycache__/
-**/*.pyc
-**/.mypy_cache/
-**/.pytest_cache/
-**/.gradle/
-**/Pods/
-**/vendor/bundle/
-**/vendor/ruby/
+node_modules/
 
-# Rust specific
-Cargo.lock
-**/target/
-**/*.rlib
-**/*.so
-**/*.dylib
-**/*.dll
+# Build artifacts
+writer-ui/node_modules/.tmp/
 
-# Tauri specific
-**/src-tauri/target/
-**/src-tauri/Cargo.lock
-
-# Editors
-**/.vscode/
-**/.idea/
-**/*.swp
-**/*.swo
-**/Thumbs.db
-**/.DS_Store
-
-# Environment
-.env
-.env.local
-.env.*
-
-# Logs
-*.log
-**/logs/
-**/*.log
-
-# Coverage
-coverage/
-htmlcov/
-.coverage
-
-# Temp files
-*.tmp
-*~
-.DS_Store
+# TypeScript build info
+*.tsbuildinfo
 ```

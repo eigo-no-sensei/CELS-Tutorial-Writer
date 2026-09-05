@@ -24,7 +24,7 @@ import { LoginPanel } from "./components/LoginPanel";
 import { StudentListPane } from "./components/StudentListPane";
 import { StudentOverview } from "./components/StudentOverview";
 import { WriteContextPane } from "./components/WriteContextPane";
-import { StudentSearchPane } from "./components/StudentSearchPane";
+import { LiveStudentSearchPane } from "./components/LiveStudentSearchPane";
 import type {
   ArchiveClassView,
   ArchiveStatus,
@@ -34,7 +34,7 @@ import type {
   TutorialListView,
   TutorialType,
   DraftValidationIssue,
-  StudentSearchResult,
+  LiveStudentSearchRowView,
 } from "./types";
 
 function errorText(error: unknown): string {
@@ -62,7 +62,6 @@ export default function App() {
   const [classes, setClasses] = useState<ArchiveClassView[]>([]);
   const [classId, setClassId] = useState<number | null>(null);
   const [students, setStudents] = useState<StudentView[]>([]);
-  const [studentSearch, setStudentSearch] = useState("");
   const [studentId, setStudentId] = useState<number | null>(null);
   const [tutorials, setTutorials] = useState<TutorialListView[]>([]);
   const [draft, setDraft] = useState<DraftView | null>(null);
@@ -78,9 +77,8 @@ export default function App() {
   const [ignoredHarperFindings, setIgnoredHarperFindings] = useState<Set<string>>(new Set());
   const [harperDictionaryRevision, setHarperDictionaryRevision] = useState(0);
   const [showStudentSearch, setShowStudentSearch] = useState(false);
-  const [selectedSearchStudents, setSelectedSearchStudents] = useState<Set<number>>(new Set());
-  const [searchStudentsToAdd, setSearchStudentsToAdd] = useState<StudentSearchResult[]>([]);
-
+  const [selectedStudentFromSearch, setSelectedStudentFromSearch] = useState<LiveStudentSearchRowView | null>(null);
+  
   const draftRef = useRef(draft);
   useEffect(() => {
     draftRef.current = draft;
@@ -179,7 +177,6 @@ export default function App() {
     guardDraft("changing class", async () => {
       setClassId(nextClassId);
       setStudentId(null);
-      setStudentSearch("");
       setTutorials([]);
       if (nextClassId == null) {
         setStudents([]);
@@ -333,42 +330,9 @@ export default function App() {
     guardDraft("returning to the student", doDiscard);
   }
 
-  function handleSearchStudentSelect(student: StudentSearchResult) {
-    setSelectedSearchStudents((prev) => {
-      const next = new Set(prev);
-      next.add(student.uid);
-      return next;
-    });
-    setSearchStudentsToAdd((prev) => {
-      if (prev.find((s) => s.uid === student.uid)) return prev;
-      return [...prev, student];
-    });
-  }
-
-  function handleSearchStudentDeselect(uid: number) {
-    setSelectedSearchStudents((prev) => {
-      const next = new Set(prev);
-      next.delete(uid);
-      return next;
-    });
-    setSearchStudentsToAdd((prev) => prev.filter((s) => s.uid !== uid));
-  }
-
-  async function handleAddSelectedStudents() {
-    if (searchStudentsToAdd.length === 0 || classId == null) return;
-    setBusy(true);
-    setError(null);
-    try {
-      const updatedStudents = await listStudents(classId);
-      setStudents(updatedStudents);
-      setShowStudentSearch(false);
-      setSelectedSearchStudents(new Set());
-      setSearchStudentsToAdd([]);
-    } catch (value) {
-      setError(errorText(value));
-    } finally {
-      setBusy(false);
-    }
+  function handleSelectFromSearch(student: LiveStudentSearchRowView) {
+    setSelectedStudentFromSearch(student);
+    setShowStudentSearch(false);
   }
 
   async function confirmPendingDiscard() {
@@ -438,24 +402,21 @@ export default function App() {
       <div className="student-search-modal-overlay">
         <div className="student-search-modal">
           <div className="modal-header">
-            <h2>Add Students to Class</h2>
+            <h2>School-Wide Student Search</h2>
             <button
               type="button"
               className="close-btn"
               onClick={() => {
                 setShowStudentSearch(false);
-                setSelectedSearchStudents(new Set());
-                setSearchStudentsToAdd([]);
+                setSelectedStudentFromSearch(null);
               }}
               aria-label="Close search"
             >
               ✕
             </button>
           </div>
-          <StudentSearchPane
-            onStudentSelect={handleSearchStudentSelect}
-            onStudentDeselect={handleSearchStudentDeselect}
-            selectedStudents={selectedSearchStudents}
+          <LiveStudentSearchPane
+            onSelect={handleSelectFromSearch}
           />
           <div className="modal-footer">
             <button
@@ -463,20 +424,11 @@ export default function App() {
               className="secondary"
               onClick={() => {
                 setShowStudentSearch(false);
-                setSelectedSearchStudents(new Set());
-                setSearchStudentsToAdd([]);
+                setSelectedStudentFromSearch(null);
               }}
               disabled={busy}
             >
-              Cancel
-            </button>
-            <button
-              type="button"
-              className="primary"
-              onClick={() => void handleAddSelectedStudents()}
-              disabled={busy || searchStudentsToAdd.length === 0}
-            >
-              Add {searchStudentsToAdd.length} Student{searchStudentsToAdd.length !== 1 ? 's' : ''} to Class
+              Close
             </button>
           </div>
         </div>
@@ -502,16 +454,11 @@ export default function App() {
       >
         Add Students
       </button>
-      <label className="student-search-control">
-      Search students
-      <input type="search" value={studentSearch} placeholder="Find student…" onChange={(event) => setStudentSearch(event.target.value)} />
-      </label>
       </section>
       <div className="browse-workspace">
       <StudentListPane
       students={students}
       studentId={studentId}
-      studentSearch={studentSearch}
       busy={busy}
       onStudentChange={chooseStudent}
       />

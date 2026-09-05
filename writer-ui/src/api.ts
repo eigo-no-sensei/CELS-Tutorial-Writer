@@ -15,6 +15,9 @@ import type {
   SubmissionReceiptView,
   StudentSearchResult,
   StudentSearchResponse,
+  LiveStudentSearchRowView,
+  LiveStudentSearchResponse,
+  LiveStudentSearchParams,
 } from "./types";
 
 export const sessionStatus = () => invoke<SessionInfo>("ui1_session_status");
@@ -57,8 +60,8 @@ export const harperDictionaryAdd = (word: string) =>
 export const harperDictionaryRemove = (word: string) =>
   invoke<HarperDictionaryMutation>("ui1_harper_dictionary_remove", { word });
 
-export const searchLiveStudents = (searchTerm: string, page: number = 1, pageSize: number = 10) =>
-  invoke<StudentSearchResponse>("ui1_search_live_students", { searchTerm, page, pageSize });
+export const searchLiveStudents = (params: LiveStudentSearchParams) =>
+  invoke<LiveStudentSearchResponse>("ui1_search_live_students", params);
 
 export const checkStudentInArchive = (uid: number) =>
   invoke<boolean>("ui1_student_in_archive", { uid });
