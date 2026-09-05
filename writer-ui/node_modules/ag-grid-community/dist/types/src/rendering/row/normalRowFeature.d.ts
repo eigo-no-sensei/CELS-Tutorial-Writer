@@ -1,0 +1,37 @@
+import { BeanStub } from '../../context/beanStub';
+import type { RowContainerType } from '../../gridBodyComp/rowContainer/rowContainerCtrl';
+import type { RefreshRowsParams } from '../../interfaces/iCellsParams';
+import type { ColumnPinnedType } from '../../interfaces/iColumn';
+import type { CellCtrl } from '../cell/cellCtrl';
+import type { IRowModeFeature } from './iRowModeFeature';
+import type { RowCtrl } from './rowCtrl';
+export declare class NormalRowFeature extends BeanStub implements IRowModeFeature {
+    private readonly rowCtrl;
+    private centerCellCtrls;
+    private leftCellCtrls;
+    private rightCellCtrls;
+    private updateColumnListsPending;
+    constructor(rowCtrl: RowCtrl);
+    initialiseComp(): void;
+    refreshRow(params: RefreshRowsParams): void;
+    shouldCreateCellSections(): boolean;
+    prepareInitialCellCtrls(): void;
+    getInitialCellCtrls(_containerType: RowContainerType): CellCtrl[] | null;
+    getAllCellCtrls(): CellCtrl[];
+    recreateCell(cellCtrl: CellCtrl): void;
+    destroyCells(): void;
+    onDisplayedColumnsChanged(): void;
+    onVirtualColumnsChanged(): void;
+    onColumnMoved(): void;
+    onSpannedCellsUpdated(pinned: ColumnPinnedType): void;
+    private updateColumnLists;
+    private updateColumnListsImpl;
+    private setCellCtrls;
+    private createAllCellCtrls;
+    private createCellCtrls;
+    private createFocusedCellCtrl;
+    private isCellEligibleToBeRemoved;
+    private removeCellCtrl;
+    isSuppressMouseEvent(mouseEvent: MouseEvent): boolean;
+    private addListenersForCellComps;
+}

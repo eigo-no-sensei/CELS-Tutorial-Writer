@@ -1,0 +1,34 @@
+import type { BeanCollection } from '../context/context';
+import { Component } from '../widgets/component';
+export declare class PageSummaryComp extends Component {
+    private rowModel;
+    private pagination;
+    private readonly btFirst;
+    private readonly btPrevious;
+    private readonly btNext;
+    private readonly btLast;
+    private readonly lbCurrentInput;
+    private readonly lbCurrentStatic;
+    private readonly lbTotal;
+    private previousAndFirstButtonsDisabled;
+    private nextButtonDisabled;
+    private lastButtonDisabled;
+    ariaStatus: string;
+    private readonly idPrefix;
+    private readonly suppressPageInput;
+    constructor(idPrefix: string, suppressPageInput?: boolean);
+    wireBeans(beans: BeanCollection): void;
+    postConstruct(): void;
+    private initNavButtons;
+    private initPageInput;
+    private onBtFirst;
+    private onBtPrevious;
+    private onBtNext;
+    private onBtLast;
+    private commitPageInput;
+    refresh(): void;
+    private enableOrDisableButtons;
+    private toggleButtonDisabled;
+    private updateLabels;
+    private formatNumber;
+}

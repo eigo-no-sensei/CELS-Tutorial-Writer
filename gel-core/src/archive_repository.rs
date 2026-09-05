@@ -291,6 +291,22 @@ impl ArchiveRepository {
             tutorial: Box::new(tutorial),
         })
     }
+
+    /// Check if a student exists in the archive by UID.
+    /// Returns `Ok(true)` if the student exists, `Ok(false)` otherwise.
+    /// This is a privacy-safe existence probe that does not leak any student data.
+    pub fn student_exists(&self, uid: i64) -> Result<bool> {
+        let exists: bool = self
+            .connection
+            .query_row(
+                "SELECT EXISTS(SELECT 1 FROM students WHERE uid = ?1 LIMIT 1)",
+                [uid],
+                |row| row.get(0),
+            )
+            .optional()?
+            .unwrap_or(false);
+        Ok(exists)
+    }
 }
 
 pub(crate) fn validate_archive_v2_connection(connection: &Connection) -> Result<()> {

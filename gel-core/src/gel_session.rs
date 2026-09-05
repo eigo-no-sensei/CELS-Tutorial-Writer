@@ -5,6 +5,7 @@
 //! no generic request API and no tutorial mutation transport.
 
 use crate::gel_fields;
+use crate::live_student_search_parser::{parse_live_student_search_html, LiveStudentSearchRow};
 use crate::models::ApiTutorial;
 use anyhow::{bail, Context, Result};
 use reqwest::blocking::{Client, Response};
@@ -256,6 +257,72 @@ impl GelSession {
         ))
     }
 
+    /// Search for students across the entire school using the live GEL system.
+    /// Returns parsed search results with privacy filtering applied (email fields stripped).
+    /// This method handles pagination automatically, fetching all pages of results.
+    ///
+    /// # Arguments
+    /// * `search_term` - The search query string to match against student names/codes
+    ///
+    /// # Returns
+    /// * `Ok(Vec<LiveStudentSearchRow>)` - All matching student records with privacy filters applied
+    /// * `Err` - Network error, parsing error, or session error
+    pub fn search_live_students(&mut self, search_term: &str) -> Result<Vec<LiveStudentSearchRow>> {
+        self.ensure_authenticated()?;
+        
+        let mut all_rows = Vec::new();
+        let mut start_offset = 0u64;
+        let page_size = 100u64;
+        
+        loop {
+            self.throttle();
+            
+            // Build form data for POST request
+            let form = [
+                ("search", search_term),
+                ("length", &page_size.to_string()),
+                ("start", &start_offset.to_string()),
+            ];
+            
+            let response = self
+                .client
+                .post(self.learn2_url("/administration/students"))
+                .header(CONTENT_TYPE, "application/x-www-form-urlencoded")
+                .header("X-Requested-With", "XMLHttpRequest")
+                .header(REFERER, self.learn2_url(LEARN2_VERIFY_PATH))
+                .form(&form)
+                .send()
+                .context("send GEL student search request")?;
+            
+            let html = self.read_authenticated_html(response)?;
+            let report = parse_live_student_search_html(&html);
+            
+            // Apply privacy filter to each row before collecting
+            for mut row in report.rows {
+                strip_student_sensitive_fields_value(&mut row.name);
+                all_rows.push(row);
+            }
+            
+            // Check if we've retrieved all results
+            if let Some(info) = report.info_footer {
+                if let Some(total) = info.total {
+                    if start_offset + page_size >= total || total == 0 {
+                        break;
+                    }
+                    start_offset += page_size;
+                } else {
+                    // No total available, stop after first page
+                    break;
+                }
+            } else {
+                // No info footer, assume single page
+                break;
+            }
+        }
+        
+        Ok(all_rows)
+    }
+
     fn api_get_json(&mut self, path: &str, query: &[(&str, &str)]) -> Result<Value> {
         self.ensure_authenticated()?;
         self.throttle();
@@ -421,6 +488,17 @@ fn strip_student_sensitive_fields(value: &mut Value) {
         }
         _ => {}
     }
+}
+
+/// Strip email-like patterns from a string value (for LiveStudentSearchRow privacy filtering).
+fn strip_student_sensitive_fields_value(value: &mut String) {
+    // Remove any email-like patterns from the string
+    let cleaned = value
+        .split_whitespace()
+        .filter(|s| !s.contains('@'))
+        .collect::<Vec<_>>()
+        .join(" ");
+    *value = cleaned;
 }
 
 fn is_login_page(final_url: &str, body: &str) -> bool {

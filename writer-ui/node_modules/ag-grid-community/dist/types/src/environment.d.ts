@@ -1,0 +1,44 @@
+import type { BaseCssChangeKeys, Theme, ThemeImpl } from 'ag-stack';
+import { BaseEnvironment } from 'ag-stack';
+import type { NamedBean } from './context/bean';
+import type { BeanCollection } from './context/context';
+import type { AgEventTypeParams } from './events';
+import type { GridOptionsWithDefaults } from './gridOptionsDefault';
+import type { GridOptionsService } from './gridOptionsService';
+import type { AgGridCommon } from './interfaces/iCommon';
+import type { Module } from './interfaces/iModule';
+/** @internal AG_GRID_INTERNAL - Not for public use. Can change / be removed at any time. */
+export declare function _addAdditionalCss(cssMap: Map<string, string[]>, modules: Module[]): void;
+/** @internal AG_GRID_INTERNAL - Not for public use. Can change / be removed at any time. */
+export declare class Environment extends BaseEnvironment<BeanCollection, GridOptionsWithDefaults, AgEventTypeParams, AgGridCommon<any, any>, GridOptionsService, CssChangeKeys> implements NamedBean {
+    protected initVariables(): void;
+    getPinnedRowBorderWidth(): number;
+    getRowBorderWidth(): number;
+    getHeaderRowBorderWidth(): number;
+    getDefaultRowHeight(): number;
+    getDefaultHeaderHeight(): number;
+    getDefaultCellHorizontalPadding(): number;
+    private getCellPaddingLeft;
+    getCellPadding(): number;
+    getDefaultColumnMinWidth(): number;
+    refreshRowHeightVariable(): number;
+    protected fireStylesChangedEvent(change: keyof CssChangeKeys): void;
+    private refreshRowBorderWidthVariable;
+    protected postProcessThemeChange(newGridTheme: ThemeImpl | undefined, themeGridOption?: Theme | 'legacy'): void;
+    protected getAdditionalCss(): Map<string, string[]>;
+    protected getDefaultTheme(): Theme;
+    protected varError(cssName: string, defaultValue: number): void;
+    protected themeError(theme: Theme | 'legacy'): void;
+    protected shadowRootError(): void;
+}
+interface CssChangeKeys extends BaseCssChangeKeys {
+    headerHeight: true;
+    headerRowBorderWidth: true;
+    rowHeight: true;
+    rowBorderWidth: true;
+    pinnedRowBorderWidth: true;
+    cellHorizontalPadding: true;
+    indentationLevel: true;
+    rowGroupIndentSize: true;
+}
+export {};
