@@ -1,4 +1,4 @@
-# Live school-wide student search plan v1.0.2
+# School-wide student search plan v1.0.2
 
 **Plan ID:** LSS1 — UI1f internal gate
 **Status:** Draft, pending strict acceptance
