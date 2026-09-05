@@ -5,7 +5,7 @@
 //! no generic request API and no tutorial mutation transport.
 
 use crate::gel_fields;
-use crate::live_student_search_parser::{parse_live_student_search_html, LiveStudentSearchRow};
+use crate::live_student_search_parser::{parse_live_student_search_html, LiveStudentSearchResult, LiveStudentSearchRow};
 use crate::models::ApiTutorial;
 use anyhow::{bail, Context, Result};
 use reqwest::blocking::{Client, Response};
@@ -257,24 +257,37 @@ impl GelSession {
         ))
     }
 
+    /// Maximum number of pages to fetch during pagination walk (§5.2).
+    /// Prevents runaway requests if the server reports an unexpectedly large total.
+    const MAX_PAGES: u64 = 10;
+
     /// Search for students across the entire school using the live GEL system.
     /// Returns parsed search results with privacy filtering applied (email fields stripped).
-    /// This method handles pagination automatically, fetching all pages of results.
+    /// This method handles pagination automatically, fetching all pages of results up to MAX_PAGES.
+    /// Returns a LiveStudentSearchResult with governance signals including capture_rate.
     ///
     /// # Arguments
     /// * `search_term` - The search query string to match against student names/codes
     ///
     /// # Returns
-    /// * `Ok(Vec<LiveStudentSearchRow>)` - All matching student records with privacy filters applied
+    /// * `Ok(LiveStudentSearchResult)` - Search result with rows, total_entries, pages_fetched, and capture_rate
     /// * `Err` - Network error, parsing error, or session error
-    pub fn search_live_students(&mut self, search_term: &str) -> Result<Vec<LiveStudentSearchRow>> {
+    pub fn search_live_students(&mut self, search_term: &str) -> Result<LiveStudentSearchResult> {
         self.ensure_authenticated()?;
         
         let mut all_rows = Vec::new();
         let mut start_offset = 0u64;
+        let mut pages_fetched = 0u64;
         let page_size = 100u64;
+        let mut total_entries = 0u64;
+        let mut info_footer_raw = String::new();
         
         loop {
+            // Enforce maximum page cap (§5.2)
+            if pages_fetched >= Self::MAX_PAGES {
+                break;
+            }
+            
             self.throttle();
             
             // Build form data for POST request
@@ -296,6 +309,14 @@ impl GelSession {
             
             let html = self.read_authenticated_html(response)?;
             let report = parse_live_student_search_html(&html);
+            
+            pages_fetched += 1;
+            
+            // Extract total entries and info footer from first page
+            if let Some(info) = &report.info_footer {
+                total_entries = info.total.unwrap_or(0);
+                info_footer_raw = info.raw.clone();
+            }
             
             // Apply privacy filter to each row before collecting
             for mut row in report.rows {
@@ -320,7 +341,12 @@ impl GelSession {
             }
         }
         
-        Ok(all_rows)
+        Ok(LiveStudentSearchResult {
+            rows: all_rows,
+            total_entries,
+            pages_fetched,
+            info_footer_raw,
+        })
     }
 
     fn api_get_json(&mut self, path: &str, query: &[(&str, &str)]) -> Result<Value> {

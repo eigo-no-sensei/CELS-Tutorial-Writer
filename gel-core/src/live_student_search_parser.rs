@@ -43,6 +43,29 @@ pub struct LiveStudentSearchInfoFooter {
     pub raw: String,
 }
 
+/// Pagination walker result with governance signals. The session-level
+/// walker (§5.2) uses this to track how many pages were fetched and
+/// calculate the capture_rate (rows returned / total entries).
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct LiveStudentSearchResult {
+    pub rows: Vec<LiveStudentSearchRow>,
+    pub total_entries: u64,
+    pub pages_fetched: u64,
+    pub info_footer_raw: String,
+}
+
+impl LiveStudentSearchResult {
+    /// Calculate capture_rate as rows_returned / total_entries.
+    /// Returns 0.0 if total_entries is 0 to avoid division by zero.
+    pub fn capture_rate(&self) -> f64 {
+        if self.total_entries == 0 {
+            0.0
+        } else {
+            self.rows.len() as f64 / self.total_entries as f64
+        }
+    }
+}
+
 pub struct LiveStudentSearchParseReport {
     pub rows: Vec<LiveStudentSearchRow>,
     pub skipped_malformed: usize,
@@ -348,5 +371,120 @@ mod tests {
         let result = strip_email_from_string("John Doe john@example.com");
         assert_eq!(result, "John Doe");
         assert!(!result.contains('@'));
+    }
+    
+    /// Test fixture-based parsing for page 1 of 3
+    #[test]
+    fn parses_page_1_of_3_fixture() {
+        let html = include_str!("../fixtures/live_student_search/page_1_of_3.html");
+        let report = parse_live_student_search_html(html);
+        
+        assert_eq!(report.rows.len(), 10);
+        assert!(report.info_footer.is_some());
+        let footer = report.info_footer.unwrap();
+        assert_eq!(footer.total, Some(25));
+        assert_eq!(footer.start, Some(1));
+        assert_eq!(footer.end, Some(10));
+        
+        // Verify first row
+        let first_row = &report.rows[0];
+        assert_eq!(first_row.student_uid, 1001);
+        assert_eq!(first_row.code, "STU001");
+        assert_eq!(first_row.name, "John Smith");
+        
+        // Verify email stripping (row 2 has email)
+        let row_with_email = &report.rows[1];
+        assert_eq!(row_with_email.name, "Jane Doe");
+        assert!(!row_with_email.name.contains('@'));
+    }
+    
+    /// Test fixture-based parsing for last page (page 3 of 3)
+    #[test]
+    fn parses_page_3_of_3_fixture() {
+        let html = include_str!("../fixtures/live_student_search/page_3_of_3.html");
+        let report = parse_live_student_search_html(html);
+        
+        assert_eq!(report.rows.len(), 5);
+        assert!(report.info_footer.is_some());
+        let footer = report.info_footer.unwrap();
+        assert_eq!(footer.total, Some(25));
+        assert_eq!(footer.start, Some(21));
+        assert_eq!(footer.end, Some(25));
+        
+        // Verify last row
+        let last_row = &report.rows[4];
+        assert_eq!(last_row.student_uid, 1025);
+        assert_eq!(last_row.code, "STU025");
+    }
+    
+    /// Test fixture-based parsing for single page results
+    #[test]
+    fn parses_single_page_fixture() {
+        let html = include_str!("../fixtures/live_student_search/single_page.html");
+        let report = parse_live_student_search_html(html);
+        
+        assert_eq!(report.rows.len(), 5);
+        assert!(report.info_footer.is_some());
+        let footer = report.info_footer.unwrap();
+        assert_eq!(footer.total, Some(5));
+        assert_eq!(footer.start, Some(1));
+        assert_eq!(footer.end, Some(5));
+        
+        // Verify capture rate would be 1.0 (all rows returned)
+        let result = LiveStudentSearchResult {
+            rows: report.rows.clone(),
+            total_entries: footer.total.unwrap(),
+            pages_fetched: 1,
+            info_footer_raw: footer.raw.clone(),
+        };
+        assert!((result.capture_rate() - 1.0).abs() < 0.001);
+    }
+    
+    /// Test fixture-based parsing for empty results
+    #[test]
+    fn parses_empty_results_fixture() {
+        let html = include_str!("../fixtures/live_student_search/empty_results.html");
+        let report = parse_live_student_search_html(html);
+        
+        assert_eq!(report.rows.len(), 0);
+        assert!(report.info_footer.is_some());
+        let footer = report.info_footer.unwrap();
+        assert_eq!(footer.total, Some(0));
+        assert_eq!(footer.start, Some(0));
+        assert_eq!(footer.end, Some(0));
+        
+        // Verify capture rate is 0.0 for empty results
+        let result = LiveStudentSearchResult {
+            rows: report.rows.clone(),
+            total_entries: 0,
+            pages_fetched: 1,
+            info_footer_raw: footer.raw.clone(),
+        };
+        assert_eq!(result.capture_rate(), 0.0);
+    }
+    
+    /// Test that absent flag is correctly parsed
+    #[test]
+    fn parses_absent_students() {
+        let html = include_str!("../fixtures/live_student_search/page_1_of_3.html");
+        let report = parse_live_student_search_html(html);
+        
+        // Row 3 (index 2) should be marked absent
+        let absent_row = &report.rows[2];
+        assert!(absent_row.absent);
+        assert_eq!(absent_row.tutor_name, Some("Sarah Davis".to_string()));
+    }
+    
+    /// Test that 'never' tutor date is handled correctly
+    #[test]
+    fn parses_never_tutor_date() {
+        let html = include_str!("../fixtures/live_student_search/page_1_of_3.html");
+        let report = parse_live_student_search_html(html);
+        
+        // Row 4 (index 3) has 'never' tutor date
+        let never_row = &report.rows[3];
+        assert_eq!(never_row.tutor_date, None);
+        assert_eq!(never_row.tutor_name, None);
+        assert!(!never_row.absent);
     }
 }
