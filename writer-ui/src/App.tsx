@@ -24,6 +24,7 @@ import { LoginPanel } from "./components/LoginPanel";
 import { StudentListPane } from "./components/StudentListPane";
 import { StudentOverview } from "./components/StudentOverview";
 import { WriteContextPane } from "./components/WriteContextPane";
+import { StudentSearchPane } from "./components/StudentSearchPane";
 import type {
   ArchiveClassView,
   ArchiveStatus,
@@ -33,6 +34,7 @@ import type {
   TutorialListView,
   TutorialType,
   DraftValidationIssue,
+  StudentSearchResult,
 } from "./types";
 
 function errorText(error: unknown): string {
@@ -75,6 +77,9 @@ export default function App() {
   const [disabledHarperRules, setDisabledHarperRules] = useState<string[]>([]);
   const [ignoredHarperFindings, setIgnoredHarperFindings] = useState<Set<string>>(new Set());
   const [harperDictionaryRevision, setHarperDictionaryRevision] = useState(0);
+  const [showStudentSearch, setShowStudentSearch] = useState(false);
+  const [selectedSearchStudents, setSelectedSearchStudents] = useState<Set<number>>(new Set());
+  const [searchStudentsToAdd, setSearchStudentsToAdd] = useState<StudentSearchResult[]>([]);
 
   const draftRef = useRef(draft);
   useEffect(() => {
@@ -255,6 +260,9 @@ export default function App() {
       setDraftIssue(null);
       setDisabledHarperRules([]);
       setIgnoredHarperFindings(new Set());
+      setShowStudentSearch(false);
+      setSelectedSearchStudents(new Set());
+      setSearchStudentsToAdd([]);
     });
   }
 
@@ -325,6 +333,44 @@ export default function App() {
     guardDraft("returning to the student", doDiscard);
   }
 
+  function handleSearchStudentSelect(student: StudentSearchResult) {
+    setSelectedSearchStudents((prev) => {
+      const next = new Set(prev);
+      next.add(student.uid);
+      return next;
+    });
+    setSearchStudentsToAdd((prev) => {
+      if (prev.find((s) => s.uid === student.uid)) return prev;
+      return [...prev, student];
+    });
+  }
+
+  function handleSearchStudentDeselect(uid: number) {
+    setSelectedSearchStudents((prev) => {
+      const next = new Set(prev);
+      next.delete(uid);
+      return next;
+    });
+    setSearchStudentsToAdd((prev) => prev.filter((s) => s.uid !== uid));
+  }
+
+  async function handleAddSelectedStudents() {
+    if (searchStudentsToAdd.length === 0 || classId == null) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const updatedStudents = await listStudents(classId);
+      setStudents(updatedStudents);
+      setShowStudentSearch(false);
+      setSelectedSearchStudents(new Set());
+      setSearchStudentsToAdd([]);
+    } catch (value) {
+      setError(errorText(value));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function confirmPendingDiscard() {
     const next = pendingNavigation;
     setPendingNavigation(null);
@@ -388,6 +434,55 @@ export default function App() {
     {!authenticated && !writing && <LoginPanel busy={busy} error={loginError} onLogin={doLogin} />}
     {error && <div className="error-banner global-error">{error}</div>}
 
+    {showStudentSearch && (
+      <div className="student-search-modal-overlay">
+        <div className="student-search-modal">
+          <div className="modal-header">
+            <h2>Add Students to Class</h2>
+            <button
+              type="button"
+              className="close-btn"
+              onClick={() => {
+                setShowStudentSearch(false);
+                setSelectedSearchStudents(new Set());
+                setSearchStudentsToAdd([]);
+              }}
+              aria-label="Close search"
+            >
+              ✕
+            </button>
+          </div>
+          <StudentSearchPane
+            onStudentSelect={handleSearchStudentSelect}
+            onStudentDeselect={handleSearchStudentDeselect}
+            selectedStudents={selectedSearchStudents}
+          />
+          <div className="modal-footer">
+            <button
+              type="button"
+              className="secondary"
+              onClick={() => {
+                setShowStudentSearch(false);
+                setSelectedSearchStudents(new Set());
+                setSearchStudentsToAdd([]);
+              }}
+              disabled={busy}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="primary"
+              onClick={() => void handleAddSelectedStudents()}
+              disabled={busy || searchStudentsToAdd.length === 0}
+            >
+              Add {searchStudentsToAdd.length} Student{searchStudentsToAdd.length !== 1 ? 's' : ''} to Class
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+
     {!writing ? (
       <>
       <section className="workspace-toolbar" aria-label="Browse controls">
@@ -398,6 +493,15 @@ export default function App() {
       {classes.map((item) => <option key={item.classId} value={item.classId}>{item.name}{item.courseCode ? ` · ${item.courseCode}` : ""}</option>)}
       </select>
       </label>
+      <button
+        type="button"
+        className="primary"
+        onClick={() => setShowStudentSearch(true)}
+        disabled={busy || !classId}
+        title={classId ? "Search and add students to this class" : "Select a class first"}
+      >
+        Add Students
+      </button>
       <label className="student-search-control">
       Search students
       <input type="search" value={studentSearch} placeholder="Find student…" onChange={(event) => setStudentSearch(event.target.value)} />
