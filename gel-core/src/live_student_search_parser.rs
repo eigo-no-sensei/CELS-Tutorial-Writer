@@ -58,7 +58,7 @@ pub fn parse_live_student_search_html(html: &str) -> LiveStudentSearchParseRepor
     let mut skipped_malformed = 0usize;
     
     // Select the student management table
-    let table_selector = Selector::parse("table#student-management").unwrap_or_else(|_| Selector::parse("table").unwrap());
+    let _table_selector = Selector::parse("table#student-management").unwrap_or_else(|_| Selector::parse("table").unwrap());
     let tr_selector = Selector::parse("tbody tr").unwrap();
     
     // Parse info footer

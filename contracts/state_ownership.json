@@ -98,6 +98,38 @@
       "state_kind": "source"
     },
     {
+      "id": "search_result_state",
+      "class": "ephemeral_session_cached_parse",
+      "source_or_derived": "derived",
+      "canonical": false,
+      "permitted_writers": [
+        "rust_gel_session"
+      ],
+      "readers": [
+        "writer_tauri_app_service"
+      ],
+      "retention": "Ephemeral session cache cleared on logout. Search results are parsed from live GEL HTML and must not be persistently cached.",
+      "invalidation": "Logout clears all search result state. New search queries invalidate prior search results for that query.",
+      "current_materialization": "Vec<StudentSearchResult> in GelSession transient state",
+      "state_kind": "derived"
+    },
+    {
+      "id": "archive_membership_check",
+      "class": "ephemeral_read_only_probe",
+      "source_or_derived": "derived",
+      "canonical": false,
+      "permitted_writers": [
+        "rust_archive_repository"
+      ],
+      "readers": [
+        "writer_tauri_app_service"
+      ],
+      "retention": "Transient existence probe result. No persistent state created.",
+      "invalidation": "Archive sync operations may change membership status. Probe returns current archive state at time of query.",
+      "current_materialization": "bool result from ArchiveRepository::student_exists()",
+      "state_kind": "derived"
+    },
+    {
       "id": "development_plan_source",
       "class": "master_spec_source",
       "source_or_derived": "source",

@@ -190,6 +190,7 @@ def check_contracts(
         "ui1_apply_draft_edit", "ui1_discard_draft",
         "ui1_submit_draft",
         "ui1_harper_check", "ui1_harper_dictionary_list", "ui1_harper_dictionary_add", "ui1_harper_dictionary_remove",
+        "ui1_search_live_students", "ui1_student_in_archive",
     }
     require(set(ui1["initial_command_allowlist"]) == expected_ui1_commands, "UI1 initial command allowlist drifted")
     require(ui1["harper_future_state"]["persistent_dictionary"] is True, "UI1 must retain governed persistent Harper dictionary plan")
@@ -481,12 +482,15 @@ def check_contracts(
     require(auth.get("credential_retention") == "none", "N1 credentials must not be retained")
     require(auth.get("ajax_success_status") == "authNotNeeded", "N1 login success marker drifted")
     read_surface = gel_session.get("read_surface", [])
-    require(len(read_surface) == 8, "N1/N2b read surface must contain exactly eight fixed operations")
-    require(all(item.get("method") == "GET" for item in read_surface), "N1 exposed read surface must be GET-only")
+    require(len(read_surface) == 9, "N1/N2b read surface must contain exactly nine fixed operations (eight GET + one POST for search)")
+    get_operations = [item for item in read_surface if item.get("method") == "GET"]
+    post_operations = [item for item in read_surface if item.get("method") == "POST"]
+    require(len(get_operations) == 8, "N1 exposed read surface must have eight GET operations")
+    require(len(post_operations) == 1 and post_operations[0].get("id") == "school_wide_student_search", "N1 must have exactly one POST operation for school-wide student search")
     require(
-        {item.get("id") for item in read_surface}
+        {item.get("id") for item in get_operations}
         == {"classes", "class_students", "student_profile", "tutorial_list", "tutorial_summary", "tutorial_print", "new_tutorial_form", "tutorial_edit"},
-        "N1/N2b read surface operation set drifted",
+        "N1/N2b GET read surface operation set drifted",
     )
     network = gel_session.get("network_authority", {})
     require(network.get("generic_request_api") is False, "N1 must not expose a generic request API")

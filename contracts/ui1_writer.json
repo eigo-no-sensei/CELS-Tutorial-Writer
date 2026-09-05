@@ -77,6 +77,20 @@
       ]
     },
     {
+      "id": "UI1f",
+      "name": "School-wide student search and selection",
+      "status": "implemented_pending_strict_acceptance",
+      "scope": [
+        "GelSession::search_live_students() school-wide search",
+        "ArchiveRepository::student_exists() membership probe",
+        "Tauri command ui1_search_live_students",
+        "React Student Search Pane UI",
+        "privacy filtering (email stripped)",
+        "DataTables pagination parsing",
+        "no persistent caching of search results"
+      ]
+    },
+    {
       "id": "UI1b",
       "name": "Rust-owned draft authority foundation",
       "status": "complete_strictly_accepted",
@@ -149,7 +163,9 @@
     "ui1_harper_dictionary_list",
     "ui1_harper_dictionary_add",
     "ui1_harper_dictionary_remove",
-    "ui1_submit_draft"
+    "ui1_submit_draft",
+    "ui1_search_live_students",
+    "ui1_student_in_archive"
   ],
   "forbidden_command_capabilities": [
     "arbitrary or unvalidated tutorial POST outside ui1_submit_draft",

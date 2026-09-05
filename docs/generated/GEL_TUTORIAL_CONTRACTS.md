@@ -225,6 +225,7 @@ Fixed read surface:
 - `GET /study/tutorials/print/{student_uid}/{tutorial_ts}` -> `html`
 - `GET /study/tutorials/add/{student_uid}/0/{ttype_raw}` -> `html_new_form_source`
 - `GET /study/tutorials/add/{student_uid}/{tutorial_ts}/{ttype_raw}` -> `html`
+- `POST /administration/students` -> `html_privacy_filtered`
 
 N1/N2b grant fixed read acquisition only. The New-form zero-locator GET is source acquisition, not create authority. No create, revise, delete or arbitrary transport method is exposed.
 

@@ -70,6 +70,13 @@
       "method": "GET",
       "path_template": "/study/tutorials/add/{student_uid}/{tutorial_ts}/{ttype_raw}",
       "response": "html"
+    },
+    {
+      "id": "school_wide_student_search",
+      "method": "POST",
+      "path_template": "/administration/students",
+      "response": "html_privacy_filtered",
+      "description": "DataTables-paginated school-wide student search with privacy rule stripping email fields"
     }
   ],
   "privacy": {

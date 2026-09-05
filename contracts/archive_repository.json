@@ -21,8 +21,17 @@
       "ArchiveClassStudent",
       "ArchiveStudent",
       "ArchiveTutorialListItem",
-      "ArchiveRevisionAvailability"
+      "ArchiveRevisionAvailability",
+      "ArchiveStudentExists"
     ],
+    "methods": {
+      "student_exists": {
+        "description": "Check if a student UID exists in the archive",
+        "sql_pattern": "SELECT 1 FROM students WHERE uid = ?1 LIMIT 1",
+        "return_type": "Result<bool, ArchiveError>",
+        "privacy": "No student data returned, only existence boolean"
+      }
+    },
     "revision_rule": "Revision source is returned only when the canonical tutorial identity is source-present, its governed source state is source-present, and authority is proven_per_tutorial or shared_identical_collision. Unknown/missing/blocked authority and stale presence fail closed."
   },
   "archive_sync_write_surface": {
