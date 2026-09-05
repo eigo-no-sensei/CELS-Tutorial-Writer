@@ -35,6 +35,9 @@ pub use harper::{
     HarperDictionaryMutation, HarperDictionaryRepository, HarperFindingDto, HarperSuggestionDto,
     HARPER_DICTIONARY_ENV, HARPER_DICTIONARY_FILE_NAME, HARPER_VERSION,
 };
+pub use live_student_search_parser::{
+    LiveStudentSearchInfoFooter, LiveStudentSearchParseReport, LiveStudentSearchRow,
+};
 pub use models::{
     CollisionStateKind, HistoricalStateAuthority, HistoricalStateAuthorityStatus,
     RevisionBlockReason, RevisionStateError, RevisionStateEvidence,

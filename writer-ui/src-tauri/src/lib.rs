@@ -7,8 +7,8 @@ use gel_core::{
     check_harper_text, parse_edit_form, parse_new_tutorial_form, validate_edit_form,
     ArchiveRepository, ArchiveRevisionAvailability, ArchiveSyncReport, DraftValidationIssue,
     GelSession, HarperCheckDto, HarperDictionaryEntry, HarperDictionaryMutation,
-    HarperDictionaryRepository, RustArchiver, TutorialDraftEdit, HARPER_DICTIONARY_ENV,
-    HARPER_DICTIONARY_FILE_NAME,
+    HarperDictionaryRepository, LiveStudentSearchRow, RustArchiver, TutorialDraftEdit,
+    HARPER_DICTIONARY_ENV, HARPER_DICTIONARY_FILE_NAME,
 };
 use serde::Serialize;
 use std::path::{Path, PathBuf};
@@ -93,6 +93,22 @@ struct StudentView {
     attendance: Option<i64>,
     last_tutorial_date: Option<String>,
     last_tutorial_type: Option<&'static str>,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct StudentSearchResultView {
+    student_uid: i64,
+    code: String,
+    name: String,
+    created_at: Option<String>,
+    course_start: Option<String>,
+    course_end: Option<String>,
+    tutorial_end: Option<String>,
+    tutor_date: Option<String>,
+    tutor_name: Option<String>,
+    absent: bool,
+    in_archive: bool,
 }
 
 #[derive(Debug, Serialize)]
@@ -765,6 +781,73 @@ fn ui1_harper_dictionary_remove(
         .map_err(|error| format!("remove Harper dictionary word: {error}"))
 }
 
+#[tauri::command]
+async fn ui1_search_live_students(
+    app: AppHandle,
+    search_term: String,
+) -> Result<Vec<StudentSearchResultView>, String> {
+    let results = tauri::async_runtime::spawn_blocking(move || -> Result<Vec<StudentSearchResultView>, String> {
+        let state = app.state::<WriterAppState>();
+        let _operation = state
+            .writer_operation
+            .lock()
+            .map_err(|_| "writer operation lock poisoned".to_string())?;
+        let mut session = state
+            .session
+            .lock()
+            .map_err(|_| "session lock poisoned".to_string())?;
+        let session = session
+            .as_mut()
+            .filter(|s| s.is_authenticated())
+            .ok_or_else(|| "an authenticated GEL session is required to search live students".to_string())?;
+        
+        let rows = session
+            .search_live_students(&search_term)
+            .map_err(|error| format!("search live students: {error}"))?;
+        
+        let archive = state.open_archive().ok();
+        
+        let mut views = Vec::with_capacity(rows.len());
+        for row in rows {
+            let in_archive = archive
+                .as_ref()
+                .map(|repo| repo.student_exists(row.student_uid).unwrap_or(false))
+                .unwrap_or(false);
+            
+            views.push(StudentSearchResultView {
+                student_uid: row.student_uid,
+                code: row.code,
+                name: row.name,
+                created_at: row.created_at.map(|dt| dt.to_rfc3339()),
+                course_start: row.course_start.map(|d| d.format("%Y-%m-%d").to_string()),
+                course_end: row.course_end.map(|d| d.format("%Y-%m-%d").to_string()),
+                tutorial_end: row.tutorial_end.map(|d| d.format("%Y-%m-%d").to_string()),
+                tutor_date: row.tutor_date.map(|d| d.format("%Y-%m-%d").to_string()),
+                tutor_name: row.tutor_name,
+                absent: row.absent,
+                in_archive,
+            });
+        }
+        
+        Ok(views)
+    })
+    .await
+    .map_err(|e| format!("background search task failed: {e}"))??;
+    
+    Ok(results)
+}
+
+#[tauri::command]
+fn ui1_student_in_archive(
+    state: State<'_, WriterAppState>,
+    student_uid: i64,
+) -> Result<bool, String> {
+    let repository = state.open_archive()?;
+    repository
+        .student_exists(student_uid)
+        .map_err(|error| format!("check student existence in archive: {error}"))
+}
+
 fn install_draft(state: &WriterAppState, semantic: TutorialFormState) -> Result<DraftView, String> {
     let loaded = LoadedTutorialDraft {
         id: state.next_draft_id(),
@@ -1097,6 +1180,8 @@ pub fn run() {
             ui1_harper_dictionary_list,
             ui1_harper_dictionary_add,
             ui1_harper_dictionary_remove,
+            ui1_search_live_students,
+            ui1_student_in_archive,
         ])
         .run(tauri::generate_context!())
         .expect("error while running GEL Tutorial Writer");

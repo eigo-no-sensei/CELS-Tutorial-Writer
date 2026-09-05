@@ -1,1 +1,31 @@
-Nothing should be ignored based on the provided file changes, as they only include source code files (.rs files) without any build artifacts, dependencies, or temporary files.
+```
+# Compiled and build artifacts
+*.o
+*.obj
+*.a
+*.lib
+*.dll
+*.so
+*.dylib
+*.exe
+*.out
+
+# Dependencies
+target/
+**/target/
+
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Rust specific
+Cargo.lock
+**/Cargo.lock
+```
